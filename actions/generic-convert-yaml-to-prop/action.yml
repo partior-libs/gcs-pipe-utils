@@ -25,7 +25,7 @@ runs:
   using: "composite"
   steps:
     - name: convert yaml to props config
-      run: ${{ github.action_path }}/../../scripts/generic-convert-yaml-to-prop "${{ inputs.yaml-file }}" "${{ inputs.query-path }}" "${{ inputs.output-file }}"
+      run: ${{ github.action_path }}/../../scripts/generic-convert-yaml-to-prop.sh "${{ inputs.yaml-file }}" "${{ inputs.query-path }}" "${{ inputs.output-file }}"
       shell: bash
 
     - name: upload properties config
