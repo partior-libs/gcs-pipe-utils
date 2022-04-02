@@ -5,6 +5,8 @@ on:
     paths:
       - 'actions/smc-generate-truffle-js/**'
       - 'scripts/smc-generate-truffle.sh'
+      - '.github/workflows/unit-test-smc-generate-truffle.yml'
+  workflow_dispatch:
 
 env:
   SU_CD_CONFIG_IMPORTER: su_cd_config_importer
