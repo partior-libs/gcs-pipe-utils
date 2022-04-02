@@ -1,0 +1,48 @@
+name: test-convert-yaml-to-prop
+
+on:
+  push:
+    paths:
+      - 'actions/generic-convert-yaml-to-prop/**'
+      - 'scripts/generic-convert-yaml-to-prop.sh'
+      - '.github/workflows/unit-test-generic-convert-yaml-to-prop.yml'
+  workflow_dispatch:
+
+env:
+  SU_CD_CONFIG_IMPORTER: su_cd_config_importer
+  NEW_CONFIG_FILE: new_config
+
+jobs:
+  test-scenario-1-reader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Read sample SU CD config
+        uses: partior-libs/gcs-yaml-importer@main
+        with:
+          yaml-file: unit-test-config/controller-config/smc-settlement-utility.yml
+          query-path: .smc.cd.environments.dev02
+          output-file: ${{ env.SU_CD_CONFIG_IMPORTER }}
+          yaml-file-for-default: unit-test-config/controller-config/smc-default.yml
+          query-path-for-default: .smc.cd.environments.default
+          upload: true
+
+  test-scenario-1-start:
+    needs: [ test-scenario-1-reader ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Read truffle config
+        id: yaml-importer-creator
+        uses: partior-libs/gcs-pipe-utils/actions/generic-convert-yaml-to-prop@main
+        with:
+          yaml-file: unit-test-config/deploy-config/env/dev02.yml
+          query-path: .deployment-config
+          output-file: ${{ env.NEW_CONFIG_FILE }}
+          upload: true
+
+      - name: View converted config file
+        run:  |
+          cat ./${{ env.NEW_CONFIG_FILE }}
