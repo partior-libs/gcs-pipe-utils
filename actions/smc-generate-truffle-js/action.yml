@@ -29,7 +29,7 @@ runs:
   using: "composite"
   steps:
     - name: generate truffle config
-      run: ${{ github.workspace }}/scripts/smc-generate-truffle.sh "${{ inputs.yaml-file }}" "${{ inputs.query-path }}" "${{ inputs.template-file }}" "${{ inputs.output-file }}"
+      run: ${{ github.action_path }}/../../scripts/smc-generate-truffle.sh "${{ inputs.yaml-file }}" "${{ inputs.query-path }}" "${{ inputs.template-file }}" "${{ inputs.output-file }}"
       shell: bash
 
     - name: upload truffle-config
