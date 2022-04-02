@@ -38,6 +38,8 @@ runs:
       with:
         name: ${{ inputs.output-file }}
         path: ${{ inputs.output-file }}
+        if-no-files-found: error
         retention-days: 1
+        
     - run: echo Done creating truffle config file...
       shell: bash
