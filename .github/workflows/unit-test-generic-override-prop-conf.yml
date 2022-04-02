@@ -1,16 +1,16 @@
-name: test-convert-yaml-to-prop
+name: test-override-prop-conf
 
 on:
   push:
     paths:
-      - 'actions/generic-convert-yaml-to-prop/**'
-      - 'scripts/generic-convert-yaml-to-prop.sh'
-      - '.github/workflows/unit-test-generic-convert-yaml-to-prop.yml'
+      - 'actions/generic-override-prop-conf/**'
+      - 'scripts/generic-override-prop-conf.sh'
+      - '.github/workflows/unit-test-generic-override-prop-conf.yml'
   workflow_dispatch:
 
 env:
   SU_CD_CONFIG_IMPORTER: su_cd_config_importer
-  NEW_CONFIG_FILE: new_config
+  BASE_CONFIG_FILE: base_config
 
 jobs:
   test-scenario-1-reader:
@@ -40,9 +40,15 @@ jobs:
         with:
           yaml-file: unit-test-config/deploy-config/env/dev02.yml
           query-path: .deployment-config
-          output-file: ${{ env.NEW_CONFIG_FILE }}
-          upload: true
+          output-file: ${{ env.BASE_CONFIG_FILE }}
 
-      - name: View converted config file
+      - name: Override with local conf
+        id: yaml-importer-creator
+        uses: partior-libs/gcs-pipe-utils/actions/generic-override-prop-conf@main
+        with:
+          base-conf-file: ${{ env.BASE_CONFIG_FILE }}
+          target-conf-file: unit-test-config/project-config/project.conf
+
+      - name: View overriden config file
         run:  |
-          cat ./${{ env.NEW_CONFIG_FILE }}
+          cat unit-test-config/project-config/project.conf

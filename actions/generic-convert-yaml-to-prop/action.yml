@@ -19,7 +19,7 @@ inputs:
     default: false
 outputs:
   generated-filename:
-    description: "Filename of the generated truffle config script"
+    description: "Filename of the converted config script"
     value: ${{ inputs.output-file }}
 runs:
   using: "composite"
