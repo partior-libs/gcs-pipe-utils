@@ -1,0 +1,46 @@
+name: test-generate-truffle
+
+on:
+  push:
+    paths:
+      - 'actions/smc-generate-truffle-js/**'
+      - 'scripts/smc-generate-truffle.sh'
+
+env:
+  SU_CD_CONFIG_IMPORTER: su_cd_config_importer
+  TRUFFLE_CONFIG_FILE: truffle_config
+
+jobs:
+  test-scenario-1-reader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Read sample SU CD config
+        uses: partior-libs/gcs-yaml-importer@main
+        with:
+          yaml-file: unit-test-config/controller-config/smc-settlement-utility.yml
+          query-path: .smc.cd.environments.dev02
+          output-file: ${{ env.SU_CD_CONFIG_IMPORTER }}
+          yaml-file-for-default: unit-test-config/controller-config/smc-default.yml
+          query-path-for-default: .smc.cd.environments.default
+          upload: true
+
+  test-scenario-1-start:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Read truffle config
+        id: yaml-importer-creator
+        uses: partior-libs/gcs-pipe-utils/actions/smc-generate-truffle@main
+        with:
+          yaml-file: unit-test-config/deploy-config/env/dev02.yml
+          query-path: .truffle-config
+          template-file: unit-test-config/deploy-config/template/truffle-config.js.template
+          output-file: ${{ env.TRUFFLE_CONFIG_FILE }}
+          upload: true
+
+      - name: View final truffle config
+        run:  |
+          cat ./${{ env.TRUFFLE_CONFIG_FILE }}

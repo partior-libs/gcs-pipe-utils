@@ -1,0 +1,307 @@
+---
+smc:
+  ci:
+    artifact-base-name: settlement-utility
+    mythx-project-id: c1824923-73d4-4004-8901-96667a5a0e22
+    artifact-auto-versioning:
+      enabled: true
+    branches:
+      feature:
+        artifact:
+          packager:
+            enabled: false
+            file-list: deployment.conf,truffle-config.js,deploy.sh,compile.sh,package.json,package-lock.json,setup.sh,setup.conf
+        mythx:
+          enabled: true
+        truffle-compile:
+          enabled: true
+      develop:
+        artifact:
+          packager:
+            enabled: true
+            file-list: deployment.conf,truffle-config.js,deploy.sh,compile.sh,package.json,package-lock.json,setup.sh,setup.conf
+      release:
+        node-version: 14
+        truffle-compile:
+          enabled: true
+        solc-compile:
+          enabled: false
+        gitleaks:
+          enabled: false
+          scan-depth: 2
+        codacy:
+          upload-coverage:
+            enabled: false
+            coverage-file: ./coverage/lcov.info
+          spotbugs:
+            enabled: false
+        unit-test:
+          enabled: false
+        artifact:
+          packager:
+            enabled: true
+            file-list: deployment.conf,truffle-config.js,deploy.sh,compile.sh,package.json,package-lock.json,setup.sh,setup.conf
+      main:
+        gitleaks:
+          enabled: true
+        artifact:
+          packager:
+            enabled: false
+            file-list: deployment.conf,truffle-config.js,deploy.sh,compile.sh,package.json,package-lock.json,setup.sh,setup.conf
+        mythx:
+          enabled: true
+
+      master:
+        gitleaks:
+          enabled: true
+        artifact:
+          packager:
+            enabled: false
+            file-list: deployment.conf,truffle-config.js,deploy.sh,compile.sh,package.json,package-lock.json,setup.sh,setup.conf
+
+      testdev:
+        node-version: 14
+        truffle-compile:
+          enabled: true
+        solc-compile:
+          enabled: false
+        gitleaks:
+          enabled: false
+          scan-depth: 2
+        codacy:
+          upload-coverage:
+            enabled: false
+            coverage-file: ./coverage/lcov.info
+          spotbugs:
+            enabled: false
+        unit-test:
+          enabled: false
+        artifact:
+          packager:
+            enabled: true
+            file-list: deployment.conf,truffle-config.js,deploy.sh,compile.sh,package.json,package-lock.json,setup.sh,setup.conf
+        deployment:
+          enabled: true
+          target-env: dev02
+            
+  cd:
+    environments:
+      dev02: 
+        node-version: 14
+        contract-addresses:
+          ## To enable extract-by-log, the deployment log must be piped into a file, else it wont work
+          extract-by-log:
+            enabled: true
+            log-file: build.log
+            grep-result-filter: 'Deployed for currency=.*bic=.*timezone='
+            store-primary-name: Diamond
+            store-sub-name-grep-filter: 'currency=\K[^ ]+'
+            store-value-grep-filter: '::\s*\K[^ ]+'
+            store:
+              cp-git-all-from-extract-all:
+                enabled: true
+              selection-to-git:                
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: contracts
+                  ## yaml-store-type: list | string
+                  yaml-store-type: list
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                    - name: Diamond_SGD
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_SGD
+        contract-addresses:
+          extract-by-log:
+            enabled: true
+        deployment:
+          runner: partior-runners
+          cmd:
+            - chmod 755 ./deploy.sh
+            - ./deploy.sh | tee build.log
+            - buildResultCode=${PIPESTATUS[0]}
+            - echo "[INFO] Build exit code ${PIPESTATUS[0]}"
+            - exit $buildResultCode
+
+      dev03: 
+        node-version: 14
+        contract-addresses:
+          ## To enable extract-by-log, the deployment log must be piped into a file, else it wont work
+          extract-by-log:
+            enabled: true
+            log-file: build.log
+            grep-result-filter: 'Deployed for currency=.*bic=.*timezone='
+            store-primary-name: Diamond
+            store-sub-name-grep-filter: 'currency=\K[^ ]+'
+            store-value-grep-filter: '::\s*\K[^ ]+'
+            store:
+              cp-git-all-from-extract-all:
+                enabled: true
+              selection-to-git:                
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: contracts
+                  ## yaml-store-type: list | string
+                  yaml-store-type: list
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                    - name: Diamond_SGD
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_SGD
+        contract-addresses:
+          extract-by-log:
+            enabled: true
+        deployment:
+          runner: partior-runners-dev03
+          cmd:
+            - chmod 755 ./deploy.sh
+            - ./deploy.sh | tee build.log
+            - buildResultCode=${PIPESTATUS[0]}
+            - echo "[INFO] Build exit code ${PIPESTATUS[0]}"
+            - exit $buildResultCode
+
+      dev04: 
+        node-version: 14
+        contract-addresses:
+          ## To enable extract-by-log, the deployment log must be piped into a file, else it wont work
+          extract-by-log:
+            enabled: true
+            log-file: build.log
+            grep-result-filter: 'Deployed for currency=.*bic=.*timezone='
+            store-primary-name: Diamond
+            store-sub-name-grep-filter: 'currency=\K[^ ]+'
+            store-value-grep-filter: '::\s*\K[^ ]+'
+            store:
+              cp-git-all-from-extract-all:
+                enabled: true
+              selection-to-git:                
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: contracts
+                  ## yaml-store-type: list | string
+                  yaml-store-type: list
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                    - name: Diamond_SGD
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_SGD
+        contract-addresses:
+          extract-by-log:
+            enabled: true
+        deployment:
+          runner: partior-runners-dev04
+          cmd:
+            - chmod 755 ./deploy.sh
+            - ./deploy.sh | tee build.log
+            - buildResultCode=${PIPESTATUS[0]}
+            - echo "[INFO] Build exit code ${PIPESTATUS[0]}"
+            - exit $buildResultCode
+
+      its01: 
+        node-version: 14
+        contract-addresses:
+          ## To enable extract-by-log, the deployment log must be piped into a file, else it wont work
+          extract-by-log:
+            enabled: true
+            log-file: build.log
+            grep-result-filter: 'Deployed for currency=.*bic=.*timezone='
+            store-primary-name: Diamond
+            store-sub-name-grep-filter: 'currency=\K[^ ]+'
+            store-value-grep-filter: '::\s*\K[^ ]+'
+            store:
+              cp-git-all-from-extract-all:
+                enabled: true
+              selection-to-git:                
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: contracts
+                  ## yaml-store-type: list | string
+                  yaml-store-type: list
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                    - name: Diamond_SGD
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                - enabled: true
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_SGD
+        contract-addresses:
+          extract-by-log:
+            enabled: true
+        deployment:
+          runner: partior-runners-dev-its
+          cmd:
+            - chmod 755 ./deploy.sh
+            - ./deploy.sh | tee build.log
+            - buildResultCode=${PIPESTATUS[0]}
+            - echo "[INFO] Build exit code ${PIPESTATUS[0]}"
+            - exit $buildResultCode

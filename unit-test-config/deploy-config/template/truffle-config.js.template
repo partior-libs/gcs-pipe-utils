@@ -1,0 +1,2 @@
+module.exports = 
+    @@TRUFFLE_CONFIG_DATA@@

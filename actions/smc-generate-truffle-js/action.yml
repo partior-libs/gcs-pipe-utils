@@ -1,0 +1,43 @@
+name: 'Partior - Generate Truffle Config'
+description: 'Generate truffle config based on yaml config'
+inputs:
+  yaml-file:  
+    description: 'Path to YAML file'
+    required: true
+    default: 'default-config.yaml'
+  query-path:  
+    description: 'YAML query path'
+    required: true
+    default: ''
+  template-file:  
+    description: 'Truffle template file which contain token @@TRUFFLE_CONFIG_DATA@@ for replacement'
+    required: true
+    default: ''
+  output-file:  
+    description: 'Custom path of the output file'
+    required: false
+    default: 'truffle-config.js'
+  upload:  
+    description: 'Flag to indicate if require to upload the file'
+    required: false
+    default: false
+outputs:
+  generated-filename:
+    description: "Filename of the generated truffle config script"
+    value: ${{ inputs.output-file }}
+runs:
+  using: "composite"
+  steps:
+    - name: generate truffle config
+      run: ${{ github.action_path }}/scripts/smc-generate-truffle.sh "${{ inputs.yaml-file }}" "${{ inputs.query-path }}" "${{ inputs.template-file }}" "${{ inputs.output-file }}"
+      shell: bash
+
+    - name: upload truffle-config
+      uses: actions/upload-artifact@v3
+      if: inputs.upload == 'true'
+      with:
+        name: ${{ inputs.output-file }}
+        path: ${{ inputs.output-file }}
+        retention-days: 1
+    - run: echo Done creating truffle config file...
+      shell: bash
