@@ -1,0 +1,41 @@
+name: 'Partior - Override prop file'
+description: 'Override target prop config with base conf value'
+inputs:
+  base-conf-file:  
+    description: 'Path to the base conf file'
+    required: true
+    default: 'base.conf'
+  target-conf-file:
+    description: 'Path to the conf file which will override the base file'
+    required: true
+    default: ''
+  output-file:  
+    description: 'Custom path of the output file'
+    required: false
+    default: 'output.conf'
+  upload:  
+    description: 'Flag to indicate if require to upload the file'
+    required: false
+    default: false
+outputs:
+  generated-filename:
+    description: "Filename of the modified config file"
+    value: ${{ inputs.target-conf-file }}
+runs:
+  using: "composite"
+  steps:
+    - name: override props config file
+      run: ${{ github.action_path }}/../../scripts/generic-override-prop-conf.sh "${{ inputs.base-conf-file }}" "${{ inputs.target-conf-file }}"
+      shell: bash
+
+    - name: upload properties config
+      uses: actions/upload-artifact@v3
+      if: inputs.upload == 'true'
+      with:
+        name: ${{ inputs.target-conf-file }}
+        path: ${{ inputs.target-conf-file }}
+        if-no-files-found: error
+        retention-days: 1
+        
+    - run: echo Done overriding properties config file...
+      shell: bash
