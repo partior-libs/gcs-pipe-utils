@@ -1,0 +1,84 @@
+---
+packages:
+  settlement-utility:
+    package-version: "1.2.1-dev.35+bld.91.6"
+  onboarding:
+    package-version: "0.0.1-dev.15+bld.25.1"
+  payment-utility:
+    package-version: 0.0.1-dev.9+bld.14.1
+truffle-config:
+  networks:
+    dev02:
+      host: 10.148.15.237
+      port: 8545
+      network_id: 2002
+      gasPrice: 0
+      from: 0x92d6d1c6a56116eeef5b6085a9f2fc2e07383c7a
+    jpmny:
+      host: 10.148.15.237
+      port: 8545
+      network_id: 2002
+      gasPrice: 0
+      from: 0x92d6d1c6a56116eeef5b6085a9f2fc2e07383c7a
+    dbssg:
+      host: 10.148.15.237
+      port: 8545
+      network_id: 2002
+      gasPrice: 0
+      from: 0x92d6d1c6a56116eeef5b6085a9f2fc2e07383c7a
+  compilers:
+    solc:
+      settings:
+        optimizer:
+          enabled: true
+          runs: 200
+      version: "node_modules/solc"
+    mocha:
+      enableTimeouts: false
+      timeout: 20000
+## Values for deployment.conf
+deployment-config:
+  privateFor: 
+    - jOag/7g9l6L9sdBGL3VARRAJHAiOp0moVlSY15Pa4H0=
+    - vd9/Qw0ZXC9IeyhJ5LWCx/4xGeMK2+h5CK+ppE4zq0M=
+    - 6H1bMg13Sz9Yuz1JNn0+2yICq3B1/htj1E5z8x77tkw=
+    - 43SQnsJCECvHc95FfuQ2tljguL8WQhmItj+5vMd1V1c=
+  operator: 0x92d6d1c6a56116eeef5b6085a9f2fc2e07383c7a
+  proxyOwner: 0x92d6d1c6a56116eeef5b6085a9f2fc2e07383c7a
+  signerUrl: ""
+  tesseraUrl: ""
+  contract: "ONBOARDING_CONTRACT_ADDRESS"
+  contracts: "USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS,SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS"
+  onboardingAddress: 0x8937d9F9bEEc18fe021A01778373C73f788be98C
+  currency: 
+    - USD
+    - SGD
+  bic:
+    - CHASUS33MCY
+    - DBSSSGSGXXX
+  timezone:
+    - America/New_York
+    - Asia/Singapore"
+  offset: 
+    - "-4"
+    - "8"
+  TRUFFLE_CONFIG_NETWORK: dev02
+  TRUFFLE_CONFIG_NETWORK_JPMNY: jpmny
+  TRUFFLE_CONFIG_NETWORK_DBSSG: dbssg
+  # PRIVATE_FOR: ""
+  NETWORK_NAME: ""
+  NETWORK_DESC: ""
+  PARTIOR_TM_PUB_KEY: ""
+  JPM_NY_ENODE_IDS: ""
+  JPM_NY_TM_PUB_KEYS: ""
+  JPM_NY_ACCOUNT: ""
+  JPM_SG_ENODE_IDS: ""
+  JPM_SG_TM_PUB_KEYS: ""
+  JPM_SG_ACCOUNT: ""
+  DBS_SG_ENODE_IDS: ""
+  DBS_SG_TM_PUB_KEYS: ""
+  DBS_SG_ACCOUNT: ""
+  USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS: ""
+  SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS: ""
+  # ONBOARDING_CONTRACT_ADDRESS: ""
+  PAYMENT_UTILITY_CONTRACT_ADDRESS: ""

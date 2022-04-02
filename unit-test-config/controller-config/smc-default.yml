@@ -1,0 +1,274 @@
+---
+smc:
+  ci:
+    artifact-base-name: default-artifact-name
+    mythx-project-id: 390182b7-7b6a-42c4-baa6-90104502ace0
+    artifact-auto-versioning:
+      enabled: true
+      major-version:
+        enabled: true
+        rules:
+          branches: 
+            target: release
+            enabled: true
+          labels: 
+            target: MAJOR-VERSION 
+            enabled: false
+          tag: 
+            target: MAJOR-VERSION 
+            enabled: false
+          message-tag: 
+            target: MAJOR-VERSION 
+            enabled: true
+          file:
+            enabled: false
+            target: ./app-version.cfg
+            key: MAJOR-VERSION
+      minor-version:
+        enabled: true
+        rules:
+          branches: 
+            target: release
+            enabled: true
+          tag: 
+            target: false-VERSION 
+            enabled: true
+          message-tag: 
+            target: MINOR-VERSION 
+            enabled: true
+          labels: 
+            target: MINOR-VERSION  
+            enabled: false
+          file:
+            enabled: false
+            target: ./app-version.cfg
+            key: MINOR-VERSION
+      patch-version:
+        enabled: true
+        rules:
+          branches: 
+            target: release
+            enabled: true
+          tag: 
+            target: PATCH-VERSION 
+            enabled: false
+          message-tag: 
+            target: PATCH-VERSION 
+            enabled: true
+          labels: 
+            target: PATCH-VERSION
+            enabled: false
+          file:
+            enabled: false
+            target: ./app-version.cfg
+            key: PATCH-VERSION
+      release-candidate-version:
+        enabled: true
+        identifier: rc
+        rules:
+          branches: 
+            target: release
+            enabled: true
+          tag: 
+            target: RC-VERSION
+            enabled: false
+          file:
+            enabled: false
+            target: ./app-version.cfg
+            key: RC-VERSION
+      development-version:
+        enabled: true
+        identifier: dev
+        rules:
+          branches: 
+            target: develop,feature,testdev
+            enabled: true
+          tag: 
+            target: DEV-VERSION
+            enabled: false
+          file:
+            enabled: false
+            target: ./app-version.cfg
+            key: DEV-VERSION
+      build-version:
+        enabled: true
+        identifier: bld
+        rules:
+          branches: 
+            target: testdev
+            enabled: true
+      replacement:
+        enabled: false
+        file-token: 
+          enabled: false
+          target: pom.xml
+          token: '@@VERSION_BOT_TOKEN@@'
+        maven-pom: 
+          enabled: false
+          target: pom.xml
+
+    branches:
+      default:
+        node-version: 14
+        truffle-compile:
+          enabled: true
+        solc-compile:
+          enabled: false
+        gitleaks:
+          enabled: true
+          scan-depth: 2
+        codacy:
+          upload-coverage:
+            enabled: true
+            coverage-file: ./coverage/lcov.info
+          spotbugs:
+            enabled: false
+        unit-test:
+          enabled: true
+        artifact:
+          packager:
+            enabled: false
+            group: partior
+            artifactory-username: svc-smc-read
+            artifactory-dev-repo: smc-generic-dev
+            artifactory-release-repo: smc-generic-release
+            folder-list: build,config,migrations,scripts
+            file-list: deployment.conf,truffle-config.js,deploy.sh,compile.sh,package.json,package-lock.json
+        deployment:
+          enabled: false
+          repo: partior-quorum/deploy-smc
+          target-env: dev02
+        mythx:
+          enabled: false
+          ## scan-mode: quick|standard|deep
+          scan-mode: quick
+
+  cd:
+    environments:
+      default: 
+        node-version: 14
+        contract-addresses:
+          ## To enable extract-by-log, the deployment log must be piped into a file, else it wont work
+          extract-by-log:
+            enabled: false
+            log-file: build.log
+            grep-result-filter: 'Deployed for currency=.*bic=.*timezone='
+            store-primary-name: Diamond
+            store-sub-name-grep-filter: 'currency=\K[^ ]+'
+            store-value-grep-filter: '::\s*\K[^ ]+'
+            store:
+              cp-git-all-from-extract-all:
+                enabled: true
+              selection-to-git:                
+                - enabled: false
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: contracts
+                  ## yaml-store-type: list | string
+                  yaml-store-type: list
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                    - name: Diamond_SGD
+                - enabled: false
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_USD
+                - enabled: false
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  yaml-store-path: .deployment-config
+                  target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
+                    - name: Diamond_SGD
+
+          ## Addresses are extracted from compiled json
+          extract-all:
+            enabled: true
+            contract-path: build/contracts/*.json
+            store:
+              all-to-git:
+                enabled: true
+                file: config/${LOWERCASE_TARGET_ENV}_deployed_manifest.yml
+                yaml-store-path-key: .packages.${ARTIFACT_BASE_NAME}.deployed
+              git-config-01:
+                enabled: false
+                file: config/${LOWERCASE_TARGET_ENV}.yml
+                contract-source-name: Diamond
+                key-name: onboardingAddress
+                yaml-store-path-key-name: .deployment-config.git-config-01-key
+                yaml-store-path-key: .deployment-config.git-config-01-value 
+              selection-to-git:       
+                - enabled: false
+                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  target-key-name: onboardingAddress
+                  yaml-store-path: .deployment-config
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the contract name retrieved post deployment"
+                    - name: Diamond
+        override-truffle-config:
+          enabled: true
+          target-file: truffle-config.js
+          template-file: template/truffle-config.js.template
+          git-config:
+            enabled: true
+            yaml-path-key: .truffle-config
+            override-config-file: config/${LOWERCASE_TARGET_ENV}.yml
+          github-env-config:   ## TODO: Read value from Github Environment's secret
+            enabled: false
+        override-deployment-config:
+          enabled: true
+          target-file: deployment.conf
+          git-config:
+            enabled: true
+            yaml-path-key: .deployment-config
+            override-config-file: config/${LOWERCASE_TARGET_ENV}.yml
+        pre-deployment:
+          runner: ubuntu-latest
+          inside-deployment-job: true
+          cmd:
+            - echo cp -rv config/${LOWERCASE_TARGET_ENV}/* ./
+            - cp -rv config/${LOWERCASE_TARGET_ENV}/* ./
+            - echo Reserved pre-deployment 3
+            - echo Reserved pre-deployment 4
+            - echo Reserved pre-deployment 5
+            - echo Reserved pre-deployment 6
+            - echo Reserved pre-deployment 7
+            - echo Reserved pre-deployment 8
+            - echo Reserved pre-deployment 9
+            - echo Reserved pre-deployment 10
+        deployment:
+          runner: partior-runners
+          cmd:
+            - echo Reserved deployment 1
+            - echo Reserved deployment 2
+            - echo Reserved deployment 3
+            - echo Reserved deployment 4
+            - echo Reserved deployment 5
+            - echo Reserved deployment 6
+            - echo Reserved deployment 7
+            - echo Reserved deployment 8
+            - echo Reserved deployment 9
+            - echo Reserved deployment 10
+        post-deployment:
+          runner: ubuntu-latest
+          cmd:
+            - echo Reserved post-deployment 1
+            - echo Reserved post-deployment 2
+            - echo Reserved post-deployment 3
+            - echo Reserved post-deployment 4
+            - echo Reserved post-deployment 5
+            - echo Reserved post-deployment 6
+            - echo Reserved post-deployment 7
+            - echo Reserved post-deployment 8
+            - echo Reserved post-deployment 9
+            - echo Reserved post-deployment 10
