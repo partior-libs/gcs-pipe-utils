@@ -129,9 +129,6 @@ smc:
                   key-sources:
                     ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
                     - name: Diamond_SGD
-        contract-addresses:
-          extract-by-log:
-            enabled: true
         deployment:
           runner: partior-runners
           cmd:
@@ -236,9 +233,7 @@ smc:
                   key-sources:
                     ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
                     - name: Diamond_SGD
-        contract-addresses:
-          extract-by-log:
-            enabled: true
+
         deployment:
           runner: partior-runners-dev04
           cmd:
@@ -291,9 +286,6 @@ smc:
                   key-sources:
                     ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
                     - name: Diamond_SGD
-        contract-addresses:
-          extract-by-log:
-            enabled: true
         deployment:
           runner: partior-runners-dev-its
           cmd:

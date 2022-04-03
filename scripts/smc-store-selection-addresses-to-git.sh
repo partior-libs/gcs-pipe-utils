@@ -137,7 +137,7 @@ function addChangestoGit() {
     targetKey=$2
 
     echo "[INFO] Stored configured mapped key objects in config file..."
-    cat targetYamlFile | yq
+    cat $targetYamlFile | yq
 
     echo "[INFO] Preparing to push into Git..."
     git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -181,7 +181,7 @@ function startStoringEngine() {
 IFS=', ' read -r -a queryPathList <<< "$yamlConfigQueryPathList"
 for eachQueryPath in "${queryPathList[@]}"
 do
-    echo "[INFO] Starting with configuration on query path: $yamlConfigQueryPath"
+    echo "[INFO] Starting with configuration on query path: $eachQueryPath"
     startStoringEngine "$eachQueryPath"
 done
 
