@@ -68,7 +68,7 @@ runs:
       if: inputs.git-push == 'true'
       uses: partior-libs/gjs-github-push@partior-stable
       with:
-        github_token: ${{ input.pat-token }}
+        github_token: ${{ inputs.pat-token }}
         branch: ${{ github.ref }}
 
     - run: echo Done converting and storing SMC addresses...
