@@ -178,6 +178,7 @@ function startStoringEngine() {
 IFS=', ' read -r -a queryPathList <<< "$yamlConfigQueryPathList"
 for eachQueryPath in "${queryPathList[@]}"
 do
+    echo "[INFO] Starting with configuration on query path: $yamlConfigQueryPath"
     startStoringEngine "$eachQueryPath"
 done
 
