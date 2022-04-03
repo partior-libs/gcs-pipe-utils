@@ -28,12 +28,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: debug
-      run: |
-        echo yaml-file=${{ inputs.yaml-file }}
-        set
-      shell: bash
-
     - name: generate truffle config
       run: ${{ github.action_path }}/../../scripts/smc-generate-truffle.sh "${{ inputs.yaml-file }}" "${{ inputs.query-path }}" "${{ inputs.template-file }}" "${{ inputs.output-file }}"
       shell: bash
