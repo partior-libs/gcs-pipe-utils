@@ -9,13 +9,13 @@ artifactBaseName=$5 #${d{ env.ARTIFACT_VERSION }}
 envName=$6 #${d{ env.UPPERCASE_TARGET_ENV }}
 
 if [[ ! -f "$contractAddressesinPropFile" ]]; then
-echo "[ERROR] $BASH_SOURCE (line:$LINENO): Contracts extraction file not found: [$contractAddressesinPropFile]"
-exit 1
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Contracts extraction file not found: [$contractAddressesinPropFile]"
+    exit 1
 fi
 
 if [[ ! -f "$targetYamlFile" ]]; then
-echo "[INFO] Address file not found. Creating an empty file"
-touch "$targetYamlFile"
+    echo "[INFO] Address file not found. Creating an empty file"
+    touch "$targetYamlFile"
 fi
 
 ## Get timestamp
