@@ -1,44 +1,52 @@
 packages:
   artifact-version: 1.2.3-dev.12
-  last-deployed-timestamp: "20220403_1336"
+  last-deployed-timestamp: "20220403_2009"
   contracts:
     AccountBalanceFacet:
       address: 0xC422DcdC4179F4FEaE340d296b12392090EeEDA5
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
     AccountInfoFacet:
       address: 0x754198e3C8c5fB1e01bb88C52cAb056Fb19d77d7
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
     Diamond:
       address: 0xEd13F9c695a976Dc53B286EbE7048a16D1D785C8
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
     DiamondCutFacet:
       address: 0x808Bc8DfaD46fF65bb49Ba28AD0C5b3c4E93468c
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
     DiamondFacet:
       address: 0x635c00E06D52383FE2FA32A846144AF65b53FD65
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
     DiamondLoupeFacet:
       address: 0x86596854D13dE69ebb900C7145E5354d0D496603
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
     HoldDetailFacet:
       address: 0x804bF1ad95954662d49f5d3b081734Ff4EF59d02
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
     Migrations:
       address: 0x9fD44c42e36355006165ef5b70e5D76b8896a1aa
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
     OwnershipFacet:
       address: 0x69fa378A4bCf04aC121c05551199bC84da8685f5
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
     PostingSettlementFacet:
       address: 0xbb7647c43d49C6570fEDfDC7bA5990ABfc57116d
       version: 1.2.3-dev.12
-      last-updated: "20220403_1336"
+      last-updated: "20220403_2009"
+    Diamond_USD:
+      address: "0x123456"
+      version: 1.2.3-dev.12
+      last-updated: "20220403_2009"
+    Diamond_SGD:
+      address: "0x999999"
+      version: 1.2.3-dev.12
+      last-updated: "20220403_2009"
