@@ -34,7 +34,10 @@ inputs:
     required: false
     default: false
 secrets: 
-
+  pat-token:
+    description: 'PAT token to push code'
+    required: false
+    default: ${{ github.token }}
 outputs:
   generated-filename:
     description: "Filename of the converted config script"
@@ -66,7 +69,7 @@ runs:
       if: inputs.git-push == 'true'
       uses: partior-libs/gjs-github-push@partior-stable
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.pat-token }}
         branch: ${{ github.ref }}
 
     - run: echo Done converting and storing SMC addresses...
