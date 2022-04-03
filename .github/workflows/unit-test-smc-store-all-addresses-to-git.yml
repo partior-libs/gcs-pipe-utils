@@ -1,0 +1,50 @@
+name: test-store-all-addresses-to-git
+
+on:
+  push:
+    paths:
+      - 'actions/smc-store-all-addresses-to-git/**'
+      - 'scripts/smc-store-all-addresses-to-git.sh'
+      - '.github/workflows/unit-test-smc-store-all-addresses-to-git.yml'
+  workflow_dispatch:
+
+env:
+  SU_CD_CONFIG_IMPORTER: su_cd_config_importer
+  # TRUFFLE_CONFIG_FILE: truffle_config
+
+jobs:
+  test-scenario-1-reader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Read sample SU CD config
+        uses: partior-libs/gcs-yaml-importer@main
+        with:
+          yaml-file: unit-test-config/controller-config/smc-settlement-utility.yml
+          query-path: .smc.cd.environments.dev02
+          output-file: ${{ env.SU_CD_CONFIG_IMPORTER }}
+          yaml-file-for-default: unit-test-config/controller-config/smc-default.yml
+          query-path-for-default: .smc.cd.environments.default
+          upload: true
+
+  test-scenario-1-start:
+    needs: [ test-scenario-1-reader ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Retrieve and store SMC addresses in Git
+        uses: partior-libs/gcs-pipe-utils/actions/smc-store-all-addresses-to-git@main
+          with: 
+            contract-addresses-props-file: unit-test-config/deploy-config/sample-contract-addresses.conf
+            target-yaml-file: unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
+            store-yaml-path: .packages
+            artifact-version: 1.2.3-dev.12
+            artifact-base-name: settlement-utility
+            env-name: dev02
+            git-push: true
+
+      - name: View final updated yaml
+        run:  |
+          cat ./unit-test-config/deploy-config/env/dev02_deployed_manifest.yml

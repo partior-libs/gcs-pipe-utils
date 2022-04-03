@@ -13,17 +13,17 @@ finalTruffleJsFile=$4
 tmpTruffleJsonFile=truffle-tmp.json
 
 if [[ ! -f "$inputYamlFile" ]]; then
-echo [ERROR] Truffle config YAML file not found: $inputYamlFile
+echo "[ERROR] $BASH_SOURCE (line:$LINENO): Truffle config YAML file not found: $inputYamlFile"
 exit 1
 fi
 
 if [[ ! -f "$truffleTemplateFile" ]]; then
-echo [ERROR] Truffle template file not found: $truffleTemplateFile
+echo "[ERROR] $BASH_SOURCE (line:$LINENO): Truffle template file not found: $truffleTemplateFile"
 exit 1
 fi
 
 if [[ -z "$truffleYamlQueryPath" ]]; then
-echo [ERROR] Truffle YAML query path is empty
+echo "[ERROR] $BASH_SOURCE (line:$LINENO): Truffle YAML query path is empty"
 exit 1
 fi
 
