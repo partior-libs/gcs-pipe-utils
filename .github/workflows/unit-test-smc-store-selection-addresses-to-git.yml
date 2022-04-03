@@ -10,6 +10,8 @@ on:
 
 env:
   SU_CD_CONFIG_IMPORTER: su_cd_config_importer
+  LOWERCASE_TARGET_ENV: dev02
+  ARTIFACT_BASE_NAME: settlement-utility
   # TRUFFLE_CONFIG_FILE: truffle_config
 
 jobs:
@@ -46,11 +48,8 @@ jobs:
         uses: partior-libs/gcs-pipe-utils/actions/smc-store-selection-addresses-to-git@main
         with: 
           contract-addresses-props-file: unit-test-config/deploy-config/sample-contract-addresses.conf
-          target-yaml-file: unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
-          store-yaml-path: .packages
-          artifact-version: 1.2.3-dev.12
-          artifact-base-name: settlement-utility
           env-name: dev02
+          store-config-query-list: contract-addresses.extract-by-log.store.selection-to-git,contract-addresses.extract-all.store.selection-to-git
           git-push: true
 
       - name: View final updated yaml

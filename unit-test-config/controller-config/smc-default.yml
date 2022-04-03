@@ -161,7 +161,7 @@ smc:
                 enabled: true
               selection-to-git:                
                 - enabled: false
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: contracts
                   ## yaml-store-type: list | string
@@ -171,7 +171,7 @@ smc:
                     - name: Diamond_USD
                     - name: Diamond_SGD
                 - enabled: false
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
@@ -180,7 +180,7 @@ smc:
                     ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
                     - name: Diamond_USD
                 - enabled: false
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
@@ -196,18 +196,18 @@ smc:
             store:
               all-to-git:
                 enabled: true
-                file: config/${LOWERCASE_TARGET_ENV}_deployed_manifest.yml
+                file: unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
                 yaml-store-path-key: .packages.${ARTIFACT_BASE_NAME}.deployed
               git-config-01:
                 enabled: false
-                file: config/${LOWERCASE_TARGET_ENV}.yml
+                file: unit-test-config/deploy-config/env/dev02.yml
                 contract-source-name: Diamond
                 key-name: onboardingAddress
                 yaml-store-path-key-name: .deployment-config.git-config-01-key
                 yaml-store-path-key: .deployment-config.git-config-01-value 
               selection-to-git:       
                 - enabled: false
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   target-key-name: onboardingAddress
                   yaml-store-path: .deployment-config
                   ## yaml-store-type: list | string
@@ -222,7 +222,7 @@ smc:
           git-config:
             enabled: true
             yaml-path-key: .truffle-config
-            override-config-file: config/${LOWERCASE_TARGET_ENV}.yml
+            override-config-file: unit-test-config/deploy-config/env/dev02.yml
           github-env-config:   ## TODO: Read value from Github Environment's secret
             enabled: false
         override-deployment-config:
@@ -231,7 +231,7 @@ smc:
           git-config:
             enabled: true
             yaml-path-key: .deployment-config
-            override-config-file: config/${LOWERCASE_TARGET_ENV}.yml
+            override-config-file: unit-test-config/deploy-config/env/dev02.yml
         pre-deployment:
           runner: ubuntu-latest
           inside-deployment-job: true

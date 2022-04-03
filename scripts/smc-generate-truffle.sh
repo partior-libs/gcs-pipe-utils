@@ -18,13 +18,13 @@ exit 1
 fi
 
 if [[ ! -f "$truffleTemplateFile" ]]; then
-echo "[ERROR] $BASH_SOURCE (line:$LINENO): Truffle template file not found: $truffleTemplateFile"
-exit 1
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Truffle template file not found: $truffleTemplateFile"
+    exit 1
 fi
 
 if [[ -z "$truffleYamlQueryPath" ]]; then
-echo "[ERROR] $BASH_SOURCE (line:$LINENO): Truffle YAML query path is empty"
-exit 1
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Truffle YAML query path is empty"
+    exit 1
 fi
 
 rm -f $tmpTruffleJsonFile

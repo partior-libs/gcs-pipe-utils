@@ -102,7 +102,7 @@ smc:
                 enabled: true
               selection-to-git:                
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: contracts
                   ## yaml-store-type: list | string
@@ -112,7 +112,7 @@ smc:
                     - name: Diamond_USD
                     - name: Diamond_SGD
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
@@ -121,7 +121,7 @@ smc:
                     ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
                     - name: Diamond_USD
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
@@ -157,7 +157,7 @@ smc:
                 enabled: true
               selection-to-git:                
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: contracts
                   ## yaml-store-type: list | string
@@ -167,7 +167,7 @@ smc:
                     - name: Diamond_USD
                     - name: Diamond_SGD
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
@@ -176,7 +176,7 @@ smc:
                     ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
                     - name: Diamond_USD
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
@@ -212,7 +212,7 @@ smc:
                 enabled: true
               selection-to-git:                
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: contracts
                   ## yaml-store-type: list | string
@@ -222,7 +222,7 @@ smc:
                     - name: Diamond_USD
                     - name: Diamond_SGD
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
@@ -231,7 +231,7 @@ smc:
                     ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
                     - name: Diamond_USD
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
@@ -267,7 +267,7 @@ smc:
                 enabled: true
               selection-to-git:                
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: contracts
                   ## yaml-store-type: list | string
@@ -277,7 +277,7 @@ smc:
                     - name: Diamond_USD
                     - name: Diamond_SGD
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
@@ -286,7 +286,7 @@ smc:
                     ## "name" is the combined name of "store-primary-name" and "store-sub-name-grep-filter"
                     - name: Diamond_USD
                 - enabled: true
-                  file: config/${LOWERCASE_TARGET_ENV}.yml
+                  file: unit-test-config/deploy-config/env/dev02.yml
                   yaml-store-path: .deployment-config
                   target-key-name: SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS
                   ## yaml-store-type: list | string
