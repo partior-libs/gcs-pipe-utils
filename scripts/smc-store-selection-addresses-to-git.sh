@@ -126,6 +126,9 @@ function storeAllKeySources() {
         echo "   [WRITE]" currentValue=$stringTypeBuffer yq -i "$envYamlStorePath.$envTargetKeyName = strenv(currentValue)" $envTargetStoreFile
         currentValue=$stringTypeBuffer yq -i "$envYamlStorePath.$envTargetKeyName = strenv(currentValue)" $envTargetStoreFile
     fi
+    echo "[INFO] Preview updated file: $envTargetStoreFile"
+    cat $envTargetStoreFile
+    echo "[INFO] End of Preview"
     addChangestoGit "$envTargetStoreFile" "$envTargetKeyName"
 }
 

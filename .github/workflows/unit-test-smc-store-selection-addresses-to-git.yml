@@ -52,6 +52,10 @@ jobs:
           store-config-query-list: contract-addresses.extract-by-log.store.selection-to-git,contract-addresses.extract-all.store.selection-to-git
           git-push: true
 
-      - name: View final updated yaml
+      - name: View final updated yaml 1
+        run:  |
+          cat ./unit-test-config/deploy-config/env/dev02.yml
+
+      - name: View final updated yaml 2
         run:  |
           cat ./unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
