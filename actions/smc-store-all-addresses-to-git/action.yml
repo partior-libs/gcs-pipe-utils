@@ -1,0 +1,73 @@
+name: 'Partior - Retrieve and store SMC addresses in Git'
+description: 'Retrieve and store SMC addresses in Git in defined format'
+inputs:
+  contract-addresses-props-file:
+    description: 'Path to the prop config file which contain the contract addresses'
+    required: true
+    default: 'contract-summary.conf'
+  target-yaml-file:  
+    description: 'Path to YAML file to be updated'
+    required: true
+    default: 'target-config.yaml'
+  store-yaml-path:  
+    description: 'YAML store path'
+    required: true
+    default: ''
+  artifact-version:  
+    description: 'Artifact version for additional storing reference'
+    required: true
+    default: ''
+  artifact-base-name:  
+    description: 'Artifact name for the contract address scope'
+    required: true
+    default: ''
+  env-name:  
+    description: 'Target environment name that is deployed'
+    required: true
+    default: ''
+  git-push:
+    description: 'Flag to indicate if git push to be executed'
+    required: false
+    default: true
+  upload:  
+    description: 'Flag to indicate if require to upload the file'
+    required: false
+    default: false
+secrets: 
+
+outputs:
+  generated-filename:
+    description: "Filename of the converted config script"
+    value: ${{ inputs.output-file }}
+runs:
+  using: "composite"
+  steps:
+    - name: convert yaml to props config
+      run: |
+        ${{ github.action_path }}/../../scripts/smc-store-all-addresses-to-git.sh \
+          "${{ inputs.contract-addresses-props-file }}" \
+          "${{ inputs.target-yaml-file }}" \
+          "${{ inputs.store-yaml-path }}" \
+          "${{ inputs.artifact-version }}" \
+          "${{ inputs.artifact-base-name }}" \
+          "${{ inputs.env-name }}" \
+      shell: bash
+
+    - name: upload properties config
+      uses: actions/upload-artifact@v3
+      if: inputs.upload == 'true'
+      with:
+        name: ${{ inputs.target-yaml-file }}
+        path: ${{ inputs.target-yaml-file}}
+        if-no-files-found: error
+        retention-days: 1
+        
+    - name: Push changes
+      if: inputs.git-push == 'true'
+      uses: partior-libs/gjs-github-push@partior-stable
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+
+    - run: echo Done converting and storing SMC addresses...
+      shell: bash

@@ -8,12 +8,12 @@ tmpConfigFile=tmp-deployment.conf
 rm -f $tmpConfigFile
 
 if [[ ! -f "$baseValueFile" ]]; then
-    echo [ERROR] Deployment config base file not found: $baseValueFile
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Deployment config base file not found: $baseValueFile"
     exit 1
 fi
 
 if [[ ! -f "$targetConfigFile" ]]; then
-    echo [WARNING] Target deployment conf file not found. Create a new file: $targetConfigFile
+    echo "[WARNING] Target deployment conf file not found. Create a new file: $targetConfigFile"
 fi
 
 

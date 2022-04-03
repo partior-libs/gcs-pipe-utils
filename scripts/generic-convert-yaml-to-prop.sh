@@ -7,12 +7,12 @@ finalDeploymentConfFile=$3
 tmpDeploymentConfFile=deployment-tmp.prop
 
 if [[ ! -f "$inputYamlFile" ]]; then
-echo [ERROR] Deployment config YAML file not found: $inputYamlFile
+echo "[ERROR] $BASH_SOURCE (line:$LINENO): Deployment config YAML file not found: $inputYamlFile"
 exit 1
 fi
 
 if [[ -z "$deploymentYamlQueryPath" ]]; then
-echo [ERROR] Deployment conf YAML query path is empty
+echo "[ERROR] $BASH_SOURCE (line:$LINENO): Deployment conf YAML query path is empty"
 exit 1
 fi
 
