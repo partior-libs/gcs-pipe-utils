@@ -206,7 +206,7 @@ smc:
                 yaml-store-path-key-name: .deployment-config.git-config-01-key
                 yaml-store-path-key: .deployment-config.git-config-01-value 
               selection-to-git:       
-                - enabled: false
+                - enabled: true
                   file: unit-test-config/deploy-config/env/dev02.yml
                   target-key-name: onboardingAddress
                   yaml-store-path: .deployment-config
