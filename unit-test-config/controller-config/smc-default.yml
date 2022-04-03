@@ -215,6 +215,15 @@ smc:
                   key-sources:
                     ## "name" is the contract name retrieved post deployment"
                     - name: Diamond
+                - enabled: true
+                  file: unit-test-config/deploy-config/env/dev02.yml
+                  target-key-name: contract
+                  yaml-store-path: .deployment-config
+                  ## yaml-store-type: list | string
+                  yaml-store-type: string
+                  key-sources:
+                    ## "name" is the contract name retrieved post deployment"
+                    - name: Diamond
         override-truffle-config:
           enabled: true
           target-file: truffle-config.js
