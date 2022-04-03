@@ -9,7 +9,7 @@ inputs:
     description: 'Target environment name that is deployed'
     required: true
     default: ''
-  store-config-querylist:  
+  store-config-query-list:  
     description: 'Query Path to the stored configuration. Can be comma delimited'
     required: false
     default: 'contract-addresses.extract-by-log.store.selection-to-git,contract-addresses.extract-all.store.selection-to-git'
