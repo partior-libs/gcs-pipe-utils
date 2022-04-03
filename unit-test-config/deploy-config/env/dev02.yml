@@ -38,7 +38,7 @@ truffle-config:
       timeout: 20000
 ## Values for deployment.conf
 deployment-config:
-  privateFor: 
+  privateFor:
     - jOag/7g9l6L9sdBGL3VARRAJHAiOp0moVlSY15Pa4H0=
     - vd9/Qw0ZXC9IeyhJ5LWCx/4xGeMK2+h5CK+ppE4zq0M=
     - 6H1bMg13Sz9Yuz1JNn0+2yICq3B1/htj1E5z8x77tkw=
@@ -48,9 +48,11 @@ deployment-config:
   signerUrl: ""
   tesseraUrl: ""
   contract: "ONBOARDING_CONTRACT_ADDRESS"
-  contracts: "USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS,SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS"
+  contracts:
+    - "0x123456"
+    - "0x999999"
   onboardingAddress: BEFORE
-  currency: 
+  currency:
     - USD
     - SGD
   bic:
@@ -59,7 +61,7 @@ deployment-config:
   timezone:
     - America/New_York
     - Asia/Singapore"
-  offset: 
+  offset:
     - "-4"
     - "8"
   TRUFFLE_CONFIG_NETWORK: dev02
