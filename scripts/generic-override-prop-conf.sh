@@ -16,6 +16,9 @@ if [[ ! -f "$targetConfigFile" ]]; then
     echo "[WARNING] Target deployment conf file not found. Create a new file: $targetConfigFile"
 fi
 
+## For space checking
+patternRegex=" |'"
+
 
 IFS=$'\n'       # make newlines the only separator
 ## Start overriding existing key
@@ -31,6 +34,9 @@ do
             currentConfigValue=$currentBaseValue
         fi
     done
+    if [[ $currentConfigValue =~ $patternRegex ]]; then
+        currentConfigValue="\"$currentConfigValue\""
+    fi
     echo $currentConfigKey=$currentConfigValue >> $tmpConfigFile
 done
 
@@ -45,6 +51,9 @@ do
     if (grep -q -e "^$currentBaseKey=" ${targetConfigFile}); then
         echo "[INFO] Base key [$currentBaseKey] present in target config. Sipping.."
     else
+        if [[ $currentBaseValue =~ $patternRegex ]]; then
+            currentBaseValue="\"$currentBaseValue\""
+        fi
         echo $currentBaseKey=$currentBaseValue >> $tmpConfigFile
     fi
     

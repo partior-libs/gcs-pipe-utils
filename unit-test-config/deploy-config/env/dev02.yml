@@ -67,7 +67,7 @@ deployment-config:
   TRUFFLE_CONFIG_NETWORK_DBSSG: dbssg
   # PRIVATE_FOR: ""
   NETWORK_NAME: ""
-  NETWORK_DESC: ""
+  NETWORK_DESC: "partior wholesale"
   PARTIOR_TM_PUB_KEY: ""
   JPM_NY_ENODE_IDS: ""
   JPM_NY_TM_PUB_KEYS: ""
