@@ -52,7 +52,7 @@ jobs:
           artifact-group: partior
           env-name: dev02
           yaml-store-file: unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
-          yaml-store-path-key: .packages
+          yaml-store-path-key: .packages.${{ env.ARTIFACT_BASE_NAME }}.deployed
           artifactory-repo: smc-generic-dev
           git-push: true
           artifactory-upload: false
