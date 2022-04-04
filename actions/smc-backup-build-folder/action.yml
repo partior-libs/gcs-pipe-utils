@@ -16,7 +16,7 @@ inputs:
   artifact-source-folder-path:  
     description: 'Folders which needs to be backup. Support comma delimited'
     required: false
-    default: 'build'
+    default: ''
   artifact-source-file-path:  
     description: 'Files which needs to be backup. Support comma delimited'
     required: false
