@@ -304,3 +304,9 @@ smc:
             - echo Reserved post-deployment 8
             - echo Reserved post-deployment 9
             - echo Reserved post-deployment 10
+        smc-initial-setup:
+          enabled: false
+          runner: partior-runners
+          setup-sequence:
+            - onboarding
+            - settlement-utility

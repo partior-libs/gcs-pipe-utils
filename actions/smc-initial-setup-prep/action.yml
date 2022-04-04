@@ -1,0 +1,30 @@
+name: 'Partior - SMC Get Initial Setup Sequence List'
+description: 'Read env and retrieve the sequence list for SMC initial setup'
+inputs:
+  yaml-path-to-config:  
+    description: 'Yaml query path to the sequence list'
+    required: false
+    default: 'smc-initial-setup.setup-sequence'
+
+outputs:
+  found-list:
+    description: "List of sequence name of contracts"
+    value: ${{ steps.get-sequence.outputs.list }}
+runs:
+  using: "composite"
+  steps:
+    - name: Debug env value
+      run: |
+        echo "[DEBUG] Listing env..."
+        set
+      shell: bash 
+      
+    - id: get-sequence
+      run: |
+        ${{ github.action_path }}/../../scripts/smc-initial-setup-prep.sh \
+          "${{ inputs.yaml-path-to-config }}" 
+      shell: bash
+
+    - run: echo [INFO] Done backup artifact...
+      shell: bash
+
