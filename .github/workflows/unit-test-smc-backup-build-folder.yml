@@ -54,7 +54,7 @@ jobs:
           yaml-store-file: unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
           yaml-store-path-key: .packages.${{ env.ARTIFACT_BASE_NAME }}.deployed
           artifactory-repo: smc-generic-dev
-          artifact-source-folder-path: project-config
+          artifact-source-folder-path: scripts
           git-push: true
           artifactory-upload: false
           jfrog-token: 123
