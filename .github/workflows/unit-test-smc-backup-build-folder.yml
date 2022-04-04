@@ -44,7 +44,7 @@ jobs:
         run: |
           source ./${{ env.SU_CD_CONFIG_IMPORTER }}
 
-      - name: Retrieve and store SMC addresses in Git
+      - name: Store backup
         uses: partior-libs/gcs-pipe-utils/actions/smc-backup-build-folder@main
         with: 
           artifact-base-name: settlement-utility
@@ -54,6 +54,7 @@ jobs:
           yaml-store-file: unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
           yaml-store-path-key: .packages.${{ env.ARTIFACT_BASE_NAME }}.deployed
           artifactory-repo: smc-generic-dev
+          artifact-source-folder-path: project-config
           git-push: true
           artifactory-upload: false
           jfrog-token: 123
