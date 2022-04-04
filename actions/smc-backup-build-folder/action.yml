@@ -130,6 +130,7 @@ runs:
           echo "[INFO] Merge any changes.."
           git merge --strategy-option ours -m "[CI-Bot][${targetEnv^^}] Backup artifact ${artifactBaseName}-${artifactVersion}"
         fi
+      shell: bash
 
     - name: Push changes
       if: inputs.git-push == 'true'
@@ -138,6 +139,6 @@ runs:
         github_token: ${{ inputs.pat-token }}
         branch: ${{ github.ref }}
 
-    - run: echo Done backup artifact...
+    - run: echo [INFO] Done backup artifact...
       shell: bash
 
