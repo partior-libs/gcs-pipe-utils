@@ -1,0 +1,143 @@
+name: 'Partior - SMC Backup Build Folder'
+description: 'SMC backup build folder to artifactory and record version into manifest'
+inputs:
+  artifact-base-name:  
+    description: 'Artifact base name of the deployed'
+    required: true
+    default: ''
+  artifact-version:  
+    description: 'Artifact version name of the deployed'
+    required: true
+    default: ''
+  artifact-group:  
+    description: 'Artifact group name of the deployed'
+    required: true
+    default: ''
+  artifact-source-folder-path:  
+    description: 'Folders which needs to be backup. Support comma delimited'
+    required: false
+    default: 'build'
+  artifact-source-file-path:  
+    description: 'Files which needs to be backup. Support comma delimited'
+    required: false
+    default: ''
+  env-name:  
+    description: 'Target environment name that is deployed'
+    required: true
+    default: ''
+  yaml-store-file:  
+    description: 'Yaml file to store the backuped version'
+    required: true
+    default: 'archive-deployed-artifact.scope'
+  yaml-store-path-key:  
+    description: 'Yaml path to store the backuped version'
+    required: true
+    default: 'archive-deployed-artifact.scope'
+  artifactory-repo:  
+    description: 'Artifactory repository name'
+    required: true
+    default: ''
+  git-push:
+    description: 'Flag to indicate if git push to be executed'
+    required: false
+    default: true
+  artifactory-upload:
+    description: 'Flag to indicate if backup needs to be uploaded'
+    required: false
+    default: true
+  jfrog-token:
+    description: 'Jfrog token to upload'
+    required: false
+    default: ''
+  pat-token:
+    description: 'PAT token to push code'
+    required: false
+    default: ${{ github.token }}
+outputs:
+  generated-filename:
+    description: "Filename of the converted config script"
+    value: ${{ inputs.output-file }}
+runs:
+  using: "composite"
+  steps:
+    - name: Generate necessary meta data
+      run: |
+        storeTimeStamp=$(date +"%Y%m%d%H%M")
+        echo TARGET_BUILD_ARTIFACT_NAME=${{ input.artifact-base-name }}-deployed-backup >> $GITHUB_ENV
+        echo TARGET_BUILD_ARTIFACT_VERSION=${{ input.artifact-version }}.${storeTimeStamp} >> $GITHUB_ENV
+      shell: bash 
+      
+    - id: packaging
+      uses: partior-libs/gcs-generic-packager@partior-stable
+      with:
+        artifactory-target-artifact-name: ${{ env.TARGET_BUILD_ARTIFACT_NAME }}
+        target-version: ${{ env.TARGET_BUILD_ARTIFACT_VERSION }}
+        folder-list: ${{ inputs.artifact-source-folder-path }}
+        file-list: ${{ inputs.artifact-source-file-path }}
+        
+    - name: Setup jfrog
+      if: inputs.artifactory-upload == 'true'
+      uses: jfrog/setup-jfrog-cli@v2
+      env:
+        JF_ENV_1: ${{ inputs.jfrog-token }}
+
+    - name: Upload to artifactory
+      if: inputs.artifactory-upload == 'true'
+      run: |
+        jfrog rt u ${{ steps.packaging.outputs.artifact-package-name }} ${{ inputs.artifactory-repo }}/${{ inputs.artifact-group }}/${{ env.TARGET_BUILD_ARTIFACT_NAME }}/
+        jfrog rt bp
+      shell: bash 
+
+    - run: |
+        echo Listing env...
+        set
+      shell: bash
+
+    - name: Update artifact backup version in Deployment Config
+      run: |
+        set +e
+        deployConfigFile=${{ inputs.yaml-store-file }}
+        artifactBaseName=${{ env.TARGET_BUILD_ARTIFACT_NAME }}
+        versionKeyPath=${{ inputs.yaml-store-path-key }}.backup-version
+        artifactVersion=${{ env.TARGET_BUILD_ARTIFACT_VERSION }}
+        targetEnv=${{ inputs.env-name }}
+        echo UPPERCASE_TARGET_ENV=${targetEnv^^} >> $GITHUB_ENV
+
+        ## Fail if config file not found
+        if [[ ! -f "${deployConfigFile}" ]]; then
+          echo "[ERROR] Unable to locate deploy config file: $deployConfigFile"
+          exit 1
+        fi
+
+        ## Update version
+        yq -i "${versionKeyPath} = \"${artifactVersion}\"" ${deployConfigFile}
+
+        echo "[INFO] Stored version in config file..."
+        cat ${deployConfigFile} | yq
+
+        ## If redeployment, there will be no new changes to version file
+        if (git status | grep "nothing to commit"); then 
+          echo VERSION_UPDATED=false >> $GITHUB_ENV
+        else 
+          echo VERSION_UPDATED=true >> $GITHUB_ENV 
+          echo "[INFO] Preparing to push into Git..."
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add ${deployConfigFile}
+          git commit -m "[CI-Bot][${targetEnv^^}] Backup artifact ${artifactBaseName}-${artifactVersion}"
+          echo "[INFO] Fetch for any changes.."
+          git fetch
+          echo "[INFO] Merge any changes.."
+          git merge --strategy-option ours -m "[CI-Bot][${targetEnv^^}] Backup artifact ${artifactBaseName}-${artifactVersion}"
+        fi
+
+    - name: Push changes
+      if: inputs.git-push == 'true'
+      uses: partior-libs/gjs-github-push@partior-stable
+      with:
+        github_token: ${{ inputs.pat-token }}
+        branch: ${{ github.ref }}
+
+    - run: echo Done backup artifact...
+      shell: bash
+

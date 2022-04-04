@@ -1,52 +1,120 @@
 packages:
-  artifact-version: 1.2.3-dev.12
-  last-deployed-timestamp: "20220403_2009"
-  contracts:
-    AccountBalanceFacet:
-      address: 0xC422DcdC4179F4FEaE340d296b12392090EeEDA5
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    AccountInfoFacet:
-      address: 0x754198e3C8c5fB1e01bb88C52cAb056Fb19d77d7
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    Diamond:
-      address: 0xEd13F9c695a976Dc53B286EbE7048a16D1D785C8
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    DiamondCutFacet:
-      address: 0x808Bc8DfaD46fF65bb49Ba28AD0C5b3c4E93468c
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    DiamondFacet:
-      address: 0x635c00E06D52383FE2FA32A846144AF65b53FD65
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    DiamondLoupeFacet:
-      address: 0x86596854D13dE69ebb900C7145E5354d0D496603
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    HoldDetailFacet:
-      address: 0x804bF1ad95954662d49f5d3b081734Ff4EF59d02
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    Migrations:
-      address: 0x9fD44c42e36355006165ef5b70e5D76b8896a1aa
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    OwnershipFacet:
-      address: 0x69fa378A4bCf04aC121c05551199bC84da8685f5
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    PostingSettlementFacet:
-      address: 0xbb7647c43d49C6570fEDfDC7bA5990ABfc57116d
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    Diamond_USD:
-      address: "0x123456"
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
-    Diamond_SGD:
-      address: "0x999999"
-      version: 1.2.3-dev.12
-      last-updated: "20220403_2009"
+  settlement-utility:
+    deployed:
+      last-deployed-timestamp: "20220403_2159"
+      artifact-version: "1.2.1-dev.37+bld.95.1"
+      contracts:
+        AccountBalanceFacet:
+          address: 0xc7C0F94D7cC8De6B2432c1376c3Eb88A0c24B1Bb
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        AccountInfoFacet:
+          address: 0x84512F4B162265A730c319b72441C110A0AE2e7B
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        Diamond:
+          address: 0xDE142c3Cd543F82aeb052020330917d0F6A06958
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        DiamondCutFacet:
+          address: 0xC521b2631fB5C7E3B8e201AaC1e77B83e2b85196
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        DiamondFacet:
+          address: 0xe981A300F6b781B813224419c2a35c58DD5B2cC8
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        DiamondLoupeFacet:
+          address: 0xC6513f6286D5a8169f65f1B402E3B482db54a8d8
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        HoldDetailFacet:
+          address: 0x6cD5F81E43ed89fF488deCB9B54CcaFa86315B90
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        Migrations:
+          address: 0x04B6d59c3f08671B3530784C22209422bdCB2411
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        OwnershipFacet:
+          address: 0x4Be2c9fE260Afbb06Fa5e56194BDBe57EA46f863
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        PostingSettlementFacet:
+          address: 0xF9Bfb2578B4F3a7a7e325a1d41d6c37b537dC67d
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        Diamond_USD:
+          address: 0x7011dF8f60378e619fe4E7b3630ff1032781a984
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+        Diamond_SGD:
+          address: 0xDE142c3Cd543F82aeb052020330917d0F6A06958
+          version: 1.2.1-dev.37+bld.95.1
+          last-updated: "20220403_2159"
+  onboarding:
+    deployed:
+      artifact-version: "0.0.1-dev.16+bld.26.1"
+      last-deployed-timestamp: "20220403_2206"
+      contracts:
+        DiamondCutFacet:
+          address: 0x01102CA82042333Dc84499f293607A11E5a039f1
+          version: "0.0.1-dev.16+bld.26.1"
+          last-updated: "20220403_2206"
+        DiamondLoupeFacet:
+          address: 0x88037ef36fdDD9610A34087B24317D3614c8be65
+          version: "0.0.1-dev.16+bld.26.1"
+          last-updated: "20220403_2206"
+        Migrations:
+          address: 0xad93d35D08a60EDe1fe225E47D8FE95E3a31a9Dc
+          version: "0.0.1-dev.16+bld.26.1"
+          last-updated: "20220403_2206"
+        NetworkFacet:
+          address: 0x7c1bf58335b8a133ceC2173df036A2583412Ee6b
+          version: "0.0.1-dev.16+bld.26.1"
+          last-updated: "20220403_2206"
+        OwnershipFacet:
+          address: 0x5B98F292074020Fd6eEaeAB1848254e505De1f11
+          version: "0.0.1-dev.16+bld.26.1"
+          last-updated: "20220403_2206"
+        SettlementBankFacet:
+          address: 0xC05423ef883C8f10651F3f9aB40782693153dbDB
+          version: "0.0.1-dev.16+bld.26.1"
+          last-updated: "20220403_2206"
+        Diamond:
+          address: 0xb4921e48757BD3889dE010248f67fC904553a5FB
+          version: "0.0.1-dev.16+bld.26.1"
+          last-updated: "20220403_2206"
+  payment-utility:
+    deployed:
+      artifact-version: 0.0.1-dev.9+bld.14.1
+      last-deployed-timestamp: "20220404_0336"
+      contracts:
+        BizDeposit:
+          address: 0x1F92A1C8fe37c9E9dEa384f54bde65a8e2b4c255
+          version: 0.0.1-dev.9+bld.14.1
+          last-updated: "20220404_0336"
+        BizPayment:
+          address: 0x8fa6EE8f927b8e774a005511EC9eCedcf569dc78
+          version: 0.0.1-dev.9+bld.14.1
+          last-updated: "20220404_0336"
+        BizPaymentExt:
+          address: 0xbbd33d20d9C108c046c84c28877a36fFf2321004
+          version: 0.0.1-dev.9+bld.14.1
+          last-updated: "20220404_0336"
+        BizWithdraw:
+          address: 0xFD4Ac2672c22411C130aA2672F1e98FdA41ebcc1
+          version: 0.0.1-dev.9+bld.14.1
+          last-updated: "20220404_0336"
+        Migrations:
+          address: 0x7C2a0F3aEbE0A3d9Dc4057E5F577E564d36813d8
+          version: 0.0.1-dev.9+bld.14.1
+          last-updated: "20220404_0336"
+        PartiorData:
+          address: 0x3D0C7532432eB4e8eF34B7Bfd0d533Ee796221dF
+          version: 0.0.1-dev.9+bld.14.1
+          last-updated: "20220404_0336"
+        Proxy:
+          address: 0xE3954D2696FC1860062E47EAC272Ba0916A872d0
+          version: 0.0.1-dev.9+bld.14.1
+          last-updated: "20220404_0336"

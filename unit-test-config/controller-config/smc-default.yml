@@ -147,6 +147,29 @@ smc:
     environments:
       default: 
         node-version: 14
+        archive-build-folder:
+          enabled: true
+          update-cd-config:
+            file: config/${LOWERCASE_TARGET_ENV}_deployed_manifest.yml
+            yaml-store-path-key: .packages.${ARTIFACT_BASE_NAME}.deployed
+        # archive-deployed-artifact:
+        #   enabled: false
+        #   scope:
+        #     - enabled: true
+        #       ## filename friendly name
+        #       name: build
+        #       # source-path: comma delimited path
+        #       source-folders: build
+        #       # source-files: comma delimited path
+        #       source-files: ''
+        #       update-cd-config:
+        #         enabled: true
+        #         file: config/${LOWERCASE_TARGET_ENV}_deployed_manifest.yml
+        #         yaml-store-path-key: .packages.${ARTIFACT_BASE_NAME}.deployed
+        #       store:
+        #         ## this will reuse the artifactory detail from CI
+        #         artifactory:
+        #           enabled: true
         contract-addresses:
           ## To enable extract-by-log, the deployment log must be piped into a file, else it wont work
           extract-by-log:
