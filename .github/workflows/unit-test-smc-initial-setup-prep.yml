@@ -59,7 +59,7 @@ jobs:
       max-parallel: 1
       fail-fast: false
       matrix:
-        contract: ${{fromJSON(needs.test-scenario-1-start.outputs.matrix)}}
+        contract: ${{fromJSON(needs.test-scenario-1-start.outputs.SEQUENCE-LIST)}}
     steps:
       - name: Try ${{ matrix.contract }}
         run:
