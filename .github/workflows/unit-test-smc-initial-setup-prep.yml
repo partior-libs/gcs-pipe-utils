@@ -31,6 +31,8 @@ jobs:
   test-scenario-1-start:
     needs: [ test-scenario-1-reader ]
     runs-on: ubuntu-latest
+    outputs:
+      SEQUENCE-LIST: ${{ steps.sequence-list.outputs.found-list }}
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -49,3 +51,16 @@ jobs:
       - name: View final sequence list
         run:  |
           echo [DEBUG] Found: ${{ steps.sequence-list.outputs.found-list }}
+
+  test-scenario-1-matrix-test:
+    needs: [ test-scenario-1-start ]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        contract: ${{fromJSON(needs.test-scenario-1-start.outputs.matrix)}}
+    steps:
+      - name: Try ${{ matrix.contract }}
+        run:
+          echo [INFO] Now is ${{ matrix.contract }}
