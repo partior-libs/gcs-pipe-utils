@@ -99,7 +99,7 @@ runs:
         deployConfigFile=${{ inputs.yaml-store-file }}
         artifactBaseName=${{ env.TARGET_BUILD_ARTIFACT_NAME }}
         versionKeyPath=${{ inputs.yaml-store-path-key }}.backup-version
-        artifactVersion=${{ env.TARGET_BUILD_ARTIFACT_VERSION }}
+        artifactVersion=${{ inputs.artifactory-repo }}/${{ inputs.artifact-group }}/${{ env.TARGET_BUILD_ARTIFACT_NAME }}/${{ env.TARGET_BUILD_ARTIFACT_NAME }}-${{ env.TARGET_BUILD_ARTIFACT_VERSION }}.tgz
         targetEnv=${{ inputs.env-name }}
         echo UPPERCASE_TARGET_ENV=${targetEnv^^} >> $GITHUB_ENV
 
