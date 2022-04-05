@@ -49,7 +49,7 @@ do
     currentBaseValue=$(echo $eachBaseLine | cut -d"=" -f1 --complement| xargs)
     # echo found [$currentConfigKey=$currentConfigValue]
     if (grep -q -e "^$currentBaseKey=" ${targetConfigFile}); then
-        echo "[INFO] Base key [$currentBaseKey] present in target config. Sipping.."
+        echo "[INFO] Base key [$currentBaseKey] present in target config. Skipping.."
     else
         if [[ $currentBaseValue =~ $patternRegex ]]; then
             currentBaseValue="\"$currentBaseValue\""
