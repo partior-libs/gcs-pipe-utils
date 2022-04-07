@@ -62,7 +62,7 @@ runs:
   steps:
     - name: Generate necessary meta data
       run: |
-        storeTimeStamp=$(date +"%Y%m%d%H%M")
+        storeTimeStamp=$(date +"%Y%m%d%H%M%S")
         echo TARGET_BUILD_ARTIFACT_NAME=${{ inputs.artifact-base-name }}-deployed-backup >> $GITHUB_ENV
         echo TARGET_BUILD_ARTIFACT_VERSION=${{ inputs.artifact-version }}.${storeTimeStamp} >> $GITHUB_ENV
       shell: bash 
