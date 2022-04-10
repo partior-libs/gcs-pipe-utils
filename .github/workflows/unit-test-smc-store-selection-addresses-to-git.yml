@@ -1,15 +1,16 @@
-name: test-store-selection-addresses-to-git
-
+name: test-store-generic-store-version-as-config-in-git
 on:
   push:
     paths:
-      - 'actions/smc-store-selection-addresses-to-git/**'
-      - 'scripts/smc-store-selection-addresses-to-git.sh'
-      - '.github/workflows/unit-test-smc-store-selection-addresses-to-git.yml'
+      - 'actions/generic-store-version-as-config-in-git/**'
+      - 'scripts/generic-store-version-as-config-in-git.sh'
+      - 'unit-test-config/controller-config/**'
+      - 'scripts/common-libs.sh'
+      - '.github/workflows/unit-test-generic-store-version-as-config-in-git.yml'
   workflow_dispatch:
 
 env:
-  SU_CD_CONFIG_IMPORTER: su_cd_config_importer
+  SU_CI_BRANCH_CONFIG_IMPORTER: su_ci_branch_config_importer
   LOWERCASE_TARGET_ENV: dev02
   ARTIFACT_BASE_NAME: settlement-utility
   # TRUFFLE_CONFIG_FILE: truffle_config
@@ -20,42 +21,46 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Read sample SU CD config
+      - name: Read sample SU CI Branch config
         uses: partior-libs/gcs-yaml-importer@main
         with:
           yaml-file: unit-test-config/controller-config/smc-settlement-utility.yml
-          query-path: .smc.cd.environments.dev02
-          output-file: ${{ env.SU_CD_CONFIG_IMPORTER }}
+          query-path: .smc.ci.branches.${{ steps.get-repo.outputs.branch-name }}
+          output-file: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
           yaml-file-for-default: unit-test-config/controller-config/smc-default.yml
-          query-path-for-default: .smc.cd.environments.default
+          query-path-for-default: .smc.ci.branches.default
           upload: true
 
   test-scenario-1-start:
     needs: [ test-scenario-1-reader ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ env.SU_CD_CONFIG_IMPORTER }}
+          name: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
 
       - name: Source env file
+        id: pipeline-branch-config
         run: |
-          source ./${{ env.SU_CD_CONFIG_IMPORTER }}
+          source ./${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
 
-      - name: Retrieve and store SMC addresses in Git
-        uses: partior-libs/gcs-pipe-utils/actions/smc-store-selection-addresses-to-git@main
+      - name: Initialize mock data
+        run: |
+          newVersion=$(date +"v1.0.0-%Y%m%d_%H%M")
+          echo [INFO] New generated version: $newVersion
+          echo ARTIFACT_VERSION=${newVersion} >> $GITHUB_ENV
+          echo ARTIFACT_BASE_NAME="settlement-utility" >> $GITHUB_ENV
+
+      - name: Update version
+        if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_store-version_git_enabled == 'true'
+        uses: partior-libs/gcs-pipe-utils/actions/unit-test-generic-store-version-as-config-in-git@main
         with: 
-          contract-addresses-props-file: unit-test-config/deploy-config/sample-contract-addresses.conf
-          env-name: dev02
-          store-config-query-list: contract-addresses.extract-by-log.store.selection-to-git,contract-addresses.extract-all.store.selection-to-git
+          yaml-store-path-key: ".packages.${{ env.ARTIFACT_BASE_NAME }}.package-version"
+          target-yaml-config: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_repo }}"
+          target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_repo }}"
+          artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
+          artifact-version: "${{ env.ARTIFACT_VERSION }}"
+          pat-token: "${{ github.token }}"
           git-push: false
 
-      - name: View final updated yaml 1
-        run:  |
-          cat ./unit-test-config/deploy-config/env/dev02.yml
 
-      - name: View final updated yaml 2
-        run:  |
-          cat ./unit-test-config/deploy-config/env/dev02_deployed_manifest.yml

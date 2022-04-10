@@ -134,6 +134,18 @@ smc:
             artifactory-release-repo: smc-generic-release
             folder-list: build,config,migrations,scripts
             file-list: deployment.conf,truffle-config.js,deploy.sh,compile.sh,package.json,package-lock.json
+            store-version:
+              enabled: true
+              git:
+                enabled: true
+                repo: partior-quorum/deploy-smc
+                yaml-store-path-key: .packages.${ARTIFACT_BASE_NAME}.package-version
+                # Placeholder "@@ENV_NAME@@" will be replaced during iteration of list items in "store-version.git.target-envs"
+                target-env-file: config/@@ENV_NAME@@.yml
+                target-envs:
+                  - dev02
+                  - dev03
+                  - dev04
         deployment:
           enabled: false
           repo: partior-quorum/deploy-smc

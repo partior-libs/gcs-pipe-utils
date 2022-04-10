@@ -1,0 +1,80 @@
+name: 'Partior - Store version as config in Git'
+description: 'Store version as config in Git'
+inputs:
+  yaml-store-path-key:
+    description: 'Query Path to the stored configuration'
+    required: true
+    default: ''
+  yaml-env-list-query-path:
+    description: 'Query Path to the list of env'
+    required: false
+    default: artifact.packager.store-version.git.target-envs
+  target-yaml-config:  
+    description: 'Target yaml config to be updated'
+    required: true
+    default: ''
+  target-repo:  
+    description: 'Target repo where yaml is stored'
+    required: true
+    default: ''
+  target-repo-ref:  
+    description: 'Target repo ref to be updated'
+    required: false
+    default: 'main'
+  artifact-base-name:  
+    description: 'Artifact base name to be stored in yaml'
+    required: true
+    default: ''
+  artifact-version:  
+    description: 'Artifact version to be stored in yaml'
+    required: true
+    default: ''
+  git-push:
+    description: 'Flag to indicate if git push to be executed'
+    required: false
+    default: true
+  pat-token:
+    description: 'PAT token to push code'
+    required: true
+    default: ''
+outputs:
+  generated-filename:
+    description: "Filename of the converted config script"
+    value: ${{ inputs.output-file }}
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        echo Listing env...
+        set
+      shell: bash
+
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.target-repo }}
+        token: ${{ inputs.pat-token }}
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+        fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
+        ref: ${{ inputs.target-repo-ref }}
+
+    - name: convert yaml to props config
+      run: |
+        ${{ github.action_path }}/../../scripts/generic-store-version-as-config-in-git.sh \
+          "${{ inputs.yaml-store-path-key }}" \
+          "${{ inputs.yaml-env-list-query-path }}" \
+          "${{ inputs.target-yaml-config }}" \
+          "${{ inputs.artifact-base-name }}" \
+          "${{ inputs.artifact-version }}" \
+          "${{ inputs.targetRepo }}" \
+          "${{ inputs.githubPatToken }}"
+      shell: bash
+       
+    - name: Push changes
+      if: inputs.git-push == 'true'
+      uses: partior-libs/gjs-github-push@partior-stable
+      with:
+        github_token: ${{ inputs.pat-token }}
+        branch: ${{ inputs.target-repo-ref }}
+
+    - run: echo Done storing version
+      shell: bash
