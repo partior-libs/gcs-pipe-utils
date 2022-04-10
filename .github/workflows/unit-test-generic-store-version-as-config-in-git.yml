@@ -34,11 +34,9 @@ jobs:
       - name: Read sample SU CI Branch config
         uses: partior-libs/gcs-yaml-importer@main
         with:
-          yaml-file: unit-test-config/controller-config/smc-settlement-utility.yml
-          query-path: .smc.ci.branches.${{ steps.get-repo.outputs.branch-name }}
+          yaml-file: .smc.ci.branches.default
+          query-path:  unit-test-config/controller-config/smc-default.yml
           output-file: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
-          yaml-file-for-default: unit-test-config/controller-config/smc-default.yml
-          query-path-for-default: .smc.ci.branches.default
           upload: true
 
   test-scenario-1-start:

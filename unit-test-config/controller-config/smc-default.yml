@@ -135,7 +135,6 @@ smc:
             folder-list: build,config,migrations,scripts
             file-list: deployment.conf,truffle-config.js,deploy.sh,compile.sh,package.json,package-lock.json
             store-version:
-              enabled: true
               git:
                 enabled: true
                 repo: partior-quorum/deploy-smc
