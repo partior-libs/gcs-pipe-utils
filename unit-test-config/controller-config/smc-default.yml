@@ -137,10 +137,10 @@ smc:
             store-version:
               git:
                 enabled: true
-                repo: partior-quorum/deploy-smc
+                repo: partior-libs/gcs-pipe-utils
                 yaml-store-path-key: .packages.${ARTIFACT_BASE_NAME}.package-version
                 # Placeholder "@@ENV_NAME@@" will be replaced during iteration of list items in "store-version.git.target-envs"
-                target-env-file: config/@@ENV_NAME@@.yml
+                target-env-file: deploy-config/env/@@ENV_NAME@@.yml
                 target-envs:
                   - dev02
                   - dev03
