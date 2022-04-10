@@ -20,7 +20,8 @@ targetConfigFileRaw="$3"
 artifactBaseName="$4"
 artifactVersion="$5"
 targetRepo="$6"
-githubPatToken="$7"
+createNewConfig="$7"
+githubPatToken="$8"
 
 echo "[INFO] Artifact Base Name: ${artifactBaseName}"
 echo "[INFO] Artifact Version: ${artifactVersion}"
@@ -69,17 +70,21 @@ function startUpdateConfig() {
     do
         local envKeyName=$(getValueByQueryPath "${yamlEnvListQueryPath}__${eachEnvID}")
         echo "[INFO] Env name: $envKeyName"
-        local targetConfigFile=$(echo $targetConfigFileRaw | sed "s/@@ENV_NAME@@/${envKeyName}/g")
-        echo "[INFO] Updating config file: $targetConfigFile"
+        local targetConfigFile=$(echo ${targetConfigFile}Raw | sed "s/@@ENV_NAME@@/${envKeyName}/g")
+        echo "[INFO] Updating config file: ${targetConfigFile}"
         ## Fail if config file not found
         if [[ ! -f "${targetConfigFile}" ]]; then
-            echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate deploy config file: $targetConfigFile"
-            exit 1
+            if [[ "${createNewConfig}" == "true" ]]; then
+                touch ${createNewConfig}
+            else
+                echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate deploy config file: ${targetConfigFile}"
+                exit 1
+            fi
         fi
-        # updateEnvConfig
-        echo "[INFO] Viewing transformed config: $targetConfigFile"
-        cat $targetConfigFile
-        echo "[INFO] Update completed: $targetConfigFile"
+        updateEnvConfig "${envKeyName}" "${targetConfigFile}"
+        echo "[INFO] Viewing transformed config: ${targetConfigFile}"
+        cat ${targetConfigFile}
+        echo "[INFO] Update completed: ${targetConfigFile}"
     done
 }
 
