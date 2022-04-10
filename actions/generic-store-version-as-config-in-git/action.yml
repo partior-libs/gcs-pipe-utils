@@ -9,7 +9,7 @@ inputs:
     description: 'Query Path to the list of env'
     required: false
     default: artifact.packager.store-version.git.target-envs
-  target-yaml-config:  
+  target-yaml-config-file:  
     description: 'Target yaml config to be updated'
     required: true
     default: ''

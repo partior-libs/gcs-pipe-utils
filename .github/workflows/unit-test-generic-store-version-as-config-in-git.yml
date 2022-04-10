@@ -64,7 +64,7 @@ jobs:
         uses: partior-libs/gcs-pipe-utils/actions/generic-store-version-as-config-in-git@main
         with: 
           yaml-store-path-key: ".packages.${{ env.ARTIFACT_BASE_NAME }}.package-version"
-          target-yaml-config: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_repo }}"
+          target-yaml-config-file: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_target-env-file }}"
           target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_repo }}"
           artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
           artifact-version: "${{ env.ARTIFACT_VERSION }}"
