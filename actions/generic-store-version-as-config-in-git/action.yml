@@ -78,6 +78,7 @@ runs:
       if: inputs.git-push == 'true'
       uses: partior-libs/gjs-github-push@partior-stable
       with:
+        repository: ${{ inputs.target-repo }}
         github_token: ${{ inputs.pat-token }}
         branch: ${{ inputs.target-repo-ref }}
 
