@@ -60,7 +60,7 @@ jobs:
           echo ARTIFACT_BASE_NAME="settlement-utility" >> $GITHUB_ENV
 
       - name: Update version
-        if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_store-version_git_enabled == 'true'
+        if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_enabled == 'true'
         uses: partior-libs/gcs-pipe-utils/actions/generic-store-version-as-config-in-git@main
         with: 
           yaml-store-path-key: ".packages.${{ env.ARTIFACT_BASE_NAME }}.package-version"
