@@ -28,11 +28,6 @@ githubPatToken="$7"
 function updateEnvConfig() {
     local targetEnv="$1"
     local targetConfigFile="$2"
-    # local artifactBaseName="$3"
-    # local yamlStorePathKey="$4"
-    # local artifactVersion="$5"
-    # local targetRepo="$6"
-    # local githubPatToken="$7"
 
     echo UPPERCASE_TARGET_ENV=${targetEnv^^} >> $GITHUB_ENV
 
@@ -76,7 +71,7 @@ function startUpdateConfig() {
         echo "[INFO] Updating config file: $targetConfigFile"
         ## Fail if config file not found
         if [[ ! -f "${targetConfigFile}" ]]; then
-            echo "[ERROR] Unable to locate deploy config file: $targetConfigFile"
+            echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate deploy config file: $targetConfigFile"
             exit 1
         fi
         # updateEnvConfig
