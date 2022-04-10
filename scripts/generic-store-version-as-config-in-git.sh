@@ -70,7 +70,7 @@ function startUpdateConfig() {
     do
         local envKeyName=$(getValueByQueryPath "${yamlEnvListQueryPath}__${eachEnvID}")
         echo "[INFO] Env name: $envKeyName"
-        local targetConfigFile=$(echo ${targetConfigFile}Raw | sed "s/@@ENV_NAME@@/${envKeyName}/g")
+        local targetConfigFile=$(echo ${targetConfigFileRaw} | sed "s/@@ENV_NAME@@/${envKeyName}/g")
         echo "[INFO] Updating config file: ${targetConfigFile}"
         ## Fail if config file not found
         if [[ ! -f "${targetConfigFile}" ]]; then
