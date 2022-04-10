@@ -127,7 +127,7 @@ smc:
           enabled: true
         artifact:
           packager:
-            enabled: false
+            enabled: true
             group: partior
             artifactory-username: svc-smc-read
             artifactory-dev-repo: smc-generic-dev
