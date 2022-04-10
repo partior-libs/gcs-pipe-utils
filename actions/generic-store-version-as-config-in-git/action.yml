@@ -62,7 +62,7 @@ runs:
         ${{ github.action_path }}/../../scripts/generic-store-version-as-config-in-git.sh \
           "${{ inputs.yaml-store-path-key }}" \
           "${{ inputs.yaml-env-list-query-path }}" \
-          "${{ inputs.target-yaml-config }}" \
+          "${{ inputs.target-yaml-config-file }}" \
           "${{ inputs.artifact-base-name }}" \
           "${{ inputs.artifact-version }}" \
           "${{ inputs.targetRepo }}" \
