@@ -75,7 +75,7 @@ function startUpdateConfig() {
         ## Fail if config file not found
         if [[ ! -f "${targetConfigFile}" ]]; then
             if [[ "${createNewConfig}" == "true" ]]; then
-                touch ${createNewConfig}
+                touch ${targetConfigFile}
             else
                 echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate deploy config file: ${targetConfigFile}"
                 exit 1
