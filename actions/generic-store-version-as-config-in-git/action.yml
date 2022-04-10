@@ -69,9 +69,9 @@ runs:
           "${{ inputs.target-yaml-config-file }}" \
           "${{ inputs.artifact-base-name }}" \
           "${{ inputs.artifact-version }}" \
-          "${{ inputs.targetRepo }}" \
+          "${{ inputs.target-repo }}" \
           "${{ inputs.create-if-new-config }}" \
-          "${{ inputs.githubPatToken }}"
+          "${{ inputs.pat-token }}"
       shell: bash
        
     - name: Push changes

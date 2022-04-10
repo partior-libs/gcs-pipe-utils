@@ -26,6 +26,7 @@ githubPatToken="$8"
 echo "[INFO] Artifact Base Name: ${artifactBaseName}"
 echo "[INFO] Artifact Version: ${artifactVersion}"
 echo "[INFO] YAML Store key: ${yamlStorePathKey}"
+echo "[INFO] Target Repo: ${targetRepo}"
 # yamlEnvListQueryPath="artifact.packager.store-version.git.target-envs"
 
 function updateEnvConfig() {
