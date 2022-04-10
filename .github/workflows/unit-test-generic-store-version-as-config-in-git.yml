@@ -68,7 +68,7 @@ jobs:
           target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_repo }}"
           artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
           artifact-version: "${{ env.ARTIFACT_VERSION }}"
-          pat-token: "${{ github.token }}"
+          pat-token: "${{ secrets.REPO_PAT }}"
           git-push: false
 
 
