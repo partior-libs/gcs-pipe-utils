@@ -59,7 +59,7 @@ jobs:
           echo ARTIFACT_VERSION=${newVersion} >> $GITHUB_ENV
           echo ARTIFACT_BASE_NAME="settlement-utility" >> $GITHUB_ENV
 
-      - name: Update version
+      - name: Store version in config
         if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_enabled == 'true'
         uses: partior-libs/gcs-pipe-utils/actions/generic-store-version-as-config-in-git@main
         with: 
@@ -68,6 +68,7 @@ jobs:
           target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_repo }}"
           artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
           artifact-version: "${{ env.ARTIFACT_VERSION }}"
+          create-if-new-config: true
           pat-token: "${{ github.token }}"
           git-push: false
 

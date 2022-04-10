@@ -13,6 +13,10 @@ inputs:
     description: 'Target yaml config to be updated'
     required: true
     default: ''
+  create-if-new-config:  
+    description: 'Create new file if target yaml file not found'
+    required: false
+    default: true
   target-repo:  
     description: 'Target repo where yaml is stored'
     required: true
@@ -66,6 +70,7 @@ runs:
           "${{ inputs.artifact-base-name }}" \
           "${{ inputs.artifact-version }}" \
           "${{ inputs.targetRepo }}" \
+          "${{ inputs.create-if-new-config }}" \
           "${{ inputs.githubPatToken }}"
       shell: bash
        
