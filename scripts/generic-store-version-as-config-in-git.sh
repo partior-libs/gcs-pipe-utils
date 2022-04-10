@@ -44,6 +44,7 @@ function updateEnvConfig() {
     if (git status | grep "nothing to commit"); then 
         echo VERSION_UPDATED=false >> $GITHUB_ENV
     else 
+        VERSION_UPDATED=true
         echo VERSION_UPDATED=true >> $GITHUB_ENV 
         echo "[INFO] Preparing to push into Git..."
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -51,10 +52,6 @@ function updateEnvConfig() {
         git remote set-url origin https://${githubPatToken}@github.com/${targetRepo}
         git add ${targetConfigFile}
         git commit -m "[CI-Bot][${targetEnv^^}] Auto updated ${artifactBaseName}-${artifactVersion}"
-        echo "[INFO] Fetch for any changes.."
-        git fetch
-        echo "[INFO] Merge any changes.."
-        git merge --strategy-option ours -m "[CI-Bot][${targetEnv^^}] Auto updated ${artifactBaseName}-${artifactVersion}"
     fi
 
 }
@@ -86,7 +83,15 @@ function startUpdateConfig() {
         cat ${targetConfigFile}
         echo "[INFO] Update completed: ${targetConfigFile}"
     done
+    ## Perform merge with remote to ensure picking up the latest changes
+    if [[ "${VERSION_UPDATED}" == "true" ]]; then
+        echo "[INFO] Fetch for any changes.."
+        git fetch
+        echo "[INFO] Merge any changes.."
+        git merge --strategy-option ours -m "[CI-Bot][${targetEnv^^}] Auto updated ${artifactBaseName}-${artifactVersion}"
+    fi
 }
 
+VERSION_UPDATED=false
 startUpdateConfig
 
