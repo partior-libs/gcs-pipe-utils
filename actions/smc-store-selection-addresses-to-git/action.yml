@@ -17,10 +17,18 @@ inputs:
     description: 'Flag to indicate if git push to be executed'
     required: false
     default: true
+  target-repo:  
+    description: 'Target repo where yaml is stored'
+    required: true
+    default: ''
+  target-repo-ref:  
+    description: 'Target repo ref to be updated'
+    required: false
+    default: 'main'
   pat-token:
     description: 'PAT token to push code'
-    required: false
-    default: ${{ github.token }}
+    required: true
+    default: ''
 outputs:
   generated-filename:
     description: "Filename of the converted config script"
@@ -38,15 +46,18 @@ runs:
         ${{ github.action_path }}/../../scripts/smc-store-selection-addresses-to-git.sh \
           "${{ inputs.store-config-query-list }}" \
           "${{ inputs.contract-addresses-props-file }}" \
-          "${{ inputs.env-name }}"
+          "${{ inputs.env-name }}" \
+          "${{ inputs.target-repo }}" \
+          "${{ inputs.pat-token }}"
       shell: bash
        
     - name: Push changes
       if: inputs.git-push == 'true'
       uses: partior-libs/gjs-github-push@partior-stable
       with:
+        repository: ${{ inputs.target-repo }}
         github_token: ${{ inputs.pat-token }}
-        branch: ${{ github.ref }}
+        branch: ${{ inputs.target-repo-ref }}
 
     - run: echo Done storing SMC addresses...
       shell: bash
