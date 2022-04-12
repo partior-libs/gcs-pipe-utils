@@ -41,17 +41,13 @@ inputs:
     description: 'PAT token to push code'
     required: true
     default: ''
-outputs:
-  generated-filename:
-    description: "Filename of the converted config script"
-    value: ${{ inputs.output-file }}
 runs:
   using: "composite"
   steps:
-    - run: |
-        echo Listing env...
-        set
-      shell: bash
+    # - run: |
+    #     echo Listing env...
+    #     set
+    #   shell: bash
 
     - uses: actions/checkout@v3
       with:

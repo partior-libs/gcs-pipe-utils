@@ -1,12 +1,14 @@
 #!/bin/bash +e
 set +e
 
-contractAddressesinPropFile=$1 #${d{ env.SMC_CONTRACT_SUMMARY_FILE }}
-targetYamlFile=$2 #${d{ steps.pipeline-config.outputs.contract-addresses_extract-all_store_all-to-git_file }}
-targetStoreYamlPath=$3 #${d{ steps.pipeline-config.outputs.contract-addresses_extract-all_store_all-to-git_yaml-store-path-key }}
-artifactVersion=$4 #${d{ env.ARTIFACT_VERSION }}
-artifactBaseName=$5 #${d{ env.ARTIFACT_VERSION }}
-envName=$6 #${d{ env.UPPERCASE_TARGET_ENV }}
+contractAddressesinPropFile="$1"
+targetYamlFile="$2"
+targetStoreYamlPath="$3"
+artifactVersion="$4"
+artifactBaseName="$5"
+envName="$6"
+targetRepo="$7"
+githubPatToken="$8"
 
 if [[ ! -f "$contractAddressesinPropFile" ]]; then
     echo "[ERROR] $BASH_SOURCE (line:$LINENO): Contracts extraction file not found: [$contractAddressesinPropFile]"
@@ -44,6 +46,7 @@ cat $targetYamlFile | yq
 echo "[INFO] Preparing to push into Git..."
 git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git config --local user.name "github-actions[bot]"
+git remote set-url origin https://${githubPatToken}@github.com/${targetRepo}
 git add $targetYamlFile
 git commit -m "[Bot] $envName - Deployed $artifactBaseName-$artifactVersion"
 git fetch

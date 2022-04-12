@@ -33,10 +33,18 @@ inputs:
     description: 'Flag to indicate if require to upload the file'
     required: false
     default: false
+  target-repo:  
+    description: 'Target repo where yaml is stored'
+    required: true
+    default: ''
+  target-repo-ref:  
+    description: 'Target repo ref to be updated'
+    required: false
+    default: 'main'
   pat-token:
     description: 'PAT token to push code'
-    required: false
-    default: ${{ github.token }}
+    required: true
+    default: ''
 outputs:
   generated-filename:
     description: "Filename of the converted config script"
@@ -53,6 +61,8 @@ runs:
           "${{ inputs.artifact-version }}" \
           "${{ inputs.artifact-base-name }}" \
           "${{ inputs.env-name }}" \
+          "${{ inputs.target-repo }}" \
+          "${{ inputs.pat-token }}"
       shell: bash
 
     - name: upload properties config
@@ -68,8 +78,9 @@ runs:
       if: inputs.git-push == 'true'
       uses: partior-libs/gjs-github-push@partior-stable
       with:
+        repository: ${{ inputs.target-repo }}
         github_token: ${{ inputs.pat-token }}
-        branch: ${{ github.ref }}
+        branch: ${{ inputs.target-repo-ref }}
 
     - run: echo Done converting and storing SMC addresses...
       shell: bash

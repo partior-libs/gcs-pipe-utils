@@ -49,10 +49,18 @@ inputs:
     description: 'Jfrog token to upload'
     required: false
     default: ''
+  target-repo:  
+    description: 'Target repo where yaml is stored'
+    required: true
+    default: ''
+  target-repo-ref:  
+    description: 'Target repo ref to be updated'
+    required: false
+    default: 'main'
   pat-token:
     description: 'PAT token to push code'
-    required: false
-    default: ${{ github.token }}
+    required: true
+    default: ''
 outputs:
   generated-filename:
     description: "Filename of the converted config script"
@@ -95,50 +103,24 @@ runs:
 
     - name: Update artifact backup version in Deployment Config
       run: |
-        set +e
-        deployConfigFile=${{ inputs.yaml-store-file }}
-        artifactBaseName=${{ env.TARGET_BUILD_ARTIFACT_NAME }}
-        versionKeyPath=${{ inputs.yaml-store-path-key }}.backup-version
-        artifactVersion=${{ env.TARGET_BUILD_ARTIFACT_VERSION }}
-        artifactVersionPath=${{ inputs.artifactory-repo }}/${{ inputs.artifact-group }}/${{ env.TARGET_BUILD_ARTIFACT_NAME }}/${{ env.TARGET_BUILD_ARTIFACT_NAME }}-${{ env.TARGET_BUILD_ARTIFACT_VERSION }}.tgz
-        targetEnv=${{ inputs.env-name }}
-        echo UPPERCASE_TARGET_ENV=${targetEnv^^} >> $GITHUB_ENV
-
-        ## Fail if config file not found
-        if [[ ! -f "${deployConfigFile}" ]]; then
-          echo "[ERROR] Unable to locate deploy config file: $deployConfigFile"
-          exit 1
-        fi
-
-        ## Update version
-        yq -i "${versionKeyPath} = \"${artifactVersionPath}\"" ${deployConfigFile}
-
-        echo "[INFO] Stored version in config file..."
-        cat ${deployConfigFile} | yq
-
-        ## If redeployment, there will be no new changes to version file
-        if (git status | grep "nothing to commit"); then 
-          echo VERSION_UPDATED=false >> $GITHUB_ENV
-        else 
-          echo VERSION_UPDATED=true >> $GITHUB_ENV 
-          echo "[INFO] Preparing to push into Git..."
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add ${deployConfigFile}
-          git commit -m "[CI-Bot][${targetEnv^^}] Backup artifact ${artifactBaseName}-${artifactVersion}"
-          echo "[INFO] Fetch for any changes.."
-          git fetch
-          echo "[INFO] Merge any changes.."
-          git merge --strategy-option ours -m "[CI-Bot][${targetEnv^^}] Backup artifact ${artifactBaseName}-${artifactVersion}"
-        fi
+        ${{ github.action_path }}/../../scripts/smc-backup-build-folder.sh \
+          "${{ inputs.yaml-store-file }}" \
+          "${{ env.TARGET_BUILD_ARTIFACT_NAME }}" \
+          "${{ inputs.yaml-store-path-key }}.backup-version" \
+          "${{ env.TARGET_BUILD_ARTIFACT_VERSION }}" \
+          "${{ inputs.artifactory-repo }}/${{ inputs.artifact-group }}/${{ env.TARGET_BUILD_ARTIFACT_NAME }}/${{ env.TARGET_BUILD_ARTIFACT_NAME }}-${{ env.TARGET_BUILD_ARTIFACT_VERSION }}.tgz" \
+          "${{ inputs.env-name }}" \
+          "${{ inputs.target-repo }}" \
+          "${{ inputs.pat-token }}"
       shell: bash
 
     - name: Push changes
       if: inputs.git-push == 'true'
       uses: partior-libs/gjs-github-push@partior-stable
       with:
+        repository: ${{ inputs.target-repo }}
         github_token: ${{ inputs.pat-token }}
-        branch: ${{ github.ref }}
+        branch: ${{ inputs.target-repo-ref }}
 
     - run: echo [INFO] Done backup artifact...
       shell: bash

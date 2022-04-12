@@ -4,6 +4,8 @@ set +e
 yamlConfigQueryPathList=$1
 propertySourceFile=$2
 envName=$3
+targetRepo="$4"
+githubPatToken="$5"
 
 if [[ ! -f "$propertySourceFile" ]]; then
     echo "[ERROR] $BASH_SOURCE (line:$LINENO): Property file not found [${propertySourceFile}]"
@@ -142,6 +144,7 @@ function addChangestoGit() {
     echo "[INFO] Preparing to push into Git..."
     git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
     git config --local user.name "github-actions[bot]"
+    git remote set-url origin https://${githubPatToken}@github.com/${targetRepo}
     git add $targetYamlFile
     git commit -m "[Bot] $envName - Updated [$targetKey] in config"
     git fetch
