@@ -69,7 +69,8 @@ jobs:
           artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
           artifact-version: "${{ env.ARTIFACT_VERSION }}"
           create-if-new-config: true
-          pat-token: "${{ github.token }}"
+          target-repo-ref: ${{ github.ref }}
+          pat-token: ${{ secrets.REPO_PAT }}
           git-push: false
 
 

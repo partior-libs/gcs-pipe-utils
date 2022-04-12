@@ -50,6 +50,9 @@ jobs:
           contract-addresses-props-file: unit-test-config/deploy-config/sample-contract-addresses.conf
           env-name: dev02
           store-config-query-list: contract-addresses.extract-by-log.store.selection-to-git,contract-addresses.extract-all.store.selection-to-git
+          target-repo: ${{ github.repository }}
+          target-repo-ref: ${{ github.ref }}
+          pat-token: ${{ secrets.REPO_PAT }}
           git-push: false
 
       - name: View final updated yaml 1

@@ -57,6 +57,9 @@ jobs:
           artifact-source-folder-path: scripts
           git-push: true
           artifactory-upload: false
+          target-repo: ${{ github.repository }}
+          target-repo-ref: ${{ github.ref }}
+          pat-token: ${{ secrets.REPO_PAT }}
           jfrog-token: 123
 
       - name: View final updated yaml 
