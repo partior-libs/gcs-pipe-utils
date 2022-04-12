@@ -52,7 +52,7 @@ packages:
           address: 0xDE142c3Cd543F82aeb052020330917d0F6A06958
           version: 1.2.1-dev.37+bld.95.1
           last-updated: "20220403_2159"
-      backup-version: smc-generic-dev/partior/settlement-utility-deployed-backup/settlement-utility-deployed-backup-9.9.9-dev.9+bld.99.9.20220411031825.tgz
+      backup-version: smc-generic-dev/partior/settlement-utility-deployed-backup/settlement-utility-deployed-backup-9.9.9-dev.9+bld.99.9.20220412130809.tgz
   onboarding:
     deployed:
       artifact-version: "0.0.1-dev.16+bld.26.1"
