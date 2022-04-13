@@ -12,7 +12,7 @@ inputs:
 
 outputs:
   found-list:
-    description: "List of sequence name of contracts"
+    description: "List of sequence name in array"
     value: ${{ steps.get-sequence.outputs.list }}
 
 runs:
@@ -45,9 +45,9 @@ runs:
     - id: get-sequence
       run: |
         ${{ github.action_path }}/../../scripts/generic-convert-yaml-list-to-json-array.sh \
-          "${{ inputs.yaml-path-to-config }}" 
+          "${{ env.LIST_QUERY_PATH }}" 
       shell: bash
 
-    - run: echo [INFO] Done backup artifact...
+    - run: echo [INFO] Done converting...
       shell: bash
 
