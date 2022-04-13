@@ -19,7 +19,7 @@ runs:
   using: "composite"
   env:
     YAML_IMPORTER_FILE: yaml_importer_${{ github.run_id }}_${{ github.run_number }}
-  steps:     
+  steps:
     - name: Extract query path
       run: |
         fullQueryPath=${{ inputs.yaml-path-to-config }}
@@ -27,7 +27,6 @@ runs:
         listPath="${fullQueryPath##*.}"
         echo PARENT_QUERY_PATH=${parentPath} >> $GITHUB_ENV
         echo LIST_QUERY_PATH=${listPath} >> $GITHUB_ENV
-
 
     - name: Generate YAML Importer
       uses: partior-libs/gcs-yaml-importer@partior-stable
