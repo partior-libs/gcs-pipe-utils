@@ -1,0 +1,53 @@
+name: 'Partior - Generic convert YAML list to JSON Array'
+description: 'Generic convert YAML list to JSON Array. Useful for matrix execution.'
+inputs:
+  yaml-file:  
+    description: 'Yaml query path to the sequence list'
+    required: true
+    default: ''
+  yaml-path-to-config:  
+    description: 'Yaml query path to the sequence list'
+    required: true
+    default: ''
+
+outputs:
+  found-list:
+    description: "List of sequence name of contracts"
+    value: ${{ steps.get-sequence.outputs.list }}
+
+runs:
+  using: "composite"
+  env:
+    YAML_IMPORTER_FILE: yaml_importer_${{ github.run_id }}_${{ github.run_number }}
+  steps:     
+      - name: Extract query path
+        run: |
+          fullQueryPath=${{ inputs.yaml-path-to-config }}
+          parentPath="${fullQueryPath%.*}"
+          listPath="${fullQueryPath##*.}"
+          echo PARENT_QUERY_PATH=${parentPath} >> $GITHUB_ENV
+          echo LIST_QUERY_PATH=${listPath} >> $GITHUB_ENV
+
+
+      - name: Generate YAML Importer
+        uses: partior-libs/gcs-yaml-importer@partior-stable
+        with:
+          yaml-file: ${{ inputs.yaml-file }}
+          query-path: ${{ env.PARENT_QUERY_PATH }}
+          output-file: ${{ env.YAML_IMPORTER_FILE }}
+
+      - name: Start import config
+        id: yaml-config
+        run: |
+          echo Importing ...${{ env.YAML_IMPORTER_FILE }}
+          source ./${{ env.YAML_IMPORTER_FILE }}
+        
+    - id: get-sequence
+      run: |
+        ${{ github.action_path }}/../../scripts/generic-convert-yaml-list-to-json-array.sh \
+          "${{ inputs.yaml-path-to-config }}" 
+      shell: bash
+
+    - run: echo [INFO] Done backup artifact...
+      shell: bash
+

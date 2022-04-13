@@ -1,0 +1,41 @@
+name: test-generic-convert-yaml-list-to-json-array
+
+on:
+  push:
+    paths:
+      - 'actions/generic-convert-yaml-list-to-json-array/**'
+      - 'scripts/generic-convert-yaml-list-to-json-array.sh'
+      - '.github/workflows/unit-test-generic-convert-yaml-list-to-json-array.yml'
+  workflow_dispatch:
+
+jobs:
+  test-scenario-1-reader:
+    runs-on: ubuntu-latest
+    outputs:
+      SEQUENCE-LIST: ${{ steps.sequence-list.outputs.found-list }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get sequence list
+        id: sequence-list
+        uses: partior-libs/gcs-pipe-utils/actions/generic-convert-yaml-list-to-json-array@main
+        with:
+          yaml-file: unit-test-config/controller-config/smc-settlement-utility.yml
+          yaml-path-to-config: .smc.cd.environments.dev02.smc-initial-setup.setup-sequence
+
+      - name: View final sequence list
+        run:  |
+          echo [DEBUG] Found: ${{ steps.sequence-list.outputs.found-list }}
+
+  test-scenario-1-matrix-test:
+    needs: [ test-scenario-1-reader ]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        contract: ${{fromJSON(needs.test-scenario-1-reader.outputs.SEQUENCE-LIST)}}
+    steps:
+      - name: Try ${{ matrix.contract }}
+        run:
+          echo [INFO] Now is ${{ matrix.contract }}
