@@ -50,7 +50,7 @@ runs:
       run: |
         ${{ github.action_path }}/../../scripts/generic-convert-yaml-list-to-json-array.sh \
           "${{ env.LIST_QUERY_PATH }}" \
-          "${{ inputs.exclusion-name-list"
+          "${{ inputs.exclusion-name-list }}"
       shell: bash
 
     - run: echo [INFO] Done converting...
