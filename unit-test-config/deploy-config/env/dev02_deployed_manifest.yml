@@ -52,7 +52,7 @@ packages:
           address: 0xDE142c3Cd543F82aeb052020330917d0F6A06958
           version: 1.2.1-dev.37+bld.95.1
           last-updated: "20220403_2159"
-      backup-version: smc-generic-dev/partior/settlement-utility-deployed-backup/settlement-utility-deployed-backup-9.9.9-dev.9+bld.99.9.20220411031825.tgz
+      backup-version: smc-generic-dev/partior/settlement-utility-deployed-backup/settlement-utility-deployed-backup-9.9.9-dev.9+bld.99.9.20220412130809.tgz
   onboarding:
     deployed:
       artifact-version: "0.0.1-dev.16+bld.26.1"
@@ -120,3 +120,54 @@ packages:
           version: 0.0.1-dev.9+bld.14.1
           last-updated: "20220404_0336"
   backup-version: 9.9.9-dev.9+bld.99.9.202204040845
+  artifact-version: 1.2.3-dev.12
+  last-deployed-timestamp: "20220412_1307"
+  contracts:
+    AccountBalanceFacet:
+      address: 0xC422DcdC4179F4FEaE340d296b12392090EeEDA5
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    AccountInfoFacet:
+      address: 0x754198e3C8c5fB1e01bb88C52cAb056Fb19d77d7
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    Diamond:
+      address: 0xEd13F9c695a976Dc53B286EbE7048a16D1D785C8
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    DiamondCutFacet:
+      address: 0x808Bc8DfaD46fF65bb49Ba28AD0C5b3c4E93468c
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    DiamondFacet:
+      address: 0x635c00E06D52383FE2FA32A846144AF65b53FD65
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    DiamondLoupeFacet:
+      address: 0x86596854D13dE69ebb900C7145E5354d0D496603
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    HoldDetailFacet:
+      address: 0x804bF1ad95954662d49f5d3b081734Ff4EF59d02
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    Migrations:
+      address: 0x9fD44c42e36355006165ef5b70e5D76b8896a1aa
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    OwnershipFacet:
+      address: 0x69fa378A4bCf04aC121c05551199bC84da8685f5
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    PostingSettlementFacet:
+      address: 0xbb7647c43d49C6570fEDfDC7bA5990ABfc57116d
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    Diamond_USD:
+      address: "0x123456"
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
+    Diamond_SGD:
+      address: "0x999999"
+      version: 1.2.3-dev.12
+      last-updated: "20220412_1307"
