@@ -321,3 +321,4 @@ smc:
           setup-sequence:
             - onboarding
             - settlement-utility
+            - payment-utililty

@@ -17,14 +17,15 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Get sequence list without exclusion
+        id: sequence-list-no-exclusion
         uses: partior-libs/gcs-pipe-utils/actions/generic-convert-yaml-list-to-json-array@main
         with:
           yaml-file: unit-test-config/controller-config/smc-default.yml
           yaml-path-to-config: .smc.cd.environments.default.smc-initial-setup.setup-sequence
 
-      - name: View final sequence list ithout exclusion
+      - name: View final sequence list without exclusion
         run:  |
-          echo [DEBUG] Found: ${{ steps.sequence-list.outputs.found-list }}
+          echo [DEBUG] Found: ${{ steps.sequence-list-no-exclusion.outputs.found-list }}
 
       - name: Get sequence list
         id: sequence-list
