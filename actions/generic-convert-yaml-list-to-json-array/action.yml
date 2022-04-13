@@ -9,6 +9,10 @@ inputs:
     description: 'Yaml query path to the sequence list'
     required: true
     default: ''
+  exclusion-name-list:  
+    description: 'Item to be excluded. Support comma delimited'
+    required: false
+    default: ''
 
 outputs:
   found-list:
@@ -45,7 +49,8 @@ runs:
     - id: get-sequence
       run: |
         ${{ github.action_path }}/../../scripts/generic-convert-yaml-list-to-json-array.sh \
-          "${{ env.LIST_QUERY_PATH }}" 
+          "${{ env.LIST_QUERY_PATH }}" \
+          "${{ inputs.exclusion-name-list"
       shell: bash
 
     - run: echo [INFO] Done converting...
