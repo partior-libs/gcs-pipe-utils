@@ -20,8 +20,8 @@ jobs:
         id: sequence-list
         uses: partior-libs/gcs-pipe-utils/actions/generic-convert-yaml-list-to-json-array@main
         with:
-          yaml-file: unit-test-config/controller-config/smc-settlement-utility.yml
-          yaml-path-to-config: .smc.cd.environments.dev02.smc-initial-setup.setup-sequence
+          yaml-file: unit-test-config/controller-config/smc-default.yml
+          yaml-path-to-config: .smc.cd.environments.default.smc-initial-setup.setup-sequence
 
       - name: View final sequence list
         run:  |
