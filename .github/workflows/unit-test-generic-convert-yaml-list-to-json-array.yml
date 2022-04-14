@@ -39,8 +39,23 @@ jobs:
         run:  |
           echo [DEBUG] Found: ${{ steps.sequence-list.outputs.found-list }}
 
+  workflow-approval:
+    name: "approval-sample"
+    needs: [ read-config ]
+    environment: PROMOTE_ARTIFACT
+    env:
+      UPPERCASE_SOURCE_ENV: PROMOTE_ARTIFACT
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approving artifact promotion from env ANTZ
+        run: |
+          echo "Running workflow-approval on $ENVIRONMENT
+          echo "[DEBUG] Following smc will be promoted: [${{ needs.test-scenario-1-reader.outputs.SEQUENCE-LIST }}]"
+        env:
+          ENVIRONMENT: ${{ env.UPPERCASE_SOURCE_ENV }} 
+
   test-scenario-1-matrix-test:
-    needs: [ test-scenario-1-reader ]
+    needs: [ test-scenario-1-reader, workflow-approval ]
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
