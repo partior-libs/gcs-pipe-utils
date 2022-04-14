@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Approving artifact promotion from env ANTZ
         run: |
-          echo "Running workflow-approval on $ENVIRONMENT
+          echo "Running workflow-approval on $ENVIRONMENT"
           echo "[DEBUG] Following smc will be promoted: [${{ needs.test-scenario-1-reader.outputs.SEQUENCE-LIST }}]"
         env:
           ENVIRONMENT: ${{ env.UPPERCASE_SOURCE_ENV }} 
