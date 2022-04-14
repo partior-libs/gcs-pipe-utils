@@ -41,7 +41,7 @@ jobs:
 
   workflow-approval:
     name: "approval-sample"
-    needs: [ read-config ]
+    needs: [ test-scenario-1-reader ]
     environment: PROMOTE_ARTIFACT
     env:
       UPPERCASE_SOURCE_ENV: PROMOTE_ARTIFACT
