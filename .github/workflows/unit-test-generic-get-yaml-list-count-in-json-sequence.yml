@@ -1,0 +1,57 @@
+name: test-generic-get-yaml-list-count-in-json-sequence
+
+on:
+  push:
+    paths:
+      - 'actions/generic-get-yaml-list-count-in-json-sequence/**'
+      - 'scripts/generic-get-yaml-list-count-in-json-sequence.sh'
+      - '.github/workflows/unit-test-generic-get-yaml-list-count-in-json-sequence.yml'
+  workflow_dispatch:
+
+jobs:
+  test-scenario-1-reader:
+    runs-on: ubuntu-latest
+    outputs:
+      SEQUENCE-LIST: ${{ steps.sequence-list.outputs.found-list }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get sequence list
+        id: sequence-list
+        uses: partior-libs/gcs-pipe-utils/actions/generic-get-yaml-list-count-in-json-sequence@main
+        with:
+          yaml-file: unit-test-config/controller-config/smc-default.yml
+          yaml-path-to-config: .smc.cd.environments.default.smc-initial-setup.setup-sequence
+          exclusion-name-list: settlement-utility
+
+      - name: View final sequence list
+        run:  |
+          echo [DEBUG] Found: ${{ steps.sequence-list.outputs.found-list }}
+
+  workflow-approval:
+    name: "approval-sample"
+    needs: [ test-scenario-1-reader ]
+    environment: PROMOTE_ARTIFACT
+    env:
+      UPPERCASE_SOURCE_ENV: PROMOTE_ARTIFACT
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approving artifact promotion from env ANTZ
+        run: |
+          echo "Running workflow-approval on $ENVIRONMENT"
+          echo "[DEBUG] Following smc will be promoted: [${{ needs.test-scenario-1-reader.outputs.SEQUENCE-LIST }}]"
+        env:
+          ENVIRONMENT: ${{ env.UPPERCASE_SOURCE_ENV }} 
+
+  test-scenario-1-matrix-test:
+    needs: [ test-scenario-1-reader, workflow-approval ]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        contract-no: ${{fromJSON(needs.test-scenario-1-reader.outputs.SEQUENCE-LIST)}}
+    steps:
+      - name: Try ${{ matrix.contract-no }}
+        run:
+          echo [INFO] Now is ${{ matrix.contract-no }}
