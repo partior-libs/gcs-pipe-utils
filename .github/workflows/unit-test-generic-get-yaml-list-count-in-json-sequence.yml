@@ -22,7 +22,6 @@ jobs:
         with:
           yaml-file: unit-test-config/controller-config/smc-default.yml
           yaml-path-to-config: .smc.cd.environments.default.smc-initial-setup.setup-sequence
-          exclusion-name-list: settlement-utility
 
       - name: View final sequence list
         run:  |
