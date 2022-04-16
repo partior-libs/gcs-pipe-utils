@@ -68,7 +68,7 @@ jobs:
         run:
           echo [INFO] Now is ${{ matrix.contract-no }}
 
-  test-scenario-21-matrix-test:
+  test-scenario-2-matrix-test:
     needs: [ test-scenario-1-reader, workflow-approval ]
     runs-on: ubuntu-latest
     strategy:
