@@ -5,9 +5,15 @@ inputs:
     description: 'Yaml query path to the sequence list. Skip this if already injected into env'
     required: false
     default: ''
+
   yaml-path-to-config:  
     description: 'Yaml query path to the sequence list'
     required: true
+    default: ''
+
+  prepend-identifier:  
+    description: 'Prepend the identifider to the numeric sequence. Useful for sub-matrix execution.'
+    required: false
     default: ''
 
 outputs:
@@ -47,7 +53,8 @@ runs:
     - id: get-sequence
       run: |
         ${{ github.action_path }}/../../scripts/generic-get-yaml-list-count-in-json-sequence.sh \
-          "${{ env.LIST_QUERY_PATH }}" 
+          "${{ env.LIST_QUERY_PATH }}" \
+          "${{ inputs.prepend-identifier }}"
       shell: bash
 
     - run: echo [INFO] Done converting...

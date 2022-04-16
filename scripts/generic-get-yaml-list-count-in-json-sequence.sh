@@ -15,6 +15,11 @@ else
 fi
 
 listQueryPath="$1"
+prependIdentifier="$2"
+
+if [[ ! -z "$prependIdentifier" ]];
+    prependIdentifier="${prependIdentifier}__"
+fi
 
 function convertListToJsonSequence() {
     local searchQueryPath="$1"
@@ -30,9 +35,9 @@ function convertListToJsonSequence() {
     for eachSequenceItem in `seq 0 $((${listCount}-1))`
     do    
         if [[ -z "$tmpBuffer" ]]; then
-            tmpBuffer="[ '$eachSequenceItem'"
+            tmpBuffer="[ '${prependIdentifier}${eachSequenceItem}'"
         else
-            tmpBuffer="$tmpBuffer, '$eachSequenceItem'"
+            tmpBuffer="$tmpBuffer, '${prependIdentifier}${eachSequenceItem}'"
         fi
     done
     tmpBuffer="$tmpBuffer ]"
