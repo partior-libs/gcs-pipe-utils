@@ -17,7 +17,7 @@ fi
 listQueryPath="$1"
 prependIdentifier="$2"
 
-if [[ ! -z "$prependIdentifier" ]];
+if [[ ! -z "$prependIdentifier" ]]; then
     prependIdentifier="${prependIdentifier}__"
 fi
 
