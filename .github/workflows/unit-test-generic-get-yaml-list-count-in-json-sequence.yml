@@ -22,6 +22,7 @@ jobs:
         with:
           yaml-file: unit-test-config/controller-config/smc-default.yml
           yaml-path-to-config: .smc.cd.environments.default.smc-initial-setup.setup-sequence
+          prepend-identifer: antz
 
       - name: View final sequence list
         run:  |
