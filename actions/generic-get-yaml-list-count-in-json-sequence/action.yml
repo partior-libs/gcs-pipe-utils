@@ -2,8 +2,8 @@ name: 'Partior - Get numeric ordering sequence in JSON array obtained from YAML 
 description: 'Get numeric ordering sequence in JSON array obtained from YAML. Useful for matrix execution.'
 inputs:
   yaml-file:  
-    description: 'Yaml query path to the sequence list'
-    required: true
+    description: 'Yaml query path to the sequence list. Skip this if already injected into env'
+    required: false
     default: ''
   yaml-path-to-config:  
     description: 'Yaml query path to the sequence list'
@@ -29,6 +29,7 @@ runs:
       shell: bash
 
     - name: Generate YAML Importer
+      if: inputs.yaml-file != ''
       uses: partior-libs/gcs-yaml-importer@partior-stable
       with:
         yaml-file: ${{ inputs.yaml-file }}
@@ -36,6 +37,7 @@ runs:
         output-file: ${{ env.YAML_IMPORTER_FILE }}
 
     - name: Start import config
+      if: inputs.yaml-file != ''
       id: yaml-config
       run: |
         echo Importing ...${{ env.YAML_IMPORTER_FILE }}
