@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       SEQUENCE-LIST: ${{ steps.sequence-list.outputs.found-list }}
+      SEQUENCE-LIST-WO-PREPEND: ${{ steps.sequence-list-without-prepend.outputs.found-list }}
     steps:
       - uses: actions/checkout@v3
 
@@ -22,9 +23,20 @@ jobs:
         with:
           yaml-file: unit-test-config/controller-config/smc-default.yml
           yaml-path-to-config: .smc.cd.environments.default.smc-initial-setup.setup-sequence
-          prepend-identifer: antz
+          prepend-identifier: antz
 
       - name: View final sequence list
+        run:  |
+          echo [DEBUG] Found: ${{ steps.sequence-list.outputs.found-list }}
+
+      - name: Get sequence list without prepend
+        id: sequence-list-without-prepend
+        uses: partior-libs/gcs-pipe-utils/actions/generic-get-yaml-list-count-in-json-sequence@main
+        with:
+          yaml-file: unit-test-config/controller-config/smc-default.yml
+          yaml-path-to-config: .smc.cd.environments.default.smc-initial-setup.setup-sequence
+
+      - name: View final sequence list without prepend
         run:  |
           echo [DEBUG] Found: ${{ steps.sequence-list.outputs.found-list }}
 
@@ -51,6 +63,19 @@ jobs:
       fail-fast: false
       matrix:
         contract-no: ${{fromJSON(needs.test-scenario-1-reader.outputs.SEQUENCE-LIST)}}
+    steps:
+      - name: Try ${{ matrix.contract-no }}
+        run:
+          echo [INFO] Now is ${{ matrix.contract-no }}
+
+  test-scenario-21-matrix-test:
+    needs: [ test-scenario-1-reader, workflow-approval ]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        contract-no: ${{fromJSON(needs.test-scenario-1-reader.outputs.SEQUENCE-LIST-WO-PREPEND)}}
     steps:
       - name: Try ${{ matrix.contract-no }}
         run:
