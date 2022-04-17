@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Check if artifact promoted
+      - name: Check release existed but different checksum
         id: artifact-promoted
         uses: partior-libs/gcs-pipe-utils/actions/generic-check-if-artifact-already-promoted@main
         with:
@@ -23,7 +23,47 @@ jobs:
           # release-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1.tgz
           release-artifact-full-path: smc-generic-dev/partior/settlement-utility/settlement-utility-1.2.1-dev.52+bld.133.1.tgz
           jfrog-token: ${{ secrets.JFROG_TOKEN }}
+        continue-on-error: true
 
-      - name: Display result
+      - name: Display first result
         run:  |
           echo Artifact promotion flag: [${{ steps.artifact-promoted.outputs.promoted }}]
+
+      - name: Fail if not empty
+        if: steps.artifact-promoted.outputs.promoted != ''
+        run: |
+          exit 1
+
+      - name: Check release not existed
+        id: artifact-promoted
+        uses: partior-libs/gcs-pipe-utils/actions/generic-check-if-artifact-already-promoted@main
+        with:
+          source-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1-dev.24+bld.30.4.tgz
+          release-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1.tgz
+          jfrog-token: ${{ secrets.JFROG_TOKEN }}
+
+      - name: Display second  result
+        run:  |
+          echo Artifact promotion flag: [${{ steps.artifact-promoted.outputs.promoted }}]
+
+      - name: Fail if not false
+        if: steps.artifact-promoted.outputs.promoted != 'false'
+        run: |
+          exit 1
+
+      - name: Check release existed and same checksum
+        id: artifact-promoted
+        uses: partior-libs/gcs-pipe-utils/actions/generic-check-if-artifact-already-promoted@main
+        with:
+          source-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1-dev.24+bld.30.4.tgz
+          release-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1-dev.24+bld.30.4.tgz
+          jfrog-token: ${{ secrets.JFROG_TOKEN }}
+
+      - name: Display second  result
+        run:  |
+          echo Artifact promotion flag: [${{ steps.artifact-promoted.outputs.promoted }}]
+
+      - name: Fail if not false
+        if: steps.artifact-promoted.outputs.promoted != 'true'
+        run: |
+          exit 1
