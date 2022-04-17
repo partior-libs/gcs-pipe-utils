@@ -10,7 +10,6 @@ on:
 
 jobs:
   test-scenario-1-start:
-    needs: [ test-scenario-1-reader ]
     runs-on: ubuntu-latest
     steps:
 
