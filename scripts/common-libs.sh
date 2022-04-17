@@ -33,11 +33,11 @@ function jfrogGetArtifactStorageMeta() {
 
     rm -f $artifactResultFile
     local response=""
-    response=$(jfrog rt curl -XGET "/api/storage/${targetArtifactPath}?${queryKey}" \
+    response=$(jfrog rt curl -XGET /api/storage/${targetArtifactPath}?${queryKey} \
         -w "status_code:[%{http_code}]" \
         -o $artifactResult)
     if [[ $? -ne 0 ]]; then
-        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get latest version."
+        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get artifact metadata."
         echo "[DEBUG] Curl: /api/storage/${targetArtifactPath}?${queryKey}"
         exit 1
     fi
