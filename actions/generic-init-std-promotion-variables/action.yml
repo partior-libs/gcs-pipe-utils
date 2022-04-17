@@ -62,6 +62,7 @@ runs:
 
     - name: Get artifacts details for promotion
       run: |
+        set +e
         promotionQueryPath=artifacts.yaml-config
         promotionQueryPathInEnv=$(echo $promotionQueryPath | sed "s/-/_/g" | sed "s/\./__/g")
 
