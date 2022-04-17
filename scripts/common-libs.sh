@@ -29,9 +29,9 @@ function jfrogGetArtifactStorageMeta() {
     local targetArtifactPath=$1
     local queryKey=$2
     local artifactResultFile=$3
-    echo "[INFO] Getting latest versions for RC, DEV and Release..."
+    echo "[INFO] Getting artifactory meta /api/storage/${targetArtifactPath}?${queryKey} ..."
 
-    rm -f $versionStoreFilename
+    rm -f $artifactResultFile
     local response=""
     response=$(jfrog rt curl -XGET "/api/storage/${targetArtifactPath}?${queryKey}" \
         -w "status_code:[%{http_code}]" \
@@ -50,7 +50,7 @@ function jfrogGetArtifactStorageMeta() {
         
         echo "[WARNING] Artifact query return no result:"
         echo "$(cat $artifactResult)"
-        return false
+        return 1
     fi
-    return true
+    return 0
 }
