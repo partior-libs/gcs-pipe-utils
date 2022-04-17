@@ -1,5 +1,5 @@
 ## For this action to work, it has to be executed after a matrix job where it will generate another sequence item list to be executed as sub matrix.
-## It is important to note that this action expect "YAML_FINAL_PROMOTION_CONFIG_IMPORTER" already present prior this action being called
+## It is important to note that this action expect "YAML_FINAL_PROMOTION_CONFIG_IMPORTER" already uploaded as artifact prior this action being called
 
 name: 'Partior - Generic initialize and inject promotion variables'
 description: 'Generic initialize and inject promotion variables'
@@ -22,7 +22,7 @@ runs:
         ARTIFACT_BASE_NAME=$(echo $currentSequenceItem | awk -F'__' '{print $1}')
         SEQUENCE_ITEM_NO=$(echo $currentSequenceItem | awk -F'__' '{print $2}')
         ARTIFACT_BASE_NAME=${ARTIFACT_BASE_NAME}
-        YAML_FINAL_PROMOTION_CONFIG_IMPORTER=yaml_final_promotion_config_importer_${ARTIFACT_BASE_NAME} _${{ github.run_id }}_${{ github.run_number }}
+        YAML_FINAL_PROMOTION_CONFIG_IMPORTER=yaml_final_promotion_config_importer_${ARTIFACT_BASE_NAME}_${{ github.run_id }}_${{ github.run_number }}
 
         # echo SMC_NAME=${SMC_NAME} >> $GITHUB_ENV
         echo "SEQUENCE_ITEM_NO=${SEQUENCE_ITEM_NO}" >> $GITHUB_ENV
