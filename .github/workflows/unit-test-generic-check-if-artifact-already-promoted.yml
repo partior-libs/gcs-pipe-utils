@@ -20,7 +20,7 @@ jobs:
         with:
           source-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1-dev.24+bld.30.4.tgz
           release-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1.tgz
-          jfrog-token: ${{ secret.JFROG_TOKEN }}
+          jfrog-token: ${{ secrets.JFROG_TOKEN }}
 
       - name: Display result
         run:  |
