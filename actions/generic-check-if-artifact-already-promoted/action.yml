@@ -19,7 +19,7 @@ inputs:
 outputs:
   promoted:
     description: "Return result if artifact has been promoted correctly. true/false"
-    value: ${{ steps.promotion.outputs.promoted }}
+    value: ${{ steps.promotion.outputs.valid-result }}
 env:
   RELEASE_ARTIFACT_PROP_JSON_FILE: release-artifact-prop-file
 runs:
