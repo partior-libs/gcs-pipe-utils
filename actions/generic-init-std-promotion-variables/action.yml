@@ -118,21 +118,22 @@ runs:
 
         function failIfEmpty() {
             local inputKey="$1"
-            if [[ -z "$inputKey" ]]; then
+            local inputKeyValue=${!inputKey}
+            if [[ -z "$inputKeyValue" ]]; then
                 echo "[ERROR] Key is undefined: $inputKey"
                 exit 1
             fi
         }
         ## Throw error if not set
-        failIfEmpty "$FINAL_ARTIFACT_BASE_NAME"
-        failIfEmpty "$FINAL_ARTIFACT_GROUP"
-        failIfEmpty "$FINAL_ARTIFACT_SRC_REPO"
-        failIfEmpty "$FINAL_ARTIFACT_PROMO_REPO"
-        failIfEmpty "$FINAL_ARTIFACT_TYPE"
-        failIfEmpty "$FINAL_ARTIFACT_SRC_VERSION"
-        failIfEmpty "$FINAL_ARTIFACT_RELEASE_VERSION"
-        failIfEmpty "$FINAL_ARTIFACT_SRC_PACKAGE_NAME"
-        failIfEmpty "$FINAL_ARTIFACT_RELEASE_PACKAGE_NAME"
+        failIfEmpty "FINAL_ARTIFACT_BASE_NAME"
+        failIfEmpty "FINAL_ARTIFACT_GROUP"
+        failIfEmpty "FINAL_ARTIFACT_SRC_REPO"
+        failIfEmpty "FINAL_ARTIFACT_PROMO_REPO"
+        failIfEmpty "FINAL_ARTIFACT_TYPE"
+        failIfEmpty "FINAL_ARTIFACT_SRC_VERSION"
+        failIfEmpty "FINAL_ARTIFACT_RELEASE_VERSION"
+        failIfEmpty "FINAL_ARTIFACT_SRC_PACKAGE_NAME"
+        failIfEmpty "FINAL_ARTIFACT_RELEASE_PACKAGE_NAME"
 
         ## Set source path
         artifactSourceFullPath=${FINAL_ARTIFACT_SRC_REPO}/${FINAL_ARTIFACT_GROUP}/${FINAL_ARTIFACT_BASE_NAME}/${FINAL_ARTIFACT_SRC_PACKAGE_NAME}
