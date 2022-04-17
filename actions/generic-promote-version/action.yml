@@ -28,7 +28,6 @@ runs:
 
     - name: Promote artifact and set properties
       run: |
-        set +e
         currentTimestamp=$(date +%s)
         echo "[INFO] Promoting from ${{ inputs.source-artifact-full-path }} to ${{ inputs.release-artifact-full-path }}"
         jfrog rt cp ${{ inputs.source-artifact-full-path }} ${{ inputs.release-artifact-full-path }}
