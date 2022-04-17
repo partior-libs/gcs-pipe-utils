@@ -35,7 +35,7 @@ function jfrogGetArtifactStorageMeta() {
     local response=""
     response=$(jfrog rt curl -XGET /api/storage/${targetArtifactPath}?${queryKey} \
         -w "status_code:[%{http_code}]" \
-        -o $artifactResult)
+        -o $artifactResultFile)
     if [[ $? -ne 0 ]]; then
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get artifact metadata."
         echo "[DEBUG] Curl: /api/storage/${targetArtifactPath}?${queryKey}"
@@ -49,7 +49,7 @@ function jfrogGetArtifactStorageMeta() {
     if [[ $responseStatus -ne 200 ]]; then
         
         echo "[WARNING] Artifact query return no result:"
-        echo "$(cat $artifactResult)"
+        echo "$(cat $artifactResultFile)"
         return 1
     fi
     return 0
