@@ -93,7 +93,7 @@ runs:
         echo [DEBUG] artifactTypeQueryPath=$artifactTypeQueryPath
         artifactTypeQueryValue=${!artifactTypeQueryPath}
 
-        artifactSrcVersion=$(cat ${fileQueryValue} | yq "${fileQueryValue}")
+        artifactSrcVersion=$(cat ${fileQueryValue} | yq "${versionQueryPath}")
         artifactReleaseVersion=$(echo $artifactSrcVersion | cut -d"-" -f1)
         artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactVersion}.${artifactTypeQueryValue}"
         artifactReleasePackageName="${artifactBaseNameQueryValue}-${artifactReleaseVersion}.${artifactTypeQueryValue}"
