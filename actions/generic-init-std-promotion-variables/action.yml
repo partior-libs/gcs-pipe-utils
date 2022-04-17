@@ -54,17 +54,14 @@ runs:
 
         fileQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__file
         echo [DEBUG] fileQueryPath=$fileQueryPath
-        echo [DEBUG] fileQueryValue=${!fileQueryPath}
         fileQueryValue=${!fileQueryPath}
 
         versionQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__version_path
         echo [DEBUG] versionQueryPath=$versionQueryPath
-        echo [DEBUG]   versionQueryValue=${!versionQueryPath}
         versionQueryValue=${!versionQueryPath}
 
         artifactBaseNameQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_base_name
         echo [DEBUG] artifactBaseNameQueryPath=$artifactBaseNameQueryPath
-        echo [DEBUG] artifactBaseNameQueryValue=${!artifactBaseNameQueryPath}
         artifactBaseNameQueryValue=${!artifactBaseNameQueryPath}
 
         artifactGroupQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_group
@@ -79,12 +76,12 @@ runs:
         echo [DEBUG] artiPromoRepoQueryPath=$artiPromoRepoQueryPath
         artiPromoRepoQueryValue=${!artiPromoRepoQueryPath}
 
-        YAML_ARTIFACT_FILE="${fileQueryValue}" >> $GITHUB_ENV
-        YAML_VERSION_QUERY_PATH="${versionQueryValue}" >> $GITHUB_ENV
-        FINAL_ARTIFACT_BASE_NAME="${artifactBaseNameQueryValue}" >> $GITHUB_ENV
-        FINAL_ARTIFACT_GROUP="${artifactGroupQueryValue}" >> $GITHUB_ENV
-        FINAL_ARTIFACT_SRC_REPO="${artiSrcRepoQueryValue}" >> $GITHUB_ENV
-        FINAL_ARTIFACT_PROMO_REPO="${artiPromoRepoQueryValue}" >> $GITHUB_ENV
+        echo YAML_ARTIFACT_FILE="${fileQueryValue}" >> $GITHUB_ENV
+        echo YAML_VERSION_QUERY_PATH="${versionQueryValue}" >> $GITHUB_ENV
+        echo FINAL_ARTIFACT_BASE_NAME="${artifactBaseNameQueryValue}" >> $GITHUB_ENV
+        echo FINAL_ARTIFACT_GROUP="${artifactGroupQueryValue}" >> $GITHUB_ENV
+        echo FINAL_ARTIFACT_SRC_REPO="${artiSrcRepoQueryValue}" >> $GITHUB_ENV
+        echo FINAL_ARTIFACT_PROMO_REPO="${artiPromoRepoQueryValue}" >> $GITHUB_ENV
       shell: bash
 
     - name: Show details
