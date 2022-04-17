@@ -72,7 +72,7 @@ runs:
         echo [DEBUG] artiSrcRepoQueryPath=$artiSrcRepoQueryPath
         artiSrcRepoQueryValue=${!artiSrcRepoQueryPath}
 
-        artiPromoRepoQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifactory_promo_repo
+        artiPromoRepoQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifactory_promotion_repo
         echo [DEBUG] artiPromoRepoQueryPath=$artiPromoRepoQueryPath
         artiPromoRepoQueryValue=${!artiPromoRepoQueryPath}
 
