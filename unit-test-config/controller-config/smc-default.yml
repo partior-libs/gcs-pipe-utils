@@ -167,6 +167,8 @@ smc:
             artifact-group: partior
             artifactory-src-repo: smc-generic-dev
             artifactory-promotion-repo: smc-generic-release
+            artifact-type: tgz
+
     environments:
       default: 
         node-version: 14
