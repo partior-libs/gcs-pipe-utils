@@ -1,0 +1,61 @@
+name: 'Partior - Check if artifact already promoted'
+description: 'Check artifactory if artifact has been promoted'
+inputs:
+  source-artifact-full-path:  
+    description: 'Full artifactory path to source artifact'
+    required: true
+    default: ''
+
+  release-artifact-full-path:
+    description: 'Full artifactory path to target release artifact'
+    required: true
+    default: ''
+
+  jfrog-token:  
+    description: 'Jfrog token'
+    required: true
+    default: ''
+
+outputs:
+  promoted:
+    description: "Return result if artifact has been promoted correctly. true/false"
+    value: ${{ steps.promotion.outputs.promoted }}
+env:
+  RELEASE_ARTIFACT_PROP_JSON_FILE: release-artifact-prop-file
+runs:
+  using: "composite"
+  steps:
+    - name: Setup jfrog
+      uses: jfrog/setup-jfrog-cli@v2
+      env:
+        JF_ENV_1: ${{ inputs.jfrog-token }}
+
+    - name: Check for source properties
+      id: get-properties
+      run: |
+        set +e
+        validResult='false'
+        ${{ github.action_path }}/../../scripts/generic-curl-get-artifact-meta.sh \
+            "${{ inputs.release-artifact-full-path }}" \
+            "properties" \
+            "${{ env.RELEASE_ARTIFACT_PROP_JSON_FILE }}"
+        if ($?); then
+            validResult='true'
+        fi
+        echo ::set-output name=valid-result::${validResult}
+      shell: bash
+
+
+    - name: Set status
+      id: promotion
+      run: |
+        if [[ "${{ steps.get-properties.outputs.valid-result" == 'true' ]]; then
+            echo ::set-output name=valid-result::'true'
+        else
+            echo ::set-output name=valid-result::'false'
+        fi
+      shell: bash  
+        
+    - run: echo [INFO] Done checking...
+      shell: bash
+

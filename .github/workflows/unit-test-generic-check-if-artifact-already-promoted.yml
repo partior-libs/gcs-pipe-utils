@@ -1,0 +1,27 @@
+name: test-convert-yaml-to-prop
+
+on:
+  push:
+    paths:
+      - 'actions/generic-check-if-artifact-already-promoted/**'
+      - 'scripts/generic-curl-get-artifact-meta.sh'
+      - '.github/workflows/generic-check-if-artifact-already-promoted.yml'
+  workflow_dispatch:
+
+jobs:
+  test-scenario-1-start:
+    needs: [ test-scenario-1-reader ]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check if artifact promoted
+        id: artifact-promoted
+        uses: partior-libs/gcs-pipe-utils/actions/generic-check-if-artifact-already-promoted@main
+        with:
+          source-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1-dev.24+bld.30.4.tgz
+          release-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1.tgz
+          jfrog-token: ${{ secret.JFROG_TOKEN }}
+
+      - name: Display result
+        run:  |
+          echo Artifact promotion flag: [${{ steps.artifact-promoted.outputs.promoted }}]
