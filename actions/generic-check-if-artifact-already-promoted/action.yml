@@ -49,7 +49,7 @@ runs:
     - name: Set status
       id: promotion
       run: |
-        if [[ "${{ steps.get-properties.outputs.valid-result" == 'true' ]]; then
+        if [[ "${{ steps.get-properties.outputs.valid-result }}" == 'true' ]]; then
             echo ::set-output name=valid-result::'true'
         else
             echo ::set-output name=valid-result::'false'
