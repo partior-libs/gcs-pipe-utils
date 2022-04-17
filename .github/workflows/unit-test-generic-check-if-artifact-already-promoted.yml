@@ -42,7 +42,7 @@ jobs:
           release-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1.tgz
           jfrog-token: ${{ secrets.JFROG_TOKEN }}
 
-      - name: Display second  result
+      - name: Display second result
         run:  |
           echo Artifact promotion flag: [${{ steps.artifact-promoted2.outputs.promoted }}]
 
@@ -59,11 +59,11 @@ jobs:
           release-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1-dev.24+bld.30.4.tgz
           jfrog-token: ${{ secrets.JFROG_TOKEN }}
 
-      - name: Display second  result
+      - name: Display third result
         run:  |
           echo Artifact promotion flag: [${{ steps.artifact-promoted3.outputs.promoted }}]
 
-      - name: Fail if not false
+      - name: Fail if not true
         if: steps.artifact-promoted3.outputs.promoted != 'true'
         run: |
           exit 1
