@@ -12,13 +12,14 @@ on:
 env: 
   PROMOTION_CONFIG_QUERY_PATH: artifacts.yaml-config
   YAML_PROMOTION_CONFIG_IMPORTER: yaml_promotion_config_importer_settlement-utility_${{ github.run_id }}_${{ github.run_number }}
+  YAML_FINAL_PROMOTION_CONFIG_IMPORTER: yaml_final_promotion_config_importer_settlement-utility_${{ github.run_id }}_${{ github.run_number }} 
 jobs:
   test-scenario-1-reader:
     runs-on: ubuntu-latest
     outputs: 
       ARTIFACTS-SEQUENCE-LIST: ${{ steps.promotion-artifact-sequence-list.outputs.found-list }}
     env:
-      YAML_FINAL_PROMOTION_CONFIG_IMPORTER: yaml_final_promotion_config_importer_settlement-utility_${{ github.run_id }}_${{ github.run_number }}
+
       LOWERCASE_TARGET_ENV: dev02
       ARTIFACT_BASE_NAME: settlement-utility
     steps:
@@ -30,14 +31,14 @@ jobs:
         with:
           yaml-file: unit-test-config/controller-config/smc-default.yml
           query-path: .smc.cd.promotion
-          output-file: ${{ env.YAML_PROMOTION_CONFIG_IMPORTER }}
+          output-file: ${{ env.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
           upload: true
 
       - name: Inject env for promotion config
         id: yaml-config
         run: |
-          echo Importing ...${{ env.YAML_PROMOTION_CONFIG_IMPORTER }}
-          source ./${{ env.YAML_PROMOTION_CONFIG_IMPORTER }}
+          echo Importing ...${{ env.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
+          source ./${{ env.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
         shell: bash  
 
         ## For this to work, must have following env injected before:
