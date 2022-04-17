@@ -1,5 +1,5 @@
-name: 'Partior - Check if artifact already promoted'
-description: 'Check artifactory if artifact has been promoted'
+name: 'Partior - Check if artifact can be promoted'
+description: 'Check artifactory if artifact can be promoted based on artifact properties'
 inputs:
   source-artifact-full-path:  
     description: 'Full artifactory path to source artifact'
@@ -59,6 +59,10 @@ runs:
         PROMO_QL_FLAG=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.qualified"[]')
         PROMO_QL_DEPLOYED_ENV=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.prerequisite.deployed.env"[]')
         PROMO_QL_DEPLOYED_TIMESTAMP=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.prerequisite.deployed.timestamp"[]')
+        
+        echo [INFO] PROMO_QL_FLAG=$PROMO_QL_FLAG
+        echo [INFO] PROMO_QL_DEPLOYED_ENV=$PROMO_QL_DEPLOYED_ENV
+        echo [INFO] PROMO_QL_DEPLOYED_TIMESTAMP=$PROMO_QL_DEPLOYED_TIMESTAMP
 
         ## Throw error if not set
         failIfEmpty "PROMO_QL_FLAG"
