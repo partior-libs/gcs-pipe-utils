@@ -96,7 +96,7 @@ runs:
 
         artifactSrcVersion=$(cat ${fileQueryValue} | yq "${versionQueryValue}")
         artifactReleaseVersion=$(echo $artifactSrcVersion | cut -d"-" -f1)
-        artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactVersion}.${artifactTypeQueryValue}"
+        artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactSrcVersion}.${artifactTypeQueryValue}"
         artifactReleasePackageName="${artifactBaseNameQueryValue}-${artifactReleaseVersion}.${artifactTypeQueryValue}"
 
         echo YAML_ARTIFACT_FILE="${fileQueryValue}" >> $GITHUB_ENV
