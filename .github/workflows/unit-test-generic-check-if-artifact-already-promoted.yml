@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Check release existed but different checksum
-        id: artifact-promoted
+        id: artifact-1
         uses: partior-libs/gcs-pipe-utils/actions/generic-check-if-artifact-already-promoted@main
         with:
           source-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1-dev.24+bld.30.4.tgz
@@ -27,15 +27,15 @@ jobs:
 
       - name: Display first result
         run:  |
-          echo Artifact promotion flag: [${{ steps.artifact-promoted.outputs.promoted }}]
+          echo Artifact promotion flag: [${{ steps.artifact-promoted1.outputs.promoted }}]
 
       - name: Fail if not empty
-        if: steps.artifact-promoted.outputs.promoted != ''
+        if: steps.artifact-promoted1.outputs.promoted != ''
         run: |
           exit 1
 
       - name: Check release not existed
-        id: artifact-promoted
+        id: artifact-promoted2
         uses: partior-libs/gcs-pipe-utils/actions/generic-check-if-artifact-already-promoted@main
         with:
           source-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1-dev.24+bld.30.4.tgz
@@ -44,15 +44,15 @@ jobs:
 
       - name: Display second  result
         run:  |
-          echo Artifact promotion flag: [${{ steps.artifact-promoted.outputs.promoted }}]
+          echo Artifact promotion flag: [${{ steps.artifact-promoted2.outputs.promoted }}]
 
       - name: Fail if not false
-        if: steps.artifact-promoted.outputs.promoted != 'false'
+        if: steps.artifact-promoted2.outputs.promoted != 'false'
         run: |
           exit 1
 
       - name: Check release existed and same checksum
-        id: artifact-promoted
+        id: artifact-promoted3
         uses: partior-libs/gcs-pipe-utils/actions/generic-check-if-artifact-already-promoted@main
         with:
           source-artifact-full-path: smc-generic-dev/partior/onboarding/onboarding-0.0.1-dev.24+bld.30.4.tgz
@@ -61,9 +61,9 @@ jobs:
 
       - name: Display second  result
         run:  |
-          echo Artifact promotion flag: [${{ steps.artifact-promoted.outputs.promoted }}]
+          echo Artifact promotion flag: [${{ steps.artifact-promoted3.outputs.promoted }}]
 
       - name: Fail if not false
-        if: steps.artifact-promoted.outputs.promoted != 'true'
+        if: steps.artifact-promoted3.outputs.promoted != 'true'
         run: |
           exit 1
