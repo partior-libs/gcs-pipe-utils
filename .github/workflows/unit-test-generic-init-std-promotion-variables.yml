@@ -42,12 +42,12 @@ jobs:
         ## For this to work, must have following env injected before:
         # LOWERCASE_TARGET_ENV
         # ARTIFACT_BASE_NAME
-        - name: Get sequence list
-          id: promotion-artifact-sequence-list
-          uses: partior-libs/gcs-pipe-utils/actions/generic-get-yaml-list-count-in-json-sequence@main
-          with:
-            yaml-path-to-config: ${{ env.PROMOTION_CONFIG_QUERY_PATH }}
-            prepend-identifier: settlement-utility
+      - name: Get sequence list
+        id: promotion-artifact-sequence-list
+        uses: partior-libs/gcs-pipe-utils/actions/generic-get-yaml-list-count-in-json-sequence@main
+        with:
+          yaml-path-to-config: ${{ env.PROMOTION_CONFIG_QUERY_PATH }}
+          prepend-identifier: settlement-utility
 
   test-scenario-1-matrix-test:
     needs: [ test-scenario-1-reader, workflow-approval ]
