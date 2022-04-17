@@ -38,7 +38,7 @@ runs:
         ${{ github.action_path }}/../../scripts/generic-curl-get-artifact-meta.sh \
             "${{ inputs.source-artifact-full-path }}" \
             "properties" \
-            "sample.json"
+            "${{ env.RELEASE_ARTIFACT_PROP_JSON_FILE }}"
         if [[ $? -eq 0 ]]; then
             validResult='true'
         fi
