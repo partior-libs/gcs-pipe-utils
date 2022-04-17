@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env: 
-  PROMOTION_CONFIG_QUERY_PATH: .smc.cd.promotion.artifacts.yaml-config
+  PROMOTION_CONFIG_QUERY_PATH: artifacts.yaml-config
   YAML_PROMOTION_CONFIG_IMPORTER: yaml_promotion_config_importer_settlement-utility_${{ github.run_id }}_${{ github.run_number }}
 jobs:
   test-scenario-1-reader:
