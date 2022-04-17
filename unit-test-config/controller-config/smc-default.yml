@@ -155,6 +155,18 @@ smc:
           scan-mode: quick
 
   cd:
+    promotion:
+      ## prerequisite-envs: Env must be deployed here before allowed for promotion. Support comma delimited
+      prerequisite-envs: dev02
+      artifacts:
+        ## Yaml config stored in deploy-smc
+        yaml-config:
+          - file: config/${LOWERCASE_TARGET_ENV}.yml
+            version-path: .packages.${ARTIFACT_BASE_NAME}.package-version
+            artifact-base-name: ${ARTIFACT_BASE_NAME}
+            artifact-group: partior
+            artifactory-src-repo: smc-generic-dev
+            artifactory-promotion-repo: smc-generic-release
     environments:
       default: 
         node-version: 14
