@@ -17,8 +17,8 @@ inputs:
     default: ''
 
 outputs:
-  promoted:
-    description: "Return result if artifact has been promoted correctly. true/false"
+  qualified:
+    description: "Return check result if artifact can be promoted. true/false"
     value: ${{ steps.promotion.outputs.valid-result }}
 
 runs:
@@ -37,43 +37,39 @@ runs:
         RELEASE_ARTIFACT_PROP_JSON_FILE: release-artifact-prop-file
       run: |
         set +e
-        ## Check for source first
-        validResult='false'
-        srcSha256Checksum=''
+        validResult=false
+        echo ::set-output name=valid-result::${validResult}
+        function failIfEmpty() {
+            local inputKey="$1"
+            local inputKeyValue=${!inputKey}
+            if [[ -z "$inputKeyValue" ]]; then
+                echo "[ERROR] Key is undefined: $inputKey. Verify if the artifact has been deployed to promotion prerequisite env properly"
+                exit 1
+            fi
+        }
+
         ${{ github.action_path }}/../../scripts/generic-curl-get-artifact-meta.sh \
             "${{ inputs.source-artifact-full-path }}" \
-            "" \
+            "properties" \
             "${{ env.SRC_ARTIFACT_PROP_JSON_FILE }}"
-        if [[ $? -eq 0 ]]; then
-            srcSha256Checksum=$(cat ${{ env.SRC_ARTIFACT_PROP_JSON_FILE }} | jq -r ".checksums.sha256")
-            echo SRC_ARTIFACT_SHA256=${srcSha256Checksum}
-            echo SRC_ARTIFACT_SHA256=${srcSha256Checksum} >> $GITHUB_ENV
-        else
+        if [[ $? -ne 0 ]]; then
             echo "[ERROR] Unable to find source artifact: ${{ inputs.source-artifact-full-path }}"
             exit 1
         fi
+        PROMO_QL_FLAG=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.qualified"[]')
+        PROMO_QL_DEPLOYED_ENV=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.prerequisite.deployed.env"[]')
+        PROMO_QL_DEPLOYED_TIMESTAMP=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.prerequisite.deployed.timestamp"[]')
 
-        ## Check for target release version
-        validResult='false'
-        ${{ github.action_path }}/../../scripts/generic-curl-get-artifact-meta.sh \
-            "${{ inputs.release-artifact-full-path }}" \
-            "" \
-            "${{ env.RELEASE_ARTIFACT_PROP_JSON_FILE }}"
-        if [[ $? -eq 0 ]]; then
-            releaseSha256Checksum=$(cat ${{ env.RELEASE_ARTIFACT_PROP_JSON_FILE }} | jq -r ".checksums.sha256")
-            echo RELEASE_ARTIFACT_SHA256=${releaseSha256Checksum}
-            echo RELEASE_ARTIFACT_SHA256=${releaseSha256Checksum} >> $GITHUB_ENV
-            if [[ "$srcSha256Checksum" == "$releaseSha256Checksum" ]]; then
-                validResult='true'
-            else
-                echo "[ERROR] SHA256 comparison of source and target release are different. Few posibilities - old base code needs to be rebase or release artifactory has been overwritten."
-                echo "[DEBUG] SRC_ARTIFACT_SHA256=[$srcSha256Checksum], RELEASE_ARTIFACT_SHA256=[$releaseSha256Checksum]"
-                exit 1
-            fi
-        else
-            echo "[INFO] Unable to find release artifact: ${{ inputs.source-artifact-full-path }}"
+        ## Throw error if not set
+        failIfEmpty "PROMO_QL_FLAG"
+        failIfEmpty "PROMO_QL_DEPLOYED_ENV"
+        failIfEmpty "PROMO_QL_DEPLOYED_TIMESTAMP"
+
+        if [[ "$PROMO_QL_FLAG" != "true" ]]; then
+            echo "[ERROR] Promotion qualification flag [promotion.qualified] is false. Verify if the artifact has been deployed to promotion prerequisite env properly"
+            exit 1
         fi
-
+        validResult=true
         echo ::set-output name=valid-result::${validResult}
       shell: bash
 
