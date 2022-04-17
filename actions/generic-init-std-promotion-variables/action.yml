@@ -8,6 +8,11 @@ inputs:
     description: 'Item value from matrix execution while reading promotio.artifact'
     required: true
     default: ''
+
+  pat-token:
+    description: 'PAT token to push code'
+    required: false
+    default: ${{ github.token }}
 # outputs:
 #   found-list:
 #     description: "List of sequence name in array"
@@ -47,6 +52,14 @@ runs:
         source ./${{ env.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
       shell: bash
 
+    - uses: actions/checkout@v3
+      with:
+        repository: "${{ github.repository }}"
+        token: "${{ inputs.pat-token }}"
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+        fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
+        ref: ${{ github.ref }}
+
     - name: Get artifacts details for promotion
       run: |
         promotionQueryPath=artifacts.yaml-config
@@ -76,23 +89,56 @@ runs:
         echo [DEBUG] artiPromoRepoQueryPath=$artiPromoRepoQueryPath
         artiPromoRepoQueryValue=${!artiPromoRepoQueryPath}
 
+        artifactTypeQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_type
+        echo [DEBUG] artifactTypeQueryPath=$artifactTypeQueryPath
+        artifactTypeQueryValue=${!artifactTypeQueryPath}
+
+        artifactSrcVersion=$(cat ${fileQueryValue} | yq "${fileQueryValue}")
+        artifactReleaseVersion=$(echo $artifactSrcVersion | cut -d"-" -f1)
+        artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactVersion}.${artifactTypeQueryValue}"
+        artifactReleasePackageName="${artifactBaseNameQueryValue}-${artifactReleaseVersion}.${artifactTypeQueryValue}"
+
         echo YAML_ARTIFACT_FILE="${fileQueryValue}" >> $GITHUB_ENV
         echo YAML_VERSION_QUERY_PATH="${versionQueryValue}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_BASE_NAME="${artifactBaseNameQueryValue}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_GROUP="${artifactGroupQueryValue}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_SRC_REPO="${artiSrcRepoQueryValue}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_PROMO_REPO="${artiPromoRepoQueryValue}" >> $GITHUB_ENV
+        echo FINAL_ARTIFACT_TYPE="${artifactTypeQueryValue}" >> $GITHUB_ENV
+        echo FINAL_ARTIFACT_SRC_VERSION="${artifactSrcVersion}" >> $GITHUB_ENV
+        echo FINAL_ARTIFACT_RELEASE_VERSION="${artifactReleaseVersion}" >> $GITHUB_ENV
+        echo FINAL_ARTIFACT_SRC_PACKAGE_NAME="${artifactSrcPackageName}" >> $GITHUB_ENV
+        echo FINAL_ARTIFACT_RELEASE_PACKAGE_NAME="${artifactReleasePackageName}" >> $GITHUB_ENV
       shell: bash
 
-    - name: Show details
+    - name: Set jfrog path
+      run: |
+        ## Set source path
+        artifactSourceFullPath=${FINAL_ARTIFACT_SRC_REPO}/${FINAL_ARTIFACT_GROUP}/${FINAL_ARTIFACT_BASE_NAME}/${FINAL_ARTIFACT_SRC_PACKAGE_NAME}
+        echo FINAL_ARTIFACT_SOURCE_FULL_PATH="${artifactSourceFullPath}" >> $GITHUB_ENV
+
+        ## Set target release path
+        artifactReleaseFullPath=${FINAL_ARTIFACT_PROMO_REPO}/${FINAL_ARTIFACT_GROUP}/${FINAL_ARTIFACT_BASE_NAME}/${FINAL_ARTIFACT_RELEASE_PACKAGE_NAME}
+        echo FINAL_ARTIFACT_RELEASE_FULL_PATH="${artifactReleaseFullPath}" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Show retrieved details
       run: |
         echo [INFO] Listing...
         echo [INFO] YAML_ARTIFACT_FILE="${YAML_ARTIFACT_FILE}"
         echo [INFO] YAML_VERSION_QUERY_PATH="${YAML_VERSION_QUERY_PATH}"
+        echo [INFO] FINAL_ARTIFACT_SRC_VERSION="${FINAL_ARTIFACT_SRC_VERSION}"
+        echo [INFO] FINAL_ARTIFACT_RELEASE_VERSION="${FINAL_ARTIFACT_RELEASE_VERSION}"
+        echo [INFO] FINAL_ARTIFACT_SRC_PACKAGE_NAME="${FINAL_ARTIFACT_SRC_PACKAGE_NAME}"
+        echo [INFO] FINAL_ARTIFACT_RELEASE_PACKAGE_NAME="${FINAL_ARTIFACT_RELEASE_PACKAGE_NAME}"
         echo [INFO] FINAL_ARTIFACT_BASE_NAME="${FINAL_ARTIFACT_BASE_NAME}"
         echo [INFO] FINAL_ARTIFACT_GROUP="${FINAL_ARTIFACT_GROUP}"
         echo [INFO] FINAL_ARTIFACT_SRC_REPO="${FINAL_ARTIFACT_SRC_REPO}"
         echo [INFO] FINAL_ARTIFACT_PROMO_REPO="${FINAL_ARTIFACT_PROMO_REPO}"
+        echo [INFO] FINAL_ARTIFACT_TYPE="${FINAL_ARTIFACT_TYPE}"
+        echo [INFO] FINAL_ARTIFACT_SOURCE_FULL_PATH="${FINAL_ARTIFACT_SOURCE_FULL_PATH}"
+        echo [INFO] FINAL_ARTIFACT_RELEASE_FULL_PATH="${FINAL_ARTIFACT_RELEASE_FULL_PATH}"
+        
       shell: bash
 
     - run: echo [INFO] Done injecting...

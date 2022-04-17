@@ -161,7 +161,7 @@ smc:
       artifacts:
         ## Yaml config stored in deploy-smc
         yaml-config:
-          - file: config/${LOWERCASE_TARGET_ENV}.yml
+          - file: unit-test-config/deploy-config/env/${LOWERCASE_TARGET_ENV}.yml
             version-path: .packages.${ARTIFACT_BASE_NAME}.package-version
             artifact-base-name: ${ARTIFACT_BASE_NAME}
             artifact-group: partior
