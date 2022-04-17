@@ -5,7 +5,7 @@ on:
     paths:
       - 'actions/generic-check-if-artifact-already-promoted/**'
       - 'scripts/generic-curl-get-artifact-meta.sh'
-      - '.github/workflows/generic-check-if-artifact-already-promoted.yml'
+      - '.github/workflows/unit-test-generic-check-if-artifact-already-promoted.yml'
   workflow_dispatch:
 
 jobs:
