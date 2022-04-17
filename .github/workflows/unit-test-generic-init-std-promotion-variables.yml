@@ -50,7 +50,7 @@ jobs:
           prepend-identifier: settlement-utility
 
   test-scenario-1-matrix-test:
-    needs: [ test-scenario-1-reader, workflow-approval ]
+    needs: [ test-scenario-1-reader ]
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
