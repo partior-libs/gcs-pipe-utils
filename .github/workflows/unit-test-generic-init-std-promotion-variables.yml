@@ -1,0 +1,79 @@
+name: test-generic-init-std-promotion-variables
+
+on:
+  push:
+    paths:
+      - 'actions/generic-init-std-promotion-variables/**'
+      - 'scripts/generic-init-std-promotion-variables.sh'
+      - '.github/workflows/unit-test-generic-init-std-promotion-variables.yml'
+  workflow_dispatch:
+
+env: 
+  PROMOTION_CONFIG_QUERY_PATH: .smc.cd.promotion.artifacts.yaml-config
+jobs:
+  test-scenario-1-reader:
+    runs-on: ubuntu-latest
+    outputs: 
+      ARTIFACTS-SEQUENCE-LIST: ${{ steps.promotion-artifact-sequence-list.outputs.found-list }}
+    env:
+      YAML_FINAL_PROMOTION_CONFIG_IMPORTER: yaml_final_promotion_config_importer_settlement-utility_${{ github.run_id }}_${{ github.run_number }}
+      LOWERCASE_TARGET_ENV: dev02
+      ARTIFACT_BASE_NAME: settlement-utility
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate SMC Promotion config importer
+        id: yaml-importer-creator
+        uses: partior-libs/gcs-yaml-importer@partior-stable
+        with:
+          yaml-file: unit-test-config/controller-config/smc-default.yml
+          query-path: .smc.cd.promotion
+          output-file: ${{ env.YAML_PROMOTION_CONFIG_IMPORTER }}
+          upload: true
+
+      - name: Inject env for promotion config
+        id: yaml-config
+        run: |
+          echo Importing ...${{ env.YAML_PROMOTION_CONFIG_IMPORTER }}
+          source ./${{ env.YAML_PROMOTION_CONFIG_IMPORTER }}
+        shell: bash  
+
+        ## For this to work, must have following env injected before:
+        # LOWERCASE_TARGET_ENV
+        # ARTIFACT_BASE_NAME
+        - name: Get sequence list
+          id: promotion-artifact-sequence-list
+          uses: partior-libs/gcs-pipe-utils/actions/generic-get-yaml-list-count-in-json-sequence@main
+          with:
+            yaml-path-to-config: ${{ env.PROMOTION_CONFIG_QUERY_PATH }}
+            prepend-identifier: settlement-utility
+
+  test-scenario-1-matrix-test:
+    needs: [ test-scenario-1-reader, workflow-approval ]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        artifact-sequence-item: ${{fromJSON(needs.test-scenario-1-reader.outputs.ARTIFACTS-SEQUENCE-LIST)}}
+    env:
+      ## LOWERCASE_TARGET_ENV is crucial
+      LOWERCASE_TARGET_ENV: dev02
+    steps:
+      - name: Try ${{ matrix.artifact-sequence-item }}
+        run: |
+          echo [INFO] Now is ${{ matrix.artifact-sequence-item }}
+
+      - name: Get promotion details
+        uses: partior-libs/gcs-pipe-utils/actions/generic-init-std-promotion-variables@main
+        with:
+          sequence-item: ${{ matrix.artifact-sequence-item }}
+
+      - name: Show details
+        run: |
+          echo [INFO] YAML_ARTIFACT_FILE="${YAML_ARTIFACT_FILE}"
+          echo [INFO] YAML_VERSION_QUERY_PATH="${YAML_VERSION_QUERY_PATH}"
+          echo [INFO] FINAL_ARTIFACT_BASE_NAME="${FINAL_ARTIFACT_BASE_NAME}"
+          echo [INFO] FINAL_ARTIFACT_GROUP="${FINAL_ARTIFACT_GROUP}"
+          echo [INFO] FINAL_ARTIFACT_SRC_REPO="${FINAL_ARTIFACT_SRC_REPO}"
+          echo [INFO] FINAL_ARTIFACT_PROMO_REPO="${FINAL_ARTIFACT_PROMO_REPO}"
