@@ -5,6 +5,7 @@ on:
     paths:
       - 'actions/generic-convert-yaml-list-to-json-array/**'
       - 'scripts/generic-convert-yaml-list-to-json-array.sh'
+      - 'scripts/common-libs.sh'
       - '.github/workflows/unit-test-generic-convert-yaml-list-to-json-array.yml'
   workflow_dispatch:
 

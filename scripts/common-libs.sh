@@ -9,7 +9,7 @@
 function getListCount() {
     local searchQueryPath="$1"
     local searchQueryPathConverted="$(convertQueryToEnv "$searchQueryPath")"
-    set | grep -e "^${searchQueryPathConverted}__" | wc -l
+    set | grep -o -e "^${searchQueryPathConverted}__[[:digit:]]*" | sort -u | wc -l
 }
 
 function convertQueryToEnv() {

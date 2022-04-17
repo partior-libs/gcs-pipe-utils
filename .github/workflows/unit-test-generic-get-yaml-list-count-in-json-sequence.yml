@@ -5,6 +5,7 @@ on:
     paths:
       - 'actions/generic-get-yaml-list-count-in-json-sequence/**'
       - 'scripts/generic-get-yaml-list-count-in-json-sequence.sh'
+      - 'scripts/common-libs.sh'
       - '.github/workflows/unit-test-generic-get-yaml-list-count-in-json-sequence.yml'
   workflow_dispatch:
 
