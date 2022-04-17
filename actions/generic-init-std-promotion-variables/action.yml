@@ -51,17 +51,20 @@ runs:
       run: |
         promotionQueryPath=artifacts.yaml-config
         promotionQueryPathInEnv=$(echo $promotionQueryPath | sed "s/-/_/g" | sed "s/\./__/g")
-        
+
         fileQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__file
         echo [DEBUG] fileQueryPath=$fileQueryPath
+        echo [DEBUG] fileQueryValue=${!fileQueryPath}
         fileQueryValue=${!fileQueryPath}
 
         versionQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__version_path
         echo [DEBUG] versionQueryPath=$versionQueryPath
+        echo [DEBUG]   versionQueryValue=${!versionQueryPath}
         versionQueryValue=${!versionQueryPath}
 
         artifactBaseNameQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_base_name
         echo [DEBUG] artifactBaseNameQueryPath=$artifactBaseNameQueryPath
+        echo [DEBUG] artifactBaseNameQueryValue=${!artifactBaseNameQueryPath}
         artifactBaseNameQueryValue=${!artifactBaseNameQueryPath}
 
         artifactGroupQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_group
