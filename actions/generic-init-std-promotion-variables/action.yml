@@ -72,6 +72,17 @@ runs:
         FINAL_ARTIFACT_PROMO_REPO="${artiPromoRepoQueryValue}" >> $GITHUB_ENV
       shell: bash
 
+    - name: Show details
+      run: |
+        echo [INFO] Listing...
+        echo [INFO] YAML_ARTIFACT_FILE="${YAML_ARTIFACT_FILE}"
+        echo [INFO] YAML_VERSION_QUERY_PATH="${YAML_VERSION_QUERY_PATH}"
+        echo [INFO] FINAL_ARTIFACT_BASE_NAME="${FINAL_ARTIFACT_BASE_NAME}"
+        echo [INFO] FINAL_ARTIFACT_GROUP="${FINAL_ARTIFACT_GROUP}"
+        echo [INFO] FINAL_ARTIFACT_SRC_REPO="${FINAL_ARTIFACT_SRC_REPO}"
+        echo [INFO] FINAL_ARTIFACT_PROMO_REPO="${FINAL_ARTIFACT_PROMO_REPO}"
+      shell: bash
+      
     - run: echo [INFO] Done injecting...
       shell: bash
 
