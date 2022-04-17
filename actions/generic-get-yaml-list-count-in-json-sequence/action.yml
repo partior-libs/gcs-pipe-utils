@@ -44,10 +44,15 @@ runs:
 
     - name: Start import config
       if: inputs.yaml-file != ''
-      id: yaml-config
       run: |
         echo Importing ...${{ env.YAML_IMPORTER_FILE }}
         source ./${{ env.YAML_IMPORTER_FILE }}
+      shell: bash  
+
+    - name: Set query path if no yaml file
+      if: inputs.yaml-file == ''
+      run: |
+        echo LIST_QUERY_PATH=${{ inputs.yaml-path-to-config }} >> $GITHUB_ENV
       shell: bash  
         
     - id: get-sequence
