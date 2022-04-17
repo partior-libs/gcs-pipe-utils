@@ -94,7 +94,7 @@ runs:
         echo [DEBUG] artifactTypeQueryPath=$artifactTypeQueryPath
         artifactTypeQueryValue=${!artifactTypeQueryPath}
 
-        artifactSrcVersion=$(cat ${fileQueryValue} | yq "${versionQueryPath}")
+        artifactSrcVersion=$(cat ${fileQueryValue} | yq "${versionQueryValue}")
         artifactReleaseVersion=$(echo $artifactSrcVersion | cut -d"-" -f1)
         artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactVersion}.${artifactTypeQueryValue}"
         artifactReleasePackageName="${artifactBaseNameQueryValue}-${artifactReleaseVersion}.${artifactTypeQueryValue}"
@@ -114,6 +114,26 @@ runs:
 
     - name: Set jfrog path
       run: |
+        set +e
+
+        function failIfEmpty() {
+            local inputKey="$1"
+            if [[ -z "$inputKey" ]]; then
+                echo "[ERROR] Key is undefined: $inputKey"
+                exit 1
+            fi
+        }
+        ## Throw error if not set
+        failIfEmpty "$FINAL_ARTIFACT_BASE_NAME"
+        failIfEmpty "$FINAL_ARTIFACT_GROUP"
+        failIfEmpty "$FINAL_ARTIFACT_SRC_REPO"
+        failIfEmpty "$FINAL_ARTIFACT_PROMO_REPO"
+        failIfEmpty "$FINAL_ARTIFACT_TYPE"
+        failIfEmpty "$FINAL_ARTIFACT_SRC_VERSION"
+        failIfEmpty "$FINAL_ARTIFACT_RELEASE_VERSION"
+        failIfEmpty "$FINAL_ARTIFACT_SRC_PACKAGE_NAME"
+        failIfEmpty "$FINAL_ARTIFACT_RELEASE_PACKAGE_NAME"
+
         ## Set source path
         artifactSourceFullPath=${FINAL_ARTIFACT_SRC_REPO}/${FINAL_ARTIFACT_GROUP}/${FINAL_ARTIFACT_BASE_NAME}/${FINAL_ARTIFACT_SRC_PACKAGE_NAME}
         echo FINAL_ARTIFACT_SOURCE_FULL_PATH="${artifactSourceFullPath}" >> $GITHUB_ENV
