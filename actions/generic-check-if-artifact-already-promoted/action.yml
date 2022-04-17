@@ -39,7 +39,7 @@ runs:
             "${{ inputs.release-artifact-full-path }}" \
             "properties" \
             "${{ env.RELEASE_ARTIFACT_PROP_JSON_FILE }}"
-        if ($?); then
+        if [[ $? -eq 0 ]]; then
             validResult='true'
         fi
         echo ::set-output name=valid-result::${validResult}
