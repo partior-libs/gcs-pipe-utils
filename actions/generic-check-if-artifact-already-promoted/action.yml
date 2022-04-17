@@ -23,8 +23,7 @@ outputs:
 
 runs:
   using: "composite"
-  env:
-    RELEASE_ARTIFACT_PROP_JSON_FILE: release-artifact-prop-file
+
   steps:
     - name: Setup jfrog
       uses: jfrog/setup-jfrog-cli@v2
@@ -33,6 +32,8 @@ runs:
 
     - name: Check for source properties
       id: get-properties
+      env:
+        RELEASE_ARTIFACT_PROP_JSON_FILE: release-artifact-prop-file
       run: |
         set +e
         validResult='false'
