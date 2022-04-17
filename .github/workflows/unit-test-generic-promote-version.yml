@@ -20,13 +20,12 @@ jobs:
       - name: Delete dummy target if present
         run: |
           jfrog rt del smc-generic-release/antz/settlement-utility/settlement-utility-1.2.1.tgz
-        continue-on-error: true
 
       - name: Start promotion
         id: artifact-1
         uses: partior-libs/gcs-pipe-utils/actions/generic-promote-version@main
         with:
           source-artifact-full-path: smc-generic-dev/partior/settlement-utility/settlement-utility-1.2.1-dev.54+bld.135.1.tgz
-          release-artifact-full-path: smc-generic-release/antz/settlement-utility/settlement-utility-1.2.1.tgz
+          release-artifact-full-path: smc-generic-release-local/antz/settlement-utility/settlement-utility-1.2.1.tgz
           jfrog-token: ${{ secrets.JFROG_TOKEN }}
 
