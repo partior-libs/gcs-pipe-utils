@@ -56,7 +56,7 @@ runs:
         ## Check for target release version
         validResult='false'
         ${{ github.action_path }}/../../scripts/generic-curl-get-artifact-meta.sh \
-            "${{ inputs.source-artifact-full-path }}" \
+            "${{ inputs.release-artifact-full-path }}" \
             "" \
             "${{ env.RELEASE_ARTIFACT_PROP_JSON_FILE }}"
         if [[ $? -eq 0 ]]; then
