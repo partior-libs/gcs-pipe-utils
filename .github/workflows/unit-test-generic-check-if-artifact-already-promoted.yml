@@ -5,6 +5,7 @@ on:
     paths:
       - 'actions/generic-check-if-artifact-already-promoted/**'
       - 'scripts/generic-curl-get-artifact-meta.sh'
+      - 'scripts/common-libs.sh'
       - '.github/workflows/unit-test-generic-check-if-artifact-already-promoted.yml'
   workflow_dispatch:
 
