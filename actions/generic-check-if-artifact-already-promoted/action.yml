@@ -67,7 +67,7 @@ runs:
                 validResult='true'
             else
                 echo "[ERROR] SHA256 comparison of source and target release are different. Few posibilities - old base code needs to be rebase or release artifactory has been overwritten."
-                echo "[DEBUG] SRC_ARTIFACT_SHA256=[$srcSha256Checksum], RELEASE_ARTIFACT_SHA256=[releaseSha256Checksum]"
+                echo "[DEBUG] SRC_ARTIFACT_SHA256=[$srcSha256Checksum], RELEASE_ARTIFACT_SHA256=[$releaseSha256Checksum]"
                 exit 1
             fi
         else
