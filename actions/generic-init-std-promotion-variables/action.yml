@@ -17,7 +17,7 @@ runs:
   using: "composite"
   steps:
     - name: Initialize promotion variables for ${{ matrix.artifact-sequence-item }}
-      run:
+      run: |
         currentSequenceItem="${{ inputs.sequence-item }}"
         ARTIFACT_BASE_NAME=$(echo $currentSequenceItem | awk -F'__' '{print $1}')
         SEQUENCE_ITEM_NO=$(echo $currentSequenceItem | awk -F'__' '{print $2}')
@@ -25,9 +25,9 @@ runs:
         YAML_FINAL_PROMOTION_CONFIG_IMPORTER=yaml_final_promotion_config_importer_${ARTIFACT_BASE_NAME} _${{ github.run_id }}_${{ github.run_number }}
 
         # echo SMC_NAME=${SMC_NAME} >> $GITHUB_ENV
-        echo SEQUENCE_ITEM_NO=${SEQUENCE_ITEM_NO} >> $GITHUB_ENV
-        echo ARTIFACT_BASE_NAME=${ARTIFACT_BASE_NAME} >> $GITHUB_ENV
-        echo YAML_FINAL_PROMOTION_CONFIG_IMPORTER=${YAML_FINAL_PROMOTION_CONFIG_IMPORTER} >> $GITHUB_ENV
+        echo "SEQUENCE_ITEM_NO=${SEQUENCE_ITEM_NO}" >> $GITHUB_ENV
+        echo "ARTIFACT_BASE_NAME=${ARTIFACT_BASE_NAME}" >> $GITHUB_ENV
+        echo "YAML_FINAL_PROMOTION_CONFIG_IMPORTER=${YAML_FINAL_PROMOTION_CONFIG_IMPORTER}" >> $GITHUB_ENV
 
         # echo [INFO] SMC_NAME=${SMC_NAME}
         echo [INFO] SEQUENCE_ITEM_NO=${SEQUENCE_ITEM_NO}
@@ -48,7 +48,7 @@ runs:
       shell: bash
 
     - name: Get artifacts details for promotion
-      run:
+      run: |
         promotionQueryPath=artifacts.yaml-config
         promotionQueryPathInEnv=$(echo $promotionQueryPath | sed "s/-/_/g" | sed "s/\./__/g")
         fileQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__file
@@ -71,7 +71,7 @@ runs:
         FINAL_ARTIFACT_SRC_REPO="${artiSrcRepoQueryValue}" >> $GITHUB_ENV
         FINAL_ARTIFACT_PROMO_REPO="${artiPromoRepoQueryValue}" >> $GITHUB_ENV
       shell: bash
-      
+
     - run: echo [INFO] Done injecting...
       shell: bash
 
