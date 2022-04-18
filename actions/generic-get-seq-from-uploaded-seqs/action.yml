@@ -1,0 +1,46 @@
+name: 'Partior - Generate sequence list from uploaded artifact'
+description: 'Generate sequence list from uploaded artifact. Useful for matrix job.'
+inputs:
+  artifact-name:  
+    description: 'Artifact name which has been uploaded'
+    required: true
+    default: ''
+
+outputs:
+  sequence-list:
+    description: "Return json format sequence list"
+    value: ${{ steps.get-sequence.outputs.all-seq-list }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Download all sequence list
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ inputs.artifact-name }}
+
+    - name: Consolidate all into single list
+      id: get-sequence
+      run: |
+        cat ${{ inputs.artifact-name }}* > all.txt
+        tmpBuffer=''
+        while read eachLine; do
+          if [[ -z "$tmpBuffer" ]]; then
+              echo processing1 $eachLine
+              tmpLine=$(echo $eachLine | sed 's/ \]//g' | sed "s/\[ /[ \'/g" | sed "s/, /\', '/g")
+              tmpBuffer=$tmpLine
+          else
+              echo processing2 $eachLine
+              tmpLine=$(echo $eachLine | sed 's/\[ /, /g' | sed 's/ \]//g' | sed "s/, /\', '/g")
+              tmpBuffer=${tmpBuffer}${tmpLine}
+          fi
+        done <all.txt
+        tmpBuffer="${tmpBuffer}' ]"
+        echo Final $tmpBuffer
+        echo ::set-output name=all-seq-list::"${tmpBuffer}"
+      shell: bash
+
+    - run: echo [INFO] Done creating sequence...
+      shell: bash
+

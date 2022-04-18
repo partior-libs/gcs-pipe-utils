@@ -1,0 +1,63 @@
+name: test-generic-get-seq-from-uploaded-seqs
+
+on:
+  push:
+    paths:
+      - 'actions/generic-get-seq-from-uploaded-seqs/**'
+      - '.github/workflows/unit-test-generic-get-seq-from-uploaded-seqs.yml'
+  workflow_dispatch:
+
+jobs:
+  test-scenario-1-create:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Generate first sequence
+        run:  |
+          echo "[ 'first', 'second', 'third' ] > seqFile_1"
+
+      - name: Upload sequence list
+        uses: actions/upload-artifact@v3
+        with:
+          name: seqFile
+          path: seqFile_1
+          retention-days: 1
+
+      - name: Generate second sequence
+        run:  |
+          echo "[ 'fourth', 'fifth', 'sixth' ] > seqFile_2"
+
+      - name: Upload sequence list
+        uses: actions/upload-artifact@v3
+        with:
+          name: seqFile
+          path: seqFile_2
+          retention-days: 1
+
+  test-scenario-1-start:
+    runs-on: ubuntu-latest
+    needs: [ test-scenario-1-create ]
+    outputs: 
+      SEQ-LIST: ${{ steps.all-seq.outputs.sequence-list }}
+    steps:
+      - name: Consolidate and generate sequence
+        id: all-seq
+        uses: partior-libs/gcs-pipe-utils/actions/generic-get-seq-from-uploaded-seqs@main
+        with:
+          artifact-name: seqFile
+
+      - name: Show consolidated sequence
+        run:  |
+          echo FINAL SEQUENCE: ${{ steps.all-seq.outputs.sequence-list }}
+          
+  test-scenario-1-matrix-start:
+    needs: [ test-scenario-1-start ]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        seq-item: ${{fromJSON(needs.test-scenario-1-start.outputs.SEQ-LIST)}}
+    steps:
+      - name: Run Matrix
+        run:  |
+          echo Current matrix item: ${{ matrix.seq-item }}
