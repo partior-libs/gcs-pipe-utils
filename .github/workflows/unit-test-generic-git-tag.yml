@@ -17,7 +17,7 @@ jobs:
         with: 
           target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_repo }}"
           artifact-version: "9.9.9-test-version"
-          target-repo-ref: ${{ github.ref }}
+          target-repo-ref: 215d4067632e850852a5ca9f605579a111b34bc1
           pat-token: ${{ secrets.REPO_PAT }}
 
 
