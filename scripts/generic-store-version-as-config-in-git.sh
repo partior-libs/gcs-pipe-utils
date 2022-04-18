@@ -37,7 +37,10 @@ function updateEnvConfig() {
 
     ## Update version
     yq -i "${yamlStorePathKey} = \"${artifactVersion}\"" ${targetConfigFile}
-
+    if [[ $? -ne 0 ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error updating config file [${targetConfigFile}] with key [${yamlStorePathKey}] and value [${artifactVersion}]"
+        exit 1
+    fi
     echo "[INFO] Stored version in config file..."
     cat ${targetConfigFile} | yq
 
