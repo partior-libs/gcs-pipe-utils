@@ -59,10 +59,22 @@ runs:
         PROMO_QL_FLAG=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.qualified"[]')
         PROMO_QL_DEPLOYED_ENV=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.prerequisite.deployed.env"[]')
         PROMO_QL_DEPLOYED_TIMESTAMP=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.prerequisite.deployed.timestamp"[]')
+
+        GH_PR_NUMBER=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."github.pr_number"[]')
+        GH_PR_TARGET_BRANCH=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."github.pr_target_branch"[]')
+        GH_PR_REPO_URL=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."vcs.url"[]')
+        GH_COMMIT_HASH=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."git.commit_hash"[]')
+        GH_REPO=$(echo ${GH_PR_REPO_URL} | awk -F'github.com/' '{print $2}' | sed 's/.git//g')
+        
         
         echo [INFO] PROMO_QL_FLAG=$PROMO_QL_FLAG
         echo [INFO] PROMO_QL_DEPLOYED_ENV=$PROMO_QL_DEPLOYED_ENV
         echo [INFO] PROMO_QL_DEPLOYED_TIMESTAMP=$PROMO_QL_DEPLOYED_TIMESTAMP
+        echo [INFO] GH_PR_NUMBER=$GH_PR_NUMBER
+        echo [INFO] GH_PR_TARGET_BRANCH=$GH_PR_TARGET_BRANCH
+        echo [INFO] GH_PR_REPO_URL=$GH_PR_REPO_URL
+        echo [INFO] GH_COMMIT_HASH=$GH_COMMIT_HASH
+        echo [INFO] GH_REPO=$GH_REPO
 
         ## Throw error if not set
         failIfEmpty "PROMO_QL_FLAG"
@@ -73,6 +85,16 @@ runs:
             echo "[ERROR] Promotion qualification flag [promotion.qualified] is false. Verify if the artifact has been deployed to promotion prerequisite env properly"
             exit 1
         fi
+
+        ## Setting all into variables
+        echo "PROMO_QL_FLAG=$PROMO_QL_FLAG" >> $GITHUB_ENV
+        echo "PROMO_QL_DEPLOYED_ENV=$PROMO_QL_DEPLOYED_ENV" >> $GITHUB_ENV
+        echo "PROMO_QL_DEPLOYED_TIMESTAMP=$PROMO_QL_DEPLOYED_TIMESTAMP" >> $GITHUB_ENV
+        echo "GH_PR_NUMBER=$GH_PR_NUMBER" >> $GITHUB_ENV
+        echo "GH_PR_TARGET_BRANCH=$GH_PR_TARGET_BRANCH" >> $GITHUB_ENV
+        echo "GH_PR_REPO_URL=$GH_PR_REPO_URL" >> $GITHUB_ENV
+        echo "GH_COMMIT_HASH=$GH_COMMIT_HASH" >> $GITHUB_ENV
+        echo "GH_REPO=$GH_REPO" >> $GITHUB_ENV
         validResult=true
         echo ::set-output name=valid-result::${validResult}
       shell: bash
