@@ -168,7 +168,16 @@ smc:
             artifactory-src-repo: smc-generic-dev
             artifactory-promotion-repo: smc-generic-release
             artifact-type: tgz
-
+            store-version:
+              enabled: true
+              git:
+                enabled: true
+                repo: partior-quorum/deploy-smc
+                yaml-store-path-key: .packages.${ARTIFACT_BASE_NAME}.package-version
+                # Placeholder "@@ENV_NAME@@" will be replaced during iteration of list items in "store-version.git.target-envs"
+                target-env-file: config/@@ENV_NAME@@.yml
+                target-envs:
+                  - prod
     environments:
       default: 
         node-version: 14
