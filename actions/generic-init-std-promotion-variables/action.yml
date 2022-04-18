@@ -112,6 +112,38 @@ runs:
         echo FINAL_ARTIFACT_RELEASE_PACKAGE_NAME="${artifactReleasePackageName}" >> $GITHUB_ENV
       shell: bash
 
+    - name: Get git storing details
+      run: |
+        set +e
+        promotionQueryPath=artifacts.yaml-config
+        promotionQueryPathInEnv=$(echo $promotionQueryPath | sed "s/-/_/g" | sed "s/\./__/g")
+
+        storeVersionEnabledQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__enabled
+        echo [DEBUG] storeVersionEnabledQueryValue=$storeVersionEnabledQueryPath
+        storeVersionEnabledQueryValue=${!storeVersionEnabledQueryPath}
+
+        storeVersionGitEnabledQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__git__enabled
+        echo [DEBUG] storeVersionGitEnabledQueryValue=$storeVersionGitEnabledQueryPath
+        storeVersionGitEnabledQueryValue=${!storeVersionGitEnabledQueryPath}
+
+        storeVersionGitRepoQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__git__repo
+        echo [DEBUG] storeVersionGitRepoQueryValue=$storeVersionGitRepoQueryPath
+        storeVersionGitRepoQueryValue=${!storeVersionGitRepoQueryPath}
+
+        storeVersionGitStoreKeyQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__git__yaml_store_path_key
+        echo [DEBUG] storeVersionGitStoreKeyQueryValue=$storeVersionGitStoreKeyQueryPath
+        storeVersionGitStoreKeyQueryValue=${!storeVersionGitStoreKeyQueryPath}
+
+        storeVersionGitTargetEnvFileQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__git__target_env_file
+        echo [DEBUG] storeVersionGitTargetEnvFileQueryValue=$storeVersionGitTargetEnvFileQueryPath
+        storeVersionGitTargetEnvFileQueryValue=${!storeVersionGitTargetEnvFileQueryPath}
+
+        echo STORE_VERSION_ENABLE="${storeVersionEnabledQueryValue}" >> $GITHUB_ENV
+        echo STORE_VERSION_GIT_ENABLE="${storeVersionGitEnabledQueryValue}" >> $GITHUB_ENV
+        echo STORE_VERSION_GIT_REPO="${storeVersionGitRepoQueryValue}" >> $GITHUB_ENV
+        echo STORE_VERSION_GIT_STORE_KEY="${storeVersionGitStoreKeyQueryValue}" >> $GITHUB_ENV
+        echo STORE_VERSION_GIT_TARGET_ENV_FILE="${storeVersionGitTargetEnvFileQueryValue}" >> $GITHUB_ENV
+
     - name: Set jfrog path
       run: |
         set +e
@@ -160,7 +192,11 @@ runs:
         echo [INFO] FINAL_ARTIFACT_TYPE="${FINAL_ARTIFACT_TYPE}"
         echo [INFO] FINAL_ARTIFACT_SOURCE_FULL_PATH="${FINAL_ARTIFACT_SOURCE_FULL_PATH}"
         echo [INFO] FINAL_ARTIFACT_RELEASE_FULL_PATH="${FINAL_ARTIFACT_RELEASE_FULL_PATH}"
-        
+        echo [INFO] STORE_VERSION_ENABLE="${STORE_VERSION_ENABLE}"
+        echo [INFO] STORE_VERSION_GIT_ENABLE="${STORE_VERSION_GIT_ENABLE}"
+        echo [INFO] STORE_VERSION_GIT_REPO="${STORE_VERSION_GIT_REPO}"
+        echo [INFO] STORE_VERSION_GIT_STORE_KEY="${STORE_VERSION_GIT_STORE_KEY}"
+        echo [INFO] STORE_VERSION_GIT_TARGET_ENV_FILE="${STORE_VERSION_GIT_TARGET_ENV_FILE}"
       shell: bash
 
     - run: echo [INFO] Done injecting...
