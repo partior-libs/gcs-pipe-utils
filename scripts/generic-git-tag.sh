@@ -18,7 +18,8 @@ function startTag() {
     git remote set-url origin https://${githubPatToken}@github.com/${targetRepo}
     echo "[INFO] Deleting remote tag if existed..."
     git push --delete origin $finalVersion || true
-
+    echo "[INFO] Push tag..."
+    git push --tags
 }
 
 

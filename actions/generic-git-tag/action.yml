@@ -40,14 +40,14 @@ runs:
           "${{ inputs.pat-token }}"
       shell: bash
        
-    - name: Push changes
-      if: inputs.git-push == 'true'
-      uses: partior-libs/gjs-github-push@partior-stable
-      with:
-        repository: ${{ inputs.target-repo }}
-        github_token: ${{ inputs.pat-token }}
-        branch: ${{ inputs.target-repo-ref }}
-        tags: true
+    # - name: Push changes
+    #   if: inputs.git-push == 'true'
+    #   uses: partior-libs/gjs-github-push@partior-stable
+    #   with:
+    #     repository: ${{ inputs.target-repo }}
+    #     github_token: ${{ inputs.pat-token }}
+    #     branch: ${{ inputs.target-repo-ref }}
+    #     tags: true
 
     - run: echo Done tagging
       shell: bash
