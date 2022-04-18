@@ -37,6 +37,7 @@ runs:
           fi
         done <all.txt
         tmpBuffer="${tmpBuffer}' ]"
+        tmpBuffer=$(echo $tmpBuffer | sed "s/''/'/g")
         echo Final $tmpBuffer
         echo ::set-output name=all-seq-list::"${tmpBuffer}"
       shell: bash
