@@ -143,7 +143,8 @@ runs:
         echo STORE_VERSION_GIT_REPO="${storeVersionGitRepoQueryValue}" >> $GITHUB_ENV
         echo STORE_VERSION_GIT_STORE_KEY="${storeVersionGitStoreKeyQueryValue}" >> $GITHUB_ENV
         echo STORE_VERSION_GIT_TARGET_ENV_FILE="${storeVersionGitTargetEnvFileQueryValue}" >> $GITHUB_ENV
-
+      shell: bash
+      
     - name: Set jfrog path
       run: |
         set +e
