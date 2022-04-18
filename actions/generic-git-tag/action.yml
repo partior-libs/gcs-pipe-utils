@@ -13,10 +13,6 @@ inputs:
     description: 'Artifact version to be tagged'
     required: true
     default: ''
-  git-push:
-    description: 'Flag to indicate if git push to be executed'
-    required: false
-    default: true
   pat-token:
     description: 'PAT token to push code'
     required: true
@@ -39,15 +35,6 @@ runs:
           "${{ inputs.target-repo }}" \
           "${{ inputs.pat-token }}"
       shell: bash
-       
-    # - name: Push changes
-    #   if: inputs.git-push == 'true'
-    #   uses: partior-libs/gjs-github-push@partior-stable
-    #   with:
-    #     repository: ${{ inputs.target-repo }}
-    #     github_token: ${{ inputs.pat-token }}
-    #     branch: ${{ inputs.target-repo-ref }}
-    #     tags: true
 
     - run: echo Done tagging
       shell: bash
