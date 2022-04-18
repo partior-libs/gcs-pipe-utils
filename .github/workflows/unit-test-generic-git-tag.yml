@@ -1,0 +1,23 @@
+name: test-store-generic-git-tag
+on:
+  push:
+    paths:
+      - 'actions/generic-git-tag/**'
+      - 'scripts/generic-git-tag.sh'
+      - '.github/workflows/unit-test-generic-git-tag.yml'
+  workflow_dispatch:
+
+jobs:
+  test-scenario-1-start:
+    needs: [ test-scenario-1-reader ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start tag
+        uses: partior-libs/gcs-pipe-utils/actions/generic-git-tag@main
+        with: 
+          target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_repo }}"
+          artifact-version: "9.9.9-test-version"
+          target-repo-ref: ${{ github.ref }}
+          pat-token: ${{ secrets.REPO_PAT }}
+
+

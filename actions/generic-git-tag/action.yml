@@ -1,0 +1,53 @@
+name: 'Partior - Git tag a repo'
+description: 'Git tag a repo'
+inputs:
+  target-repo:  
+    description: 'Target repo to be tagged'
+    required: true
+    default: ''
+  target-repo-ref:  
+    description: 'Target repo ref to be tagged'
+    required: true
+    default: ''
+  artifact-version:  
+    description: 'Artifact version to be tagged'
+    required: true
+    default: ''
+  git-push:
+    description: 'Flag to indicate if git push to be executed'
+    required: false
+    default: true
+  pat-token:
+    description: 'PAT token to push code'
+    required: true
+    default: ''
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.target-repo }}
+        token: ${{ inputs.pat-token }}
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+        fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
+        ref: ${{ inputs.target-repo-ref }}
+
+    - name: convert yaml to props config
+      run: |
+        ${{ github.action_path }}/../../scripts/generic-git-tag.sh \
+          "${{ inputs.artifact-version }}" \
+          "${{ inputs.target-repo }}" \
+          "${{ inputs.pat-token }}"
+      shell: bash
+       
+    - name: Push changes
+      if: inputs.git-push == 'true'
+      uses: partior-libs/gjs-github-push@partior-stable
+      with:
+        repository: ${{ inputs.target-repo }}
+        github_token: ${{ inputs.pat-token }}
+        branch: ${{ inputs.target-repo-ref }}
+        tags: true
+
+    - run: echo Done tagging
+      shell: bash
