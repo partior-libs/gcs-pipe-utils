@@ -14,7 +14,7 @@ jobs:
 
       - name: Generate first sequence
         run:  |
-          echo "[ 'first', 'second', 'third' ] > seqFile_1"
+          echo "[ 'first', 'second', 'third' ]" > seqFile_1
 
       - name: Upload sequence list
         uses: actions/upload-artifact@v3
@@ -25,7 +25,7 @@ jobs:
 
       - name: Generate second sequence
         run:  |
-          echo "[ 'fourth', 'fifth', 'sixth' ] > seqFile_2"
+          echo "[ 'fourth', 'fifth', 'sixth' ]" > seqFile_2
 
       - name: Upload sequence list
         uses: actions/upload-artifact@v3
