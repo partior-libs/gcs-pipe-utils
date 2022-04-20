@@ -31,8 +31,8 @@ runs:
         currentTimestamp=$(date +%s)
         echo "[INFO] Promoting from ${{ inputs.source-artifact-full-path }} to ${{ inputs.release-artifact-full-path }}"
         jfrog rt cp ${{ inputs.source-artifact-full-path }} ${{ inputs.release-artifact-full-path }} --flat=true
-        jfrog rt sp ${{ inputs.source-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promoted.to=${{ inputs.release-artifact-full-path }}"
-        jfrog rt sp ${{ inputs.release-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promoted.from=${{ inputs.source-artifact-full-path }}"
+        jfrog rt sp ${{ inputs.source-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promotion.promoted.to=${{ inputs.release-artifact-full-path }}"
+        jfrog rt sp ${{ inputs.release-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promotion.promoted.from=${{ inputs.source-artifact-full-path }}"
       shell: bash
 
         
