@@ -1,6 +1,3 @@
-## For this action to work, it has to be executed after a matrix job where it will generate another sequence item list to be executed as sub matrix.
-## It is important to note that this action expect "YAML_FINAL_PROMOTION_CONFIG_IMPORTER" already uploaded as artifact prior this action being called
-
 name: 'Partior - Generic initialize and inject promotion variables'
 description: 'Generic initialize and inject promotion variables'
 inputs:
@@ -28,12 +25,10 @@ runs:
         SEQUENCE_ITEM_NO=$(echo $currentSequenceItem | awk -F'__' '{print $2}')
         ARTIFACT_BASE_NAME=${ARTIFACT_BASE_NAME}
         YAML_FINAL_PROMOTION_CONFIG_IMPORTER=yaml_final_promotion_config_importer_${ARTIFACT_BASE_NAME}_${{ github.run_id }}_${{ github.run_number }}
-
         # echo SMC_NAME=${SMC_NAME} >> $GITHUB_ENV
         echo "SEQUENCE_ITEM_NO=${SEQUENCE_ITEM_NO}" >> $GITHUB_ENV
         echo "ARTIFACT_BASE_NAME=${ARTIFACT_BASE_NAME}" >> $GITHUB_ENV
         echo "YAML_FINAL_PROMOTION_CONFIG_IMPORTER=${YAML_FINAL_PROMOTION_CONFIG_IMPORTER}" >> $GITHUB_ENV
-
         # echo [INFO] SMC_NAME=${SMC_NAME}
         echo [INFO] SEQUENCE_ITEM_NO=${SEQUENCE_ITEM_NO}
         echo [INFO] ARTIFACT_BASE_NAME=${ARTIFACT_BASE_NAME}
@@ -65,40 +60,38 @@ runs:
         set +e
         promotionQueryPath=artifacts.yaml-config
         promotionQueryPathInEnv=$(echo $promotionQueryPath | sed "s/-/_/g" | sed "s/\./__/g")
-
         fileQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__file
         echo [DEBUG] fileQueryPath=$fileQueryPath
         fileQueryValue=${!fileQueryPath}
-
         versionQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__version_path
         echo [DEBUG] versionQueryPath=$versionQueryPath
         versionQueryValue=${!versionQueryPath}
-
         artifactBaseNameQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_base_name
         echo [DEBUG] artifactBaseNameQueryPath=$artifactBaseNameQueryPath
         artifactBaseNameQueryValue=${!artifactBaseNameQueryPath}
-
         artifactGroupQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_group
         echo [DEBUG] artifactGroupQueryPath=$artifactGroupQueryPath
         artifactGroupQueryValue=${!artifactGroupQueryPath}
-
         artiSrcRepoQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifactory_src_repo
         echo [DEBUG] artiSrcRepoQueryPath=$artiSrcRepoQueryPath
         artiSrcRepoQueryValue=${!artiSrcRepoQueryPath}
-
         artiPromoRepoQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifactory_promotion_repo
         echo [DEBUG] artiPromoRepoQueryPath=$artiPromoRepoQueryPath
         artiPromoRepoQueryValue=${!artiPromoRepoQueryPath}
-
         artifactTypeQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_type
         echo [DEBUG] artifactTypeQueryPath=$artifactTypeQueryPath
         artifactTypeQueryValue=${!artifactTypeQueryPath}
-
         artifactSrcVersion=$(cat ${fileQueryValue} | yq "${versionQueryValue}")
         artifactReleaseVersion=$(echo $artifactSrcVersion | cut -d"-" -f1)
         artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactSrcVersion}.${artifactTypeQueryValue}"
         artifactReleasePackageName="${artifactBaseNameQueryValue}-${artifactReleaseVersion}.${artifactTypeQueryValue}"
-
+		versionIdentifierQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__version_identifier
+        echo [DEBUG] versionIdentifierQueryPath=$versionIdentifierQueryPath
+        versionIdentifierQueryValue=${!versionIdentifierQueryPath}
+		projectKeyQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__jira_project_key
+        echo [DEBUG] projectKeyQueryPath=$projectKeyQueryPath
+        projectKeyQueryValue=${!projectKeyQueryPath}
+		
         echo YAML_ARTIFACT_FILE="${fileQueryValue}" >> $GITHUB_ENV
         echo YAML_VERSION_QUERY_PATH="${versionQueryValue}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_BASE_NAME="${artifactBaseNameQueryValue}" >> $GITHUB_ENV
@@ -110,6 +103,8 @@ runs:
         echo FINAL_ARTIFACT_RELEASE_VERSION="${artifactReleaseVersion}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_SRC_PACKAGE_NAME="${artifactSrcPackageName}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_RELEASE_PACKAGE_NAME="${artifactReleasePackageName}" >> $GITHUB_ENV
+		echo FINAL_ARTIFACT_VERSION_IDENTIFIER="${versionIdentifierQueryValue}" >> $GITHUB_ENV
+		echo JIRA_PROJECT_KEY="${projectKeyQueryValue}" >> $GITHUB_ENV
       shell: bash
 
     - name: Get git storing details
@@ -117,27 +112,21 @@ runs:
         set +e
         promotionQueryPath=artifacts.yaml-config
         promotionQueryPathInEnv=$(echo $promotionQueryPath | sed "s/-/_/g" | sed "s/\./__/g")
-
         storeVersionEnabledQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__enabled
         echo [DEBUG] storeVersionEnabledQueryValue=$storeVersionEnabledQueryPath
         storeVersionEnabledQueryValue=${!storeVersionEnabledQueryPath}
-
         storeVersionGitEnabledQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__git__enabled
         echo [DEBUG] storeVersionGitEnabledQueryValue=$storeVersionGitEnabledQueryPath
         storeVersionGitEnabledQueryValue=${!storeVersionGitEnabledQueryPath}
-
         storeVersionGitRepoQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__git__repo
         echo [DEBUG] storeVersionGitRepoQueryValue=$storeVersionGitRepoQueryPath
         storeVersionGitRepoQueryValue=${!storeVersionGitRepoQueryPath}
-
         storeVersionGitStoreKeyQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__git__yaml_store_path_key
         echo [DEBUG] storeVersionGitStoreKeyQueryValue=$storeVersionGitStoreKeyQueryPath
         storeVersionGitStoreKeyQueryValue=${!storeVersionGitStoreKeyQueryPath}
-
         storeVersionGitTargetEnvFileQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__store_version__git__target_env_file
         echo [DEBUG] storeVersionGitTargetEnvFileQueryValue=$storeVersionGitTargetEnvFileQueryPath
         storeVersionGitTargetEnvFileQueryValue=${!storeVersionGitTargetEnvFileQueryPath}
-
         echo STORE_VERSION_ENABLE="${storeVersionEnabledQueryValue}" >> $GITHUB_ENV
         echo STORE_VERSION_GIT_ENABLE="${storeVersionGitEnabledQueryValue}" >> $GITHUB_ENV
         echo STORE_VERSION_GIT_REPO="${storeVersionGitRepoQueryValue}" >> $GITHUB_ENV
@@ -148,7 +137,6 @@ runs:
     - name: Set jfrog path
       run: |
         set +e
-
         function failIfEmpty() {
             local inputKey="$1"
             local inputKeyValue=${!inputKey}
@@ -167,11 +155,11 @@ runs:
         failIfEmpty "FINAL_ARTIFACT_RELEASE_VERSION"
         failIfEmpty "FINAL_ARTIFACT_SRC_PACKAGE_NAME"
         failIfEmpty "FINAL_ARTIFACT_RELEASE_PACKAGE_NAME"
-
+		failIfEmpty "FINAL_ARTIFACT_VERSION_IDENTIFIER"
+		failIfEmpty "JIRA_PROJECT_KEY"
         ## Set source path
         artifactSourceFullPath=${FINAL_ARTIFACT_SRC_REPO}/${FINAL_ARTIFACT_GROUP}/${FINAL_ARTIFACT_BASE_NAME}/${FINAL_ARTIFACT_SRC_PACKAGE_NAME}
         echo FINAL_ARTIFACT_SOURCE_FULL_PATH="${artifactSourceFullPath}" >> $GITHUB_ENV
-
         ## Set target release path
         artifactReleaseFullPath=${FINAL_ARTIFACT_PROMO_REPO}/${FINAL_ARTIFACT_GROUP}/${FINAL_ARTIFACT_BASE_NAME}/${FINAL_ARTIFACT_RELEASE_PACKAGE_NAME}
         echo FINAL_ARTIFACT_RELEASE_FULL_PATH="${artifactReleaseFullPath}" >> $GITHUB_ENV
@@ -198,8 +186,9 @@ runs:
         echo [INFO] STORE_VERSION_GIT_REPO="${STORE_VERSION_GIT_REPO}"
         echo [INFO] STORE_VERSION_GIT_STORE_KEY="${STORE_VERSION_GIT_STORE_KEY}"
         echo [INFO] STORE_VERSION_GIT_TARGET_ENV_FILE="${STORE_VERSION_GIT_TARGET_ENV_FILE}"
+		echo [INFO] FINAL_ARTIFACT_VERSION_IDENTIFIER="${FINAL_ARTIFACT_VERSION_IDENTIFIER}"
+		echo [INFO] JIRA_PROJECT_KEY="${JIRA_PROJECT_KEY}"
       shell: bash
 
     - run: echo [INFO] Done injecting...
       shell: bash
-
