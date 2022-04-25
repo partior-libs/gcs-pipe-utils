@@ -1,5 +1,3 @@
-## gcs-pipe-utils/actions/generic-promote-version/action.yml
-
 
 name: 'Partior - Check if artifact already promoted'
 description: 'Check artifactory if artifact has been promoted'
