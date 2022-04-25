@@ -1,3 +1,6 @@
+## gcs-pipe-utils/actions/generic-promote-version/action.yml
+
+
 name: 'Partior - Check if artifact already promoted'
 description: 'Check artifactory if artifact has been promoted'
 inputs:
@@ -16,6 +19,40 @@ inputs:
     required: true
     default: ''
 
+  jira-username:
+    description: 'Jira username'
+    required: true
+    default: ''
+ 
+  jira-password:
+    description: 'Jira password'
+    required: true
+    default: ''
+
+  final-artifact-source-version:
+    description: 'Final artifact source version'
+    required: true
+    default: ''
+
+  final-artifact-release-version:
+    description: 'Final artifact release version'
+    required: true
+    default: ''
+
+  jira-base-url:
+    description: 'Jira base url'
+    required: false
+    default: 'https://partior.atlassian.net'
+
+  version-identifier:
+    description: 'Artifact version identifier'
+    required: true
+    default: ''
+
+  jira-project-key:
+    description: 'Jira project key'
+    required: true
+    default: ''
 
 runs:
   using: "composite"
@@ -35,7 +72,16 @@ runs:
         jfrog rt sp ${{ inputs.release-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promotion.promoted.from=${{ inputs.source-artifact-full-path }}"
       shell: bash
 
-        
-    - run: echo [INFO] Done promotion...
+    - name: Promote artifact version in jira  
+      run: |
+      ${{ github.action_path }}/scripts/generic-promote-version.sh "${{ inputs.jira-username }}" \
+          "${{ inputs.jira-password }}" \
+          "${{ inputs.jira-base-url }}" \
+          "${{ inputs.final-artifact-source-version }}" \
+          "${{ inputs.final-artifact-release-version }}" \
+          "${{ inputs.version-identifier }}" \
+          "${{ inputs.jira-project-key }}"
       shell: bash
 
+    - run: echo [INFO] Done promotion...
+      shell: bash
