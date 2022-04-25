@@ -28,4 +28,10 @@ jobs:
           source-artifact-full-path: smc-generic-dev/partior/settlement-utility/settlement-utility-1.2.1-dev.54+bld.135.1.tgz
           release-artifact-full-path: smc-generic-release-local/antz/settlement-utility/settlement-utility-1.2.1.tgz
           jfrog-token: ${{ secrets.JFROG_TOKEN }}
-
+          final-artifact-source-version: "2.0.3-rc.7"
+          final-artifact-release-version: "2.0.3"
+          jira-username: ${{ secrets.JIRA_USERNAME }}
+	        jira-password: ${{ secretc.JIRA_PASSWORD }}
+          version-identifier: "su"
+		      jira-project-key: DEVPILOT
+          
