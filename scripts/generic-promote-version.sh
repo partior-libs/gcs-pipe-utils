@@ -24,7 +24,7 @@ jiraProjectKey="$7"
 
 
 function getSourceVersionId() {
-    local responseOutFile=responseOutFile.tmp
+    local responseOutFile=$1
     local response=""
     response=$(curl -k -s -u $jiraUsername:$jiraPassword \
                 -w "status_code:[%{http_code}]" \
@@ -85,10 +85,49 @@ function promoteVersionInJira() {
 		return 1
     fi
 }
-sourceVersionId=$(getSourceVersionId)
+
+function archiveVersionsInJira() {
+    local versionsFile=$1
+    local versionIdentifier=$2
+    local releaseVersion=$3
+    local responseOutFile=response.tmp
+    local response=""
+    local archiveVersions=$( jq -r --arg releaseVersion "$releaseVersion" versionIdentifier "$versionIdentifier_" '.[] | select(.archive==false and .release==false) | select (.name|startswith($versionIdentifier$releaseVersion)) | .id' < $versionsFile)
+    for versionId in archiveVersions; do
+        response=$(curl -k -s -u $jiraUsername:$jiraPassword \
+                -w "status_code:[%{http_code}]" \
+                -X PUT \
+                -H "Content-Type: application/json" \
+				--data '{"archived" : true}' \
+                "$jiraBaseUrl/rest/api/2/version/$versionId" -o $responseOutFile)
+        if [[ $? -ne 0 ]]; then
+            echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to update version status."
+            echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/2/version/$versionId"
+            echo "$response"
+            return 1
+        fi
+
+        local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
+
+
+        if [[ $responseStatus -eq 200 ]]; then
+            echo "[INFO] Version status updated successfully"
+            echo "$response" 
+        else
+            echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 while updating version status: [$responseStatus]" 
+            echo "[ERROR] $(echo $response | jq '.errors | .name')"
+            echo "[DEBUG] $(cat $responseOutFile)"
+            return 1
+        fi
+    done
+}
+
+versionsOutputFile=versions.tmp
+sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
 if [[ $? -ne 0 ]]; then
 	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
 	echo "[DEBUG] echo $sourceVersionId"
 	exit 1
 fi
-promoteVersionInJira "$sourceVersionId" "$versionIdentifier" "releaseVersion"
+promoteVersionInJira "$sourceVersionId" "$versionIdentifier" "$releaseVersion"
+archiveVersionsInJira "$versionsOutputFile" "$versionIdentifier" "$releaseVersion"
