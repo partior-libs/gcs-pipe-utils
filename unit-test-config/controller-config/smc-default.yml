@@ -169,7 +169,7 @@ smc:
             artifactory-promotion-repo: smc-generic-release
             artifact-type: tgz
             version-identifier: "su"
-			      jira-project-key: DEVPILOT
+            jira-project-key: DEVPILOT
             store-version:
               enabled: true
               git:
