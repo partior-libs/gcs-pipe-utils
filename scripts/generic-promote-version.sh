@@ -1,0 +1,94 @@
+#!/bin/bash +e
+set +e
+
+## Sourcing the common libs
+if [[ ! -z $BASH_SOURCE ]]; then
+    ACTION_BASE_DIR=$(dirname $BASH_SOURCE)
+    source $(find $ACTION_BASE_DIR/.. -type f | grep common-libs.sh)
+elif [[ $(find . -type f -name common-libs.sh | wc -l) > 0 ]]; then
+    source $(find . -type f | grep common-libs.sh)
+elif [[ $(find .. -type f -name common-libs.sh | wc -l) > 0 ]]; then
+    source $(find .. -type f | grep common-libs.sh)
+else
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to find and source common-libs.sh"
+    exit 1
+fi
+
+jiraUsername="$1"
+jiraPassword="$2"
+jiraBaseUrl="$3"
+sourceVersion="$4"
+releaseVersion="$5"
+versionIdentifier="$6"
+jiraProjectKey="$7"
+
+
+function getSourceVersionId() {
+    local responseOutFile=responseOutFile.tmp
+    local response=""
+    response=$(curl -k -s -u $jiraUsername:$jiraPassword \
+                -w "status_code:[%{http_code}]" \
+                -X GET \
+                -H "Content-Type: application/json" \
+                "$jiraBaseUrl/rest/api/latest/project/$jiraProjectKey/versions" -o $responseOutFile)
+    if [[ $? -ne 0 ]]; then
+        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get the project details."
+        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/latest/project/$jiraProjectKey"
+        echo "$response"
+        return 1
+    fi
+
+    local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
+
+
+    if [[ $responseStatus -eq 200 ]]; then
+        local versionId=$( jq -r --arg versionIdentifier "$versionIdentifier_" sourceVersion "$sourceVersion"'.[] | select(.name=="$versionIdentifier$sourceVersion" | .id)' < $responseOutFile | tr -d '"' )
+        echo "$versionId"
+    else
+        echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
+        echo "[ERROR] $(echo $response | jq '.errors | .name')"
+		    echo "[DEBUG] $(cat $responseOutFile)"
+		    return 1
+    fi
+    
+}
+
+function promoteVersionInJira() {
+  local sourceVersionId=$1
+	local versionIdentifier=$2
+	local releaseVersion=$3
+	local releaseDate=$(date '+%Y-%m-%d')
+	local response=""
+	response=$(curl -k -s -u $jiraUsername:$jiraPassword \
+                -w "status_code:[%{http_code}]" \
+                -X PUT \
+                -H "Content-Type: application/json" \
+				--data '{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate": "'${releaseDate}'","released" : true}' \
+                "$jiraBaseUrl/rest/api/2/version/$soureVersionId" -o $responseOutFile)
+    if [[ $? -ne 0 ]]; then
+        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get the project details."
+        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/2/version/$soureVersionId"
+        echo "$response"
+        return 1
+    fi
+
+    local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
+
+
+    if [[ $responseStatus -eq 200 ]]; then
+        echo "[INFO] Version renamed and released successfully"
+	    	echo "$response" 
+    else
+        echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
+        echo "[ERROR] $(echo $response | jq '.errors | .name')"
+		    echo "[DEBUG] $(cat $responseOutFile)"
+		    return 1
+    fi
+}
+sourceVersionId=$(getSourceVersionId)
+if [[ $? -ne 0 ]]; then
+	  echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
+	  echo "[DEBUG] echo $sourceVersionId"
+	  exit 1
+fi
+promoteVersionInJira "$sourceVersionId" "$versionIdentifier" "releaseVersion"
