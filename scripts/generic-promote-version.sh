@@ -15,7 +15,7 @@ else
 fi
 
 jiraUsername="$1"
-jiraPassword="$2"
+jiraToken="$2"
 jiraBaseUrl="$3"
 sourceVersion="$4"
 releaseVersion="$5"
@@ -26,7 +26,7 @@ jiraProjectKey="$7"
 function getSourceVersionId() {
     local responseOutFile=$1
     local response=""
-    response=$(curl -k -s -u $jiraUsername:$jiraPassword \
+    response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
                 -X GET \
                 -H "Content-Type: application/json" \
@@ -59,7 +59,7 @@ function promoteVersionInJira() {
 	local releaseVersion=$3
 	local releaseDate=$(date '+%Y-%m-%d')
 	local response=""
-	response=$(curl -k -s -u $jiraUsername:$jiraPassword \
+	response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
                 -H "Content-Type: application/json" \
@@ -95,7 +95,7 @@ function archiveVersionsInJira() {
     # Get all the IDs of pre-release versions
     local archiveVersions=$( jq -r --arg releaseVersion "$releaseVersion" versionIdentifier "$versionIdentifier_" '.[] | select(.archive==false and .release==false) | select (.name|startswith($versionIdentifier$releaseVersion)) | .id' < $versionsFile)
     for versionId in archiveVersions; do
-        response=$(curl -k -s -u $jiraUsername:$jiraPassword \
+        response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
                 -H "Content-Type: application/json" \

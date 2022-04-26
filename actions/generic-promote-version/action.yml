@@ -22,7 +22,7 @@ inputs:
     required: true
     default: ''
  
-  jira-password:
+  jira-token:
     description: 'Jira password'
     required: true
     default: ''
@@ -73,7 +73,7 @@ runs:
     - name: Promote artifact version in jira  
       run: |
        ${{ github.action_path }}/../../scripts/generic-promote-version.sh "${{ inputs.jira-username }}" \
-          "${{ inputs.jira-password }}" \
+          "${{ inputs.jira-token }}" \
           "${{ inputs.jira-base-url }}" \
           "${{ inputs.final-artifact-source-version }}" \
           "${{ inputs.final-artifact-release-version }}" \
