@@ -37,13 +37,14 @@ function getSourceVersionId() {
                 -w "status_code:[%{http_code}]" \
                 -X GET \
                 "$jiraBaseUrl/rest/api/3/project/$jiraProjectKey/versions" -o $responseOutFile)
+
     if [[ $? -ne 0 ]]; then
-        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get the project details."
-        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/latest/project/$jiraProjectKey/versions"
+        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get the project version details."
+        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/project/$jiraProjectKey/versions"
         echo "$response"
         return 1
     fi
-    echo "After curl"
+    
     local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
 
 
@@ -132,7 +133,7 @@ function archiveVersionsInJira() {
 
 versionsOutputFile=versions.tmp
 # Getting source version id
-sourceVersionId=$(getSourceVersionId)
+sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
 if [[ $? -ne 0 ]]; then
 	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
 	echo "[DEBUG] echo $sourceVersionId"
