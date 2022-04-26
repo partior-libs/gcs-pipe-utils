@@ -17,9 +17,9 @@ jobs:
         env:
           JF_ENV_1: ${{ secrets.JFROG_TOKEN }}
 
-      - name: Delete dummy target if present
-        run: |
-          jfrog rt del smc-generic-release/antz/settlement-utility/settlement-utility-1.2.1.tgz
+     # - name: Delete dummy target if present
+      #  run: |
+       #   jfrog rt del smc-generic-release/antz/settlement-utility/settlement-utility-1.2.1.tgz
 
       - name: Start promotion
         id: artifact-1
@@ -32,5 +32,5 @@ jobs:
           final-artifact-release-version: "2.0.3"
           jira-username: ${{ secrets.JIRA_USERNAME }}
           jira-password: ${{ secrets. JIRA_PASSWORD }}
-          version-identifier: "su"
+          jira-version-identifier: su
           jira-project-key: DEVPILOT

@@ -42,7 +42,7 @@ inputs:
     required: false
     default: 'https://partior.atlassian.net'
 
-  version-identifier:
+  jira-version-identifier:
     description: 'Artifact version identifier'
     required: true
     default: ''
@@ -77,7 +77,7 @@ runs:
           "${{ inputs.jira-base-url }}" \
           "${{ inputs.final-artifact-source-version }}" \
           "${{ inputs.final-artifact-release-version }}" \
-          "${{ inputs.version-identifier }}" \
+          "${{ inputs.jira-version-identifier }}" \
           "${{ inputs.jira-project-key }}"
       shell: bash
 
