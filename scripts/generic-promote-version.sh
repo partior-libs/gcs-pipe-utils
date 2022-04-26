@@ -131,7 +131,8 @@ function archiveVersionsInJira() {
 }
 
 versionsOutputFile=versions.tmp
-sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
+# Getting source version id
+sourceVersionId="$(getSourceVersionId "$versionsOutputFile")"
 if [[ $? -ne 0 ]]; then
 	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
 	echo "[DEBUG] echo $sourceVersionId"
