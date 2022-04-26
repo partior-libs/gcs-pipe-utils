@@ -4,6 +4,7 @@ on:
     paths:
       - 'actions/generic-promote-version/**'
       - '.github/workflows/unit-test-generic-promote-version.yml'
+      - 'scripts/generic-promote-version.sh'
   workflow_dispatch:
 
 jobs:
