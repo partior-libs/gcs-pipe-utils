@@ -72,7 +72,7 @@ runs:
 
     - name: Promote artifact version in jira  
       run: |
-       ${{ github.action_path }}/scripts/generic-promote-version.sh "${{ inputs.jira-username }}" \
+       ${{ github.action_path }}/../../scripts/generic-promote-version.sh "${{ inputs.jira-username }}" \
           "${{ inputs.jira-password }}" \
           "${{ inputs.jira-base-url }}" \
           "${{ inputs.final-artifact-source-version }}" \
