@@ -31,7 +31,7 @@ echo "[INFO] Jira Project Key: $jiraProjectKey"
 
 function getSourceVersionId() {
     echo "Inside function"
-    local responseOutFile=response.tmp
+    local responseOutFile=$1
     local response=""
     response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
@@ -49,7 +49,7 @@ function getSourceVersionId() {
 
 
     if [[ $responseStatus -eq 200 ]]; then
-        local versionId=$( jq -r --arg versionIdentifier "$versionIdentifier" --arg sourceVersion "$sourceVersion"'.[] | select(.name=='\"$versionIdentifier_$sourceVersion\"') | .id' < $responseOutFile | tr -d '"')
+        local versionId=$( jq -r --arg versionIdentifier "${versionIdentifier}_" --arg sourceVersion "$sourceVersion"'.[] | select(.name=='\"$versionIdentifier$sourceVersion\"') | .id' < $responseOutFile | tr -d '"')
         echo "VersionId is:::$versionId"
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
@@ -133,7 +133,7 @@ function archiveVersionsInJira() {
 
 versionsOutputFile=versions.tmp
 # Getting source version id
-sourceVersionId=$(getSourceVersionId)
+sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
 if [[ $? -ne 0 ]]; then
 	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
 	echo "[DEBUG] echo $sourceVersionId"
