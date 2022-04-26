@@ -23,7 +23,7 @@ inputs:
     default: ''
  
   jira-token:
-    description: 'Jira password'
+    description: 'Jira token'
     required: true
     default: ''
 
