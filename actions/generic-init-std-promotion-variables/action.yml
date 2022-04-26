@@ -103,8 +103,8 @@ runs:
         echo FINAL_ARTIFACT_RELEASE_VERSION="${artifactReleaseVersion}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_SRC_PACKAGE_NAME="${artifactSrcPackageName}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_RELEASE_PACKAGE_NAME="${artifactReleasePackageName}" >> $GITHUB_ENV
-		echo FINAL_ARTIFACT_VERSION_IDENTIFIER="${versionIdentifierQueryValue}" >> $GITHUB_ENV
-		echo JIRA_PROJECT_KEY="${projectKeyQueryValue}" >> $GITHUB_ENV
+		    echo FINAL_ARTIFACT_VERSION_IDENTIFIER="${versionIdentifierQueryValue}" >> $GITHUB_ENV
+		    echo JIRA_PROJECT_KEY="${projectKeyQueryValue}" >> $GITHUB_ENV
       shell: bash
 
     - name: Get git storing details
