@@ -53,19 +53,19 @@ function getSourceVersionId() {
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
         echo "[ERROR] $(echo $response | jq '.errors | .name')"
-		echo "[DEBUG] $(cat $responseOutFile)"
-		return 1
+        echo "[DEBUG] $(cat $responseOutFile)"
+        return 1
     fi
     
 }
 
 function promoteVersionInJira() {
     local sourceVersionId=$1
-	local versionIdentifier=$2
-	local releaseVersion=$3
-	local releaseDate=$(date '+%Y-%m-%d')
+    local versionIdentifier=$2
+    local releaseVersion=$3
+    local releaseDate=$(date '+%Y-%m-%d')
     local responseOutFile=response.tmp
-	local response=""
+    local response=""
 	response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
@@ -84,12 +84,12 @@ function promoteVersionInJira() {
 
     if [[ $responseStatus -eq 200 ]]; then
         echo "[INFO] Version renamed and released successfully"
-	    echo "$response" 
+        echo "$response" 
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when updating version: [$responseStatus]" 
         echo "[ERROR] $(echo $response | jq '.errors | .name')"
-		echo "[DEBUG] $(cat $responseOutFile)"
-		return 1
+        echo "[DEBUG] $(cat $responseOutFile)"
+        return 1
     fi
 }
 
