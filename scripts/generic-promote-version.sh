@@ -22,8 +22,15 @@ releaseVersion="$5"
 versionIdentifier="$6"
 jiraProjectKey="$7"
 
+echo "[INFO] Jira Base Url: $jiraBaseUrl"
+echo "[INFO] Source Version: $sourceVersion"
+echo "[INFO] Release Version: $releaseVersion"
+echo "[INFO] Jira Version Identifier: $versionIdentifier"
+echo "[INFO] Jira Project Key: $jiraProjectKey"
+
 
 function getSourceVersionId() {
+    echo "Inside function"
     local responseOutFile=$1
     local response=""
     response=$(curl -k -s -u $jiraUsername:$jiraToken \
@@ -36,7 +43,7 @@ function getSourceVersionId() {
         echo "$response"
         return 1
     fi
-
+    echo "After curl"
     local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
 
 
