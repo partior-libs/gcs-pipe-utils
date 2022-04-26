@@ -48,7 +48,7 @@ function getSourceVersionId() {
 
 
     if [[ $responseStatus -eq 200 ]]; then
-        local versionId=$( jq -r --arg versionIdentifier "$versionIdentifier_" --arg sourceVersion "$sourceVersion"'.[] | select(.name=='\"$versionIdentifier$sourceVersion\"' | .id)' < $responseOutFile | tr -d '"' )
+        local versionId=$( jq -r --arg versionIdentifier "$versionIdentifier_" --arg sourceVersion "$sourceVersion"'.[] | select(.name=='\"$versionIdentifier$sourceVersion\"') | .id' < $responseOutFile | tr -d '"')
         echo "$versionId"
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
@@ -70,7 +70,7 @@ function promoteVersionInJira() {
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
                 -H "Content-Type: application/json" \
-				--data '{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate": "'${releaseDate}'","released" : "true"}' \
+				--data '{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : "true"}' \
                 "$jiraBaseUrl/rest/api/2/version/$soureVersionId" -o $responseOutFile)
     if [[ $? -ne 0 ]]; then
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to update version details."
@@ -132,7 +132,7 @@ function archiveVersionsInJira() {
 
 versionsOutputFile=versions.tmp
 # Getting source version id
-sourceVersionId="$(getSourceVersionId "$versionsOutputFile")"
+sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
 if [[ $? -ne 0 ]]; then
 	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
 	echo "[DEBUG] echo $sourceVersionId"
