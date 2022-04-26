@@ -29,7 +29,6 @@ function getSourceVersionId() {
     response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
                 -X GET \
-                -H "Content-Type: application/json" \
                 "$jiraBaseUrl/rest/api/3/project/$jiraProjectKey/versions" -o $responseOutFile)
     if [[ $? -ne 0 ]]; then
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get the project details."
