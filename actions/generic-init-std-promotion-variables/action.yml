@@ -90,8 +90,7 @@ runs:
         versionIdentifierQueryValue=${!versionIdentifierQueryPath}
         projectKeyQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__jira_project_key
         echo [DEBUG] projectKeyQueryPath=$projectKeyQueryPath
-        projectKeyQueryValue=${!projectKeyQueryPath}
-		
+        projectKeyQueryValue=${!projectKeyQueryPath}		
         echo YAML_ARTIFACT_FILE="${fileQueryValue}" >> $GITHUB_ENV
         echo YAML_VERSION_QUERY_PATH="${versionQueryValue}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_BASE_NAME="${artifactBaseNameQueryValue}" >> $GITHUB_ENV
