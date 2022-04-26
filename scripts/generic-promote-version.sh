@@ -70,7 +70,7 @@ function promoteVersionInJira() {
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
                 -H "Content-Type: application/json" \
-				--data '{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : "true"}' \
+                --data '{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true}' \
                 "$jiraBaseUrl/rest/api/2/version/$soureVersionId" -o $responseOutFile)
     if [[ $? -ne 0 ]]; then
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to update version details."
@@ -106,7 +106,7 @@ function archiveVersionsInJira() {
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
                 -H "Content-Type: application/json" \
-				--data '{"archived" : "true"}' \
+                --data '{"archived" : true}' \
                 "$jiraBaseUrl/rest/api/2/version/$versionId" -o $responseOutFile)
         if [[ $? -ne 0 ]]; then
             echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to update version status."
