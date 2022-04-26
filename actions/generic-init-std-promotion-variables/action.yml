@@ -85,10 +85,10 @@ runs:
         artifactReleaseVersion=$(echo $artifactSrcVersion | cut -d"-" -f1)
         artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactSrcVersion}.${artifactTypeQueryValue}"
         artifactReleasePackageName="${artifactBaseNameQueryValue}-${artifactReleaseVersion}.${artifactTypeQueryValue}"
-		versionIdentifierQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__version_identifier
+        versionIdentifierQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__version_identifier
         echo [DEBUG] versionIdentifierQueryPath=$versionIdentifierQueryPath
         versionIdentifierQueryValue=${!versionIdentifierQueryPath}
-		projectKeyQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__jira_project_key
+        projectKeyQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__jira_project_key
         echo [DEBUG] projectKeyQueryPath=$projectKeyQueryPath
         projectKeyQueryValue=${!projectKeyQueryPath}
 		
@@ -155,8 +155,8 @@ runs:
         failIfEmpty "FINAL_ARTIFACT_RELEASE_VERSION"
         failIfEmpty "FINAL_ARTIFACT_SRC_PACKAGE_NAME"
         failIfEmpty "FINAL_ARTIFACT_RELEASE_PACKAGE_NAME"
-		failIfEmpty "FINAL_ARTIFACT_VERSION_IDENTIFIER"
-		failIfEmpty "JIRA_PROJECT_KEY"
+		    failIfEmpty "FINAL_ARTIFACT_VERSION_IDENTIFIER"
+		    failIfEmpty "JIRA_PROJECT_KEY"
         ## Set source path
         artifactSourceFullPath=${FINAL_ARTIFACT_SRC_REPO}/${FINAL_ARTIFACT_GROUP}/${FINAL_ARTIFACT_BASE_NAME}/${FINAL_ARTIFACT_SRC_PACKAGE_NAME}
         echo FINAL_ARTIFACT_SOURCE_FULL_PATH="${artifactSourceFullPath}" >> $GITHUB_ENV
@@ -186,8 +186,8 @@ runs:
         echo [INFO] STORE_VERSION_GIT_REPO="${STORE_VERSION_GIT_REPO}"
         echo [INFO] STORE_VERSION_GIT_STORE_KEY="${STORE_VERSION_GIT_STORE_KEY}"
         echo [INFO] STORE_VERSION_GIT_TARGET_ENV_FILE="${STORE_VERSION_GIT_TARGET_ENV_FILE}"
-		echo [INFO] FINAL_ARTIFACT_VERSION_IDENTIFIER="${FINAL_ARTIFACT_VERSION_IDENTIFIER}"
-		echo [INFO] JIRA_PROJECT_KEY="${JIRA_PROJECT_KEY}"
+		    echo [INFO] FINAL_ARTIFACT_VERSION_IDENTIFIER="${FINAL_ARTIFACT_VERSION_IDENTIFIER}"
+		    echo [INFO] JIRA_PROJECT_KEY="${JIRA_PROJECT_KEY}"
       shell: bash
 
     - run: echo [INFO] Done injecting...
