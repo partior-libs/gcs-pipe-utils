@@ -101,7 +101,7 @@ function archiveVersionsInJira() {
     local response=""
     # Get all the IDs of pre-release versions
     local archiveVersions=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier_" '.[] | select(.archive==false and .release==false) | select (.name|startswith('\"$versionIdentifier$releaseVersion\"')) | .id' < $versionsFile)
-    for versionId in archiveVersions; do
+    for versionId in ${archiveVersions[@]}; do
         response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
