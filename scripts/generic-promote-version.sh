@@ -63,6 +63,7 @@ function getSourceVersionId() {
 function promoteVersionInJira() {
     echo "Inside promoteversion"
     local sourceVersionId=$1
+    echo "SourceVersion:: $sourceVersionId"
     local versionIdentifier=$2
     local releaseVersion=$3
     local releaseDate=$(date '+%Y-%m-%d')
