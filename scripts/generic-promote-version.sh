@@ -42,7 +42,7 @@ function getSourceVersionId() {
 
 
     if [[ $responseStatus -eq 200 ]]; then
-        local versionId=$( jq -r --arg versionIdentifier "$versionIdentifier_" --arg sourceVersion "$sourceVersion"'.[] | select(.name=="$versionIdentifier""$sourceVersion" | .id)' < $responseOutFile | tr -d '"' )
+        local versionId=$( jq -r --arg versionIdentifier "$versionIdentifier_" --arg sourceVersion "$sourceVersion"'.[] | select(.name=='\"$versionIdentifier\"''\"$sourceVersion\"' | .id)' < $responseOutFile | tr -d '"' )
         echo "$versionId"
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
@@ -94,7 +94,7 @@ function archiveVersionsInJira() {
     local responseOutFile=response.tmp
     local response=""
     # Get all the IDs of pre-release versions
-    local archiveVersions=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier_" '.[] | select(.archive==false and .release==false) | select (.name|startswith("$versionIdentifier""$releaseVersion")) | .id' < $versionsFile)
+    local archiveVersions=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier_" '.[] | select(.archive==false and .release==false) | select (.name|startswith('\"$versionIdentifier\"''\"$releaseVersion\"')) | .id' < $versionsFile)
     for versionId in archiveVersions; do
         response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
