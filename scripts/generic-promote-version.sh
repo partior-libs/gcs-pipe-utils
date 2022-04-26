@@ -30,10 +30,10 @@ function getSourceVersionId() {
                 -w "status_code:[%{http_code}]" \
                 -X GET \
                 -H "Content-Type: application/json" \
-                "$jiraBaseUrl/rest/api/latest/project/$jiraProjectKey/versions" -o $responseOutFile)
+                "$jiraBaseUrl/rest/api/3/project/$jiraProjectKey/versions" -o $responseOutFile)
     if [[ $? -ne 0 ]]; then
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get the project details."
-        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/latest/project/$jiraProjectKey"
+        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/latest/project/$jiraProjectKey/versions"
         echo "$response"
         return 1
     fi
@@ -67,7 +67,7 @@ function promoteVersionInJira() {
 				--data '{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate": "'${releaseDate}'","released" : true}' \
                 "$jiraBaseUrl/rest/api/2/version/$soureVersionId" -o $responseOutFile)
     if [[ $? -ne 0 ]]; then
-        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get the project details."
+        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to update version details."
         echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/2/version/$soureVersionId"
         echo "$response"
         return 1
@@ -80,7 +80,7 @@ function promoteVersionInJira() {
         echo "[INFO] Version renamed and released successfully"
 	    echo "$response" 
     else
-        echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
+        echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when updating version: [$responseStatus]" 
         echo "[ERROR] $(echo $response | jq '.errors | .name')"
 		echo "[DEBUG] $(cat $responseOutFile)"
 		return 1
