@@ -48,8 +48,8 @@ function getSourceVersionId() {
     echo "Response status::: $responseStatus"
 
     if [[ $responseStatus -eq 200 ]]; then
-        local versionId=$( jq -r --arg versionIdentifier "${versionIdentifier}_" --arg sourceVersion "$sourceVersion" '.[] | select(.name=='\"${versionIdentifier}_$sourceVersion\"') | .id' < $responseOutFile)
-        echo "$(echo $versionId | tr -d '"')"
+        sourceVersionId=$( jq -r --arg versionIdentifier "${versionIdentifier}_" --arg sourceVersion "$sourceVersion" '.[] | select(.name=='\"${versionIdentifier}_$sourceVersion\"') | .id' < $responseOutFile)
+        echo "$(echo $sourceVersionId | tr -d '"')"
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
         echo "[ERROR] $(echo $response | jq '.errors | .name')"
@@ -134,11 +134,13 @@ function archiveVersionsInJira() {
 
 versionsOutputFile=versions.tmp
 # Getting source version id
-sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
-if [[ $? -ne 0 ]]; then
-	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
-	echo "[DEBUG] echo $sourceVersionId"
-	exit 1
-fi
+#sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
+#if [[ $? -ne 0 ]]; then
+#	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
+#	echo "[DEBUG] echo $sourceVersionId"
+#	exit 1
+#fi
+
+getSourceVersionId "$versionsOutputFile"
 promoteVersionInJira "$sourceVersionId" "$versionIdentifier" "$releaseVersion"
 archiveVersionsInJira "$versionsOutputFile" "$versionIdentifier" "$releaseVersion"
