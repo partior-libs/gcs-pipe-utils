@@ -31,7 +31,7 @@ echo "[INFO] Jira Project Key: $jiraProjectKey"
 
 function getSourceVersionId() {
     echo "Inside function"
-    local responseOutFile=$1
+    local responseOutFile=response.tmp
     local response=""
     response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
@@ -133,7 +133,7 @@ function archiveVersionsInJira() {
 
 versionsOutputFile=versions.tmp
 # Getting source version id
-sourceVersionId=$(getSourceVersionId $versionsOutputFile)
+sourceVersionId=$(getSourceVersionId)
 if [[ $? -ne 0 ]]; then
 	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
 	echo "[DEBUG] echo $sourceVersionId"
