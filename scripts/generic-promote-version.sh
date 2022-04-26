@@ -46,10 +46,10 @@ function getSourceVersionId() {
     fi
     
     local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
-
+    echo "Response status::: $responseStatus"
 
     if [[ $responseStatus -eq 200 ]]; then
-        local versionId=$( jq -r --arg versionIdentifier "${versionIdentifier}_" --arg sourceVersion "$sourceVersion"'.[] | select(.name=='\"$versionIdentifier$sourceVersion\"') | .id' < $responseOutFile | tr -d '"')
+        local versionId=$($( jq -r --arg versionIdentifier "${versionIdentifier}_" --arg sourceVersion "$sourceVersion"'.[] | select(.name=='\"$versionIdentifier$sourceVersion\"') | .id' < $responseOutFile) | tr -d '"')
         echo "VersionId is:::$versionId"
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
