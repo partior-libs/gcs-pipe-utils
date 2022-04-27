@@ -8,6 +8,7 @@ prDetailJsonFile=prDetail.$(date +%s).json
 prURL=https://github.com/${targetRepo}/pull/${prNum}
 validatedFail=false
 failedMessageFile=failedMsg.$(date +%s).txt
+failureCounter=1
 
 echo "[INFO] Listing all OPEN PRs"
 gh pr list --repo ${targetRepo}
@@ -31,9 +32,10 @@ fi
 if [[ "${mergeableFlag}" == "MERGEABLE" ]]; then
     echo "[INFO] PR [${prNum}] is MERGEABLE."
 else
-    echo "[FAILED] $BASH_SOURCE (line:$LINENO): PR [${prNum}] is unmergable [${MERGEABLE}]. Resolve the issue and try again." >> $failedMessageFile
+    echo "[FAILED-${failureCounter}] $BASH_SOURCE (line:$LINENO): PR [${prNum}] is unmergable [${MERGEABLE}]. Resolve the issue and try again." >> $failedMessageFile
     echo "${prURL}" >> $failedMessageFile
     # exit 1
+    failureCounter=$((failureCounter+1))
     validatedFail=true
 
 fi
@@ -49,10 +51,12 @@ fi
 if [[ "${draftFlag}" == "false" ]]; then
     echo "[INFO] PR [${prNum}] in not in draft stage."
 elif [[ "${draftFlag}" == "true" ]]; then
-    echo "[INFO] PR [${prNum}] still in draft stage. Correct it before proceeding." >> $failedMessageFile
+    echo "[FAILED-${failureCounter}] PR [${prNum}] still in draft stage. Correct it before proceeding." >> $failedMessageFile
+    failureCounter=$((failureCounter+1))
     validatedFail=true
 else
-    echo "[FAILED] $BASH_SOURCE (line:$LINENO): Unknown PR draft status [${draftFlag}]" >> $failedMessageFile
+    echo "[FAILED-${failureCounter}] $BASH_SOURCE (line:$LINENO): Unknown PR draft status [${draftFlag}]" >> $failedMessageFile
+    failureCounter=$((failureCounter+1))
     validatedFail=true
 fi
 
@@ -71,36 +75,41 @@ elif [[ "${stateFlag}" == "MERGED" ]]; then
     echo ${prURL}
     exit 0
 elif [[ "${stateFlag}" == "CLOSED" ]]; then
-    echo "[FAILED] PR [${prNum}] was closed prematurely. Reopen it before proceeding..." >> $failedMessageFile
+    echo "[FAILED-${failureCounter}] PR [${prNum}] was closed prematurely. Reopen it before proceeding..." >> $failedMessageFile
+    failureCounter=$((failureCounter+1))
     validatedFail=true
 else
-    echo "[FAILED] $BASH_SOURCE (line:$LINENO): Unknown PR state [${stateFlag}]" >> $failedMessageFile
+    echo "[FAILED-${failureCounter}] $BASH_SOURCE (line:$LINENO): Unknown PR state [${stateFlag}]" >> $failedMessageFile
+    failureCounter=$((failureCounter+1))
     validatedFail=true
 fi
 
 
 checkRunFlag=$(jq -r '.statusCheckRollup[] | select(."__typename"=="CheckRun") | select(."conclusion"!="SUCCESS" and ."conclusion"!="NEUTRAL")' $prDetailJsonFile)
 if [[ $? -ne 0 ]] || [[ ! -z "${checkRunFlag}" ]]; then
-    echo "[FAILED] $BASH_SOURCE (line:$LINENO): Jobs (type:checkRun) not meeting criteria..." >> $failedMessageFile
+    echo "[FAILED-${failureCounter}] $BASH_SOURCE (line:$LINENO): Jobs (type:checkRun) not meeting criteria..." >> $failedMessageFile
     jq -r '.statusCheckRollup[] | select(."__typename"=="CheckRun") | select(."conclusion"!="SUCCESS" and ."conclusion"!="NEUTRAL")' $prDetailJsonFile 2>&1 >> $failedMessageFile
+    failureCounter=$((failureCounter+1))
     validatedFail=true
 fi
 
 statusContextFlag=$(jq -r '.statusCheckRollup[] | select(."__typename"=="StatusContext") | select(."state"!="SUCCESS" and ."state"!="NEUTRAL")' $prDetailJsonFile)
 if [[ $? -ne 0 ]] || [[ ! -z "${statusContextFlag}" ]]; then
-    echo "[FAILED] $BASH_SOURCE (line:$LINENO): Jobs (type:statusContext) not meeting criteria..." >> $failedMessageFile
+    echo "[FAILED-${failureCounter}] $BASH_SOURCE (line:$LINENO): Jobs (type:statusContext) not meeting criteria..." >> $failedMessageFile
     jq -r '.statusCheckRollup[] | select(."__typename"=="StatusContext") | select(."state"!="SUCCESS" and ."state"!="NEUTRAL")' $prDetailJsonFile 2>&1 >> $failedMessageFile
+    failureCounter=$((failureCounter+1))
     validatedFail=true
 fi
 
+## Fail the validation and print the list
 if [[ "$validatedFail" == "true" ]]; then
     echo "========================================"
-    echo "[ERROR] $BASH_SOURCE (line:$LINENO): PR [${prNum}] failed validation(s).."
-    echo "  Failed list:"
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): PR [${prNum}] failed [$((failureCounter-1))] validation(s).."
+    echo "FAILED LIST:"
     echo "========================================"
     cat $failedMessageFile
     echo "========================================"
-    echo "  PR URL: ${prURL}"
+    echo "PR URL: ${prURL}"
     echo "========================================"
     exit 1
 fi
