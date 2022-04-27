@@ -79,7 +79,7 @@ function updateVersionStatusInJira() {
 
 
     if [[ $responseStatus -eq 200 ]]; then
-        echo "[INFO] Version renamed and released successfully"
+        echo "[INFO] Version updated successfully"
         echo "$response" 
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when updating version: [$responseStatus]" 
@@ -91,6 +91,8 @@ function updateVersionStatusInJira() {
 }
 
 versionsOutputFile=versions.tmp
+releaseDate=$(date '+%Y-%m-%d')
+buildUrl=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
 # Getting source version id
 sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
 if [[ $? -ne 0 ]]; then
@@ -98,9 +100,6 @@ if [[ $? -ne 0 ]]; then
 	echo "[DEBUG] echo $sourceVersionId"
 	exit 1
 fi
-index=0
-releaseDate=$(date '+%Y-%m-%d')
-buildUrl=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
 # Getting the IDs of all versions whose names startwith "$versionIdentifier_$releaseVersion"
 filteredIds=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archived==false and .released==false) | select (.name|startswith('\"${versionIdentifier}_${releaseVersion}\"')) | .id' < $versionsOutputFile)
 for versionId in ${filteredIds[@]}; do
@@ -108,7 +107,6 @@ for versionId in ${filteredIds[@]}; do
         echo "Promoting the version from $sourceVersion to $releaseVersion"
         data='{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true,"description":"Promoted from '$sourceVersion' to '$releaseVersion' \n '$buildUrl'"}'
         updateVersionStatusInJira "$data"
-        unset filteredIds[$index]
     else
         echo "Archiving pre-release version whose id is $versionId"
         data='{"archived" : true}'
