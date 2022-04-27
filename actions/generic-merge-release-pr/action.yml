@@ -28,7 +28,7 @@ runs:
     - name: Login with GH cli
       run: |
         set +e
-          echo ${{ secrets.TMP_GITHUB_API_PAT_TOKEN }} > passw.txt
+          echo ${{ inputs.pat-token }} > passw.txt
           gh auth login --with-token < passw.txt
       shell: bash
 
@@ -46,7 +46,7 @@ runs:
     #     else
     #         echo ::set-output name=valid-result::'false'
     #     fi
-      shell: bash  
+      # shell: bash  
         
     - run: echo [INFO] Done merging...
       shell: bash
