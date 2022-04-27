@@ -28,7 +28,7 @@ echo "[INFO] Release Version: $releaseVersion"
 echo "[INFO] Jira Version Identifier: $versionIdentifier"
 echo "[INFO] Jira Project Key: $jiraProjectKey"
 
-
+# Get the Id of source version from jira
 function getSourceVersionId() {
     local responseOutFile=$1
     local response=""
@@ -103,11 +103,12 @@ if [[ $? -ne 0 ]]; then
 fi
 # Getting the IDs of all versions whose names startwith "$versionIdentifier_$releaseVersion"
 filteredIds=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archived==false and .released==false) | select (.name|startswith('\"${versionIdentifier}_${releaseVersion}\"')) | .id' < $versionsOutputFile)
+sourceCiUrl=$( jq -r --arg sourceVersion "$sourceVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.name=='\"${versionIdentifier}_$sourceVersion\"') | .description' < $responseOutFile )
 echo "Filtered Ids:${filteredIds[*]}"
 for versionId in ${filteredIds[@]}; do
     if (( $versionId == $sourceVersionId )); then
         echo "Promoting the version from $sourceVersion to $releaseVersion"
-        data='{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true,"description":"Promoted from '$sourceVersion' to '$releaseVersion' \n '$buildUrl'"}'
+        data='{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true,"description":"Promoted from '$sourceVersion' to '$releaseVersion' \n '$buildUrl' \n '$sourceCiUrl'"}'
         updateVersionStatusInJira "$data" "$versionId"
         filteredIds=( "${filteredIds[@]/$versionId}" )
     else
