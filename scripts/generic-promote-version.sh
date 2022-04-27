@@ -110,7 +110,7 @@ for versionId in ${filteredIds[@]}; do
         echo "Promoting the version from $sourceVersion to $releaseVersion"
         data='{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true,"description":"Promoted from '$sourceVersion' to '$releaseVersion' \n '$buildUrl'"}'
         updateVersionStatusInJira "$data" "$versionId"
-        unset 'filteredIds[$index]'
+        unset filteredIds[$index]
     else
         echo "Archiving pre-release version whose id is $versionId"
         data='{"archived" : true}'
