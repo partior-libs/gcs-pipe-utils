@@ -88,7 +88,7 @@ function promoteVersionInJira() {
         echo "$response" 
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when updating version: [$responseStatus]" 
-        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$soureVersionId"
+        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$sourceVersionId"
         echo "[ERROR] $(echo $response | jq '.errors | .name')"
         echo "[DEBUG] $(cat $responseOutFile)"
         return 1
@@ -106,6 +106,7 @@ function archiveVersionsInJira() {
     # Get all the IDs of pre-release versions
     local archiveVersions=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archive==false and .release==false) | select (.name|startswith('\"${versionIdentifier}_$releaseVersion\"')) | .id' < $versionsFile)
     for versionId in ${archiveVersions[@]}; do
+        echo "Version ID::: $versionId"
         response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
