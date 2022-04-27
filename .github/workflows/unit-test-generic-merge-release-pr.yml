@@ -1,0 +1,19 @@
+name: test-store-generic-merge-release-pr
+on:
+  push:
+    paths:
+      - 'actions/generic-merge-release-pr/**'
+      - 'scripts/generic-merge-release-pr.sh'
+      - '.github/workflows/unit-test-generic-merge-release-pr.yml'
+  workflow_dispatch:
+
+jobs:
+  test-scenario-1-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start tag
+        uses: partior-libs/gcs-pipe-utils/actions/generic-merge-release-pr@main
+        with: 
+          target-repo: partior-sandbox/ci-pipeline-playrgound
+          pull-request-number: "4"
+          pat-token: ${{ secrets.REPO_PAT }}

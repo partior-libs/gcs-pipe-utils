@@ -1,0 +1,53 @@
+name: 'Partior - Merge a release PR'
+description: 'Merge a release PR. This action should be triggered during promotion stage'
+inputs:
+  target-repo:  
+    description: 'Repository name of the PR'
+    required: true
+    default: ''
+
+  pull-request-number:
+    description: 'PR number to be merged'
+    required: true
+    default: ''
+
+  pat-token:  
+    description: 'GitHub PAT Token to perform the merge'
+    required: true
+    default: ''
+
+outputs:
+  qualified:
+    description: "Return check result if artifact can be promoted. true/false"
+    value: ${{ steps.promotion.outputs.valid-result }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Login with GH cli
+      run: |
+        set +e
+          echo ${{ secrets.TMP_GITHUB_API_PAT_TOKEN }} > passw.txt
+          gh auth login --with-token < passw.txt
+      shell: bash
+
+    - name: Check if can be merge
+      run: |
+          gh pr list --repo ${{ inputs.target-repo }}
+      shell: bash
+
+
+    # - name: Set status
+    #   id: promotion
+    #   run: |
+    #     if [[ "${{ steps.get-properties.outputs.valid-result }}" == 'true' ]]; then
+    #         echo ::set-output name=valid-result::'true'
+    #     else
+    #         echo ::set-output name=valid-result::'false'
+    #     fi
+      shell: bash  
+        
+    - run: echo [INFO] Done merging...
+      shell: bash
+
