@@ -68,10 +68,10 @@ function updateVersionStatusInJira() {
             -X PUT \
             -H "Content-Type: application/json" \
             --data "$payloadData" \
-            "$jiraBaseUrl/rest/api/3/version/$sourceVersionId" -o $responseOutFile)
+            "$jiraBaseUrl/rest/api/3/version/$versionId" -o $responseOutFile)
     if [[ $? -ne 0 ]]; then
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to update version details."
-        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$sourceVersionId"
+        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$versionId"
         echo "$response"
         return 1
     fi
@@ -84,7 +84,7 @@ function updateVersionStatusInJira() {
         echo "$response" 
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when updating version: [$responseStatus]" 
-        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$sourceVersionId"
+        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$versionId"
         echo "[ERROR] $(echo $response | jq '.errors | .name')"
         echo "[DEBUG] $(cat $responseOutFile)"
         return 1
