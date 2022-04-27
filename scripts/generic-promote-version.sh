@@ -45,7 +45,6 @@ function getSourceVersionId() {
     fi
     
     local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
-    echo "Response status::: $responseStatus"
 
     if [[ $responseStatus -eq 200 ]]; then
         sourceVersionId=$( jq -r --arg versionIdentifier "${versionIdentifier}" --arg sourceVersion "$sourceVersion" '.[] | select(.name=='\"${versionIdentifier}_$sourceVersion\"') | .id' < $responseOutFile)
@@ -105,7 +104,7 @@ buildUrl=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
 # Getting the IDs of all versions whose names startwith "$versionIdentifier_$releaseVersion"
 filteredIds=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archived==false and .released==false) | select (.name|startswith('\"${versionIdentifier}_${releaseVersion}\"')) | .id' < $versionsOutputFile)
 for versionId in ${filteredIds[@]}; do
-    if ($versionId==$sourceVersionId); then
+    if (( $versionId == $sourceVersionId )); then
         echo "Promoting the version from $sourceVersion to $releaseVersion"
         data='{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true,"description":"Promoted from '$sourceVersion' to '$releaseVersion' \n '$buildUrl'"}'
         updateVersionStatusInJira "$data"
