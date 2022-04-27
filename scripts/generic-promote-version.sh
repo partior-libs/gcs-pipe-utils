@@ -73,10 +73,10 @@ function promoteVersionInJira() {
                 -X PUT \
                 -H "Content-Type: application/json" \
                 --data '{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true}' \
-                "$jiraBaseUrl/rest/api/3/version/$soureVersionId" -o $responseOutFile)
+                "$jiraBaseUrl/rest/api/3/version/$sourceVersionId" -o $responseOutFile)
     if [[ $? -ne 0 ]]; then
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to update version details."
-        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$soureVersionId"
+        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$sourceVersionId"
         echo "$response"
         return 1
     fi
