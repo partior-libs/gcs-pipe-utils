@@ -29,6 +29,7 @@ runs:
       run: |
         set +e
           echo ${{ inputs.pat-token }} > passw.txt
+          gh version
           gh auth login --with-token < passw.txt
       shell: bash
 
