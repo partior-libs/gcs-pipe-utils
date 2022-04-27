@@ -48,7 +48,7 @@ function getSourceVersionId() {
     echo "Response status::: $responseStatus"
 
     if [[ $responseStatus -eq 200 ]]; then
-        sourceVersionId=$( jq -r --arg versionIdentifier "${versionIdentifier}_" --arg sourceVersion "$sourceVersion" '.[] | select(.name=='\"${versionIdentifier}_$sourceVersion\"') | .id' < $responseOutFile)
+        sourceVersionId=$( jq -r --arg versionIdentifier "${versionIdentifier}" --arg sourceVersion "$sourceVersion" '.[] | select(.name=='\"${versionIdentifier}_$sourceVersion\"') | .id' < $responseOutFile)
         echo "$(echo $sourceVersionId | tr -d '"')"
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying project details: [$responseStatus]" 
@@ -89,6 +89,7 @@ function promoteVersionInJira() {
         echo "$response" 
     else
         echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when updating version: [$responseStatus]" 
+        echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$soureVersionId"
         echo "[ERROR] $(echo $response | jq '.errors | .name')"
         echo "[DEBUG] $(cat $responseOutFile)"
         return 1
