@@ -59,21 +59,16 @@ function getSourceVersionId() {
     
 }
 
-function promoteVersionInJira() {
-    local sourceVersionId=$1
-    local versionIdentifier=$2
-    local releaseVersion=$3
-    local releaseDate=$(date '+%Y-%m-%d')
-    local responseOutFile=response.tmp
-    local buildUrl=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+function updateVersionStatusInJira() {
+    local payloadData=$1
+    local responseOutFile=response.tmp 
     local response=""
-    echo "SourceVersion:: $sourceVersionId"
-	response=$(curl -k -s -u $jiraUsername:$jiraToken \
-                -w "status_code:[%{http_code}]" \
-                -X PUT \
-                -H "Content-Type: application/json" \
-                --data '{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true,"description":"Promoted from '$sourceVersion' to '$releaseVersion' \n '$buildUrl'"}' \
-                "$jiraBaseUrl/rest/api/3/version/$sourceVersionId" -o $responseOutFile)
+    response=$(curl -k -s -u $jiraUsername:$jiraToken \
+            -w "status_code:[%{http_code}]" \
+            -X PUT \
+            -H "Content-Type: application/json" \
+            --data "$payloadData" \
+            "$jiraBaseUrl/rest/api/3/version/$sourceVersionId" -o $responseOutFile)
     if [[ $? -ne 0 ]]; then
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to update version details."
         echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$sourceVersionId"
@@ -96,54 +91,29 @@ function promoteVersionInJira() {
     fi
 }
 
-function archiveVersionsInJira() {
-    local versionsFile=$1
-    local versionIdentifier=$2
-    local releaseVersion=$3
-    local responseOutFile=response.tmp
-    local response=""
-    # Remove the source version 
-    echo "echo $( jq -r --arg versionIdentifier "$versionIdentifier" --arg sourceVersion "$sourceVersion" '.[] | (..| select(.name=='\"${versionIdentifier}_$sourceVersion\"')) |=empty' < $versionsFile)" > $versionsFile
-    # Get all the IDs of thr pre-release versions
-    local filteredIds=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archived==false and .released==false) | select (.name|startswith('\"${versionIdentifier}_${releaseVersion}-\"')) | .id' < $versionsFile)
-    for versionId in ${filteredIds[@]}; do
-        response=$(curl -k -s -u $jiraUsername:$jiraToken \
-                -w "status_code:[%{http_code}]" \
-                -X PUT \
-                -H "Content-Type: application/json" \
-                --data '{"archived" : true}' \
-                "$jiraBaseUrl/rest/api/3/version/$versionId" -o $responseOutFile)
-        if [[ $? -ne 0 ]]; then
-            echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to update version status."
-            echo "[DEBUG] Curl: $jiraBaseUrl/rest/api/3/version/$versionId"
-            echo "$response"
-            return 1
-        fi
-
-        local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
-
-
-        if [[ $responseStatus -eq 200 ]]; then
-            echo "[INFO] Version status updated successfully"
-            echo "$response" 
-        else
-            echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 while updating version status: [$responseStatus]" 
-            echo "[ERROR] $(echo $response | jq '.errors | .name')"
-            echo "[DEBUG] $(cat $responseOutFile)"
-            return 1
-        fi
-    done
-}
-
 versionsOutputFile=versions.tmp
 # Getting source version id
-#sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
-#if [[ $? -ne 0 ]]; then
-#	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
-#	echo "[DEBUG] echo $sourceVersionId"
-#	exit 1
-#fi
-
-getSourceVersionId "$versionsOutputFile"
-promoteVersionInJira "$sourceVersionId" "$versionIdentifier" "$releaseVersion"
-archiveVersionsInJira "$versionsOutputFile" "$versionIdentifier" "$releaseVersion"
+sourceVersionId=$(getSourceVersionId "$versionsOutputFile")
+if [[ $? -ne 0 ]]; then
+	echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error getting Jira Source Version ID"
+	echo "[DEBUG] echo $sourceVersionId"
+	exit 1
+fi
+index=0
+releaseDate=$(date '+%Y-%m-%d')
+buildUrl=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+# Getting the IDs of all versions whose names startwith "$versionIdentifier_$releaseVersion"
+filteredIds=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archived==false and .released==false) | select (.name|startswith('\"${versionIdentifier}_${releaseVersion}\"')) | .id' < $versionsOutputFile)
+for versionId in ${filteredIds[@]}; do
+    if ($versionId==$sourceVersionId); then
+        echo "Promoting the version from $sourceVersion to $releaseVersion"
+        data='{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true,"description":"Promoted from '$sourceVersion' to '$releaseVersion' \n '$buildUrl'"}'
+        updateVersionStatusInJira "$data"
+        unset filteredIds[$index]
+    else
+        echo "Archiving pre-release version whose id is $versionId"
+        data='{"archived" : true}'
+        updateVersionStatusInJira "$data"
+    fi
+    let index++
+done
