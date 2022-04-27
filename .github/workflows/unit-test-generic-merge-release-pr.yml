@@ -4,6 +4,7 @@ on:
     paths:
       - 'actions/generic-merge-release-pr/**'
       - 'scripts/generic-merge-release-pr.sh'
+      - 'scripts/generic-validate-pr-status'
       - '.github/workflows/unit-test-generic-merge-release-pr.yml'
   workflow_dispatch:
 
