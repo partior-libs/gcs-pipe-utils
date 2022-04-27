@@ -60,14 +60,13 @@ function getSourceVersionId() {
 }
 
 function promoteVersionInJira() {
-    echo "Inside promoteversion"
     local sourceVersionId=$1
-    echo "SourceVersion:: $sourceVersionId"
     local versionIdentifier=$2
     local releaseVersion=$3
     local releaseDate=$(date '+%Y-%m-%d')
     local responseOutFile=response.tmp
     local response=""
+    echo "SourceVersion:: $sourceVersionId"
 	response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
@@ -97,11 +96,13 @@ function promoteVersionInJira() {
 }
 
 function archiveVersionsInJira() {
+    echo "Inside Archive Versions"
     local versionsFile=$1
     local versionIdentifier=$2
     local releaseVersion=$3
     local responseOutFile=response.tmp
     local response=""
+    echo "($(cat $versionsFile))"
     # Get all the IDs of pre-release versions
     local archiveVersions=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archive==false and .release==false) | select (.name|startswith('\"${versionIdentifier}_$releaseVersion\"')) | .id' < $versionsFile)
     for versionId in ${archiveVersions[@]}; do
