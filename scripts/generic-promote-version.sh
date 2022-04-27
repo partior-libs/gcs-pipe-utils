@@ -97,19 +97,16 @@ function promoteVersionInJira() {
 }
 
 function archiveVersionsInJira() {
-    echo "Inside Archive Versions"
     local versionsFile=$1
     local versionIdentifier=$2
     local releaseVersion=$3
     local responseOutFile=response.tmp
     local response=""
-    echo "($(cat $versionsFile))"
     # Remove the source version 
-    echo "$( jq -r --arg versionIdentifier "$versionIdentifier" --arg sourceVersion "$sourceVersion" '.[] | select(.name=='\"${versionIdentifier}_$sourceVersion\"') | del(.name)' < $versionsFile)" > $versionsFile
+    echo "echo $( jq -r --arg versionIdentifier "$versionIdentifier" --arg sourceVersion "$sourceVersion" '.[] | (..| select(.name=='\"${versionIdentifier}_$sourceVersion\"')) |=empty' < $versionsFile)" > $versionsFile
     # Get all the IDs of thr pre-release versions
     local filteredIds=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archived==false and .released==false) | select (.name|startswith('\"${versionIdentifier}_${releaseVersion}-\"')) | .id' < $versionsFile)
     for versionId in ${filteredIds[@]}; do
-        echo "Version ID::: $versionId"
         response=$(curl -k -s -u $jiraUsername:$jiraToken \
                 -w "status_code:[%{http_code}]" \
                 -X PUT \
