@@ -103,7 +103,7 @@ if [[ $? -ne 0 ]]; then
 fi
 # Getting the IDs of all versions whose names startwith "$versionIdentifier_$releaseVersion"
 filteredIds=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archived==false and .released==false) | select (.name|startswith('\"${versionIdentifier}_${releaseVersion}\"')) | .id' < $versionsOutputFile)
-sourceCiUrl=$( jq -r --arg sourceVersion "$sourceVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.name=='\"${versionIdentifier}_$sourceVersion\"') | .description' < $responseOutFile )
+sourceCiUrl=$( jq -r --arg sourceVersion "$sourceVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.name=='\"${versionIdentifier}_$sourceVersion\"') | .description' < $versionsOutputFile )
 echo "Filtered Ids:${filteredIds[*]}"
 for versionId in ${filteredIds[@]}; do
     if (( $versionId == $sourceVersionId )); then
