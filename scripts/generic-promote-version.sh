@@ -102,7 +102,6 @@ if [[ $? -ne 0 ]]; then
 	exit 1
 fi
 # Getting the IDs of all versions whose names startwith "$versionIdentifier_$releaseVersion"
-index=0
 filteredIds=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archived==false and .released==false) | select (.name|startswith('\"${versionIdentifier}_${releaseVersion}\"')) | .id' < $versionsOutputFile)
 echo "Filtered Ids:${filteredIds[*]}"
 for versionId in ${filteredIds[@]}; do
@@ -110,11 +109,10 @@ for versionId in ${filteredIds[@]}; do
         echo "Promoting the version from $sourceVersion to $releaseVersion"
         data='{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true,"description":"Promoted from '$sourceVersion' to '$releaseVersion' \n '$buildUrl'"}'
         updateVersionStatusInJira "$data" "$versionId"
-        unset filteredIds[$index]
+        filteredIds=( "${filteredIds[@]/$versionId}" )
     else
         echo "Archiving pre-release version whose id is $versionId"
         data='{"archived" : true}'
         updateVersionStatusInJira "$data" "$versionId"
     fi
-    let index++
 done
