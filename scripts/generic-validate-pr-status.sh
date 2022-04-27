@@ -6,6 +6,8 @@ prNum="$2"
 
 prDetailJsonFile=prDetail.$(date +%s).json
 prURL=https://github.com/${targetRepo}/pull/${prNum}
+validatedFail=false
+failedMessageFile=failedMsg.$(date +%s).txt
 
 echo "[INFO] Listing all OPEN PRs"
 gh pr list --repo ${targetRepo}
@@ -21,7 +23,7 @@ fi
 ## Check mergeable flag
 mergeableFlag=$(jq -r ".mergeable" $prDetailJsonFile)
 if [[ $? -ne 0 ]] || [[ -z "${mergeableFlag}" ]]; then
-    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed to retrieve draff flag. Response content:"
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed to retrieve draft flag. Response content:"
     cat $prDetailJsonFile
     exit 1
 fi
@@ -29,9 +31,11 @@ fi
 if [[ "${mergeableFlag}" == "MERGEABLE" ]]; then
     echo "[INFO] PR [${prNum}] is MERGEABLE."
 else
-    echo "[ERROR] $BASH_SOURCE (line:$LINENO): PR [${prNum}] is unmergable [${MERGEABLE}]. Resolve the issue and try again."
-    echo ${prURL}
-    exit 1
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): PR [${prNum}] is unmergable [${MERGEABLE}]. Resolve the issue and try again." >> $failedMessageFile
+    echo "${prURL}" >> $failedMessageFile
+    # exit 1
+    validatedFail=true
+
 fi
 
 ## Check isDraft flag
@@ -45,13 +49,15 @@ fi
 if [[ "${draftFlag}" == "false" ]]; then
     echo "[INFO] PR [${prNum}] in not in draft stage."
 elif [[ "${draftFlag}" == "true" ]]; then
-    echo "[INFO] PR [${prNum}] still in draft stage. Correct it before proceeding."
-    echo ${prURL}
-    exit 1
+    echo "[INFO] PR [${prNum}] still in draft stage. Correct it before proceeding." >> $failedMessageFile
+    # echo ${prURL}
+    # exit 1
+    validatedFail=true
 else
-    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unknown PR draft status [${draftFlag}]"
-    echo ${prURL}
-    exit 1
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unknown PR draft status [${draftFlag}]" >> $failedMessageFile
+    # echo ${prURL}
+    # exit 1
+    validatedFail=true
 fi
 
 ## Check state flag
@@ -69,32 +75,47 @@ elif [[ "${stateFlag}" == "MERGED" ]]; then
     echo ${prURL}
     exit 0
 elif [[ "${stateFlag}" == "CLOSED" ]]; then
-    echo "[INFO] PR [${prNum}] was closed prematurely. Reopen it before proceeding..."
-    echo ${prURL}
-    exit 1
+    echo "[INFO] PR [${prNum}] was closed prematurely. Reopen it before proceeding..." >> $failedMessageFile
+    # echo ${prURL}
+    # exit 1
+    validatedFail=true
 else
-    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unknown PR state [${stateFlag}]"
-    echo ${prURL}
-    exit 1
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unknown PR state [${stateFlag}]" >> $failedMessageFile
+    # echo ${prURL}
+    # exit 1
+    validatedFail=true
 fi
 
 
 checkRunFlag=$(jq -r '.statusCheckRollup[] | select(."__typename"=="CheckRun") | select(."conclusion"!="SUCCESS" and ."conclusion"!="NEUTRAL")' $prDetailJsonFile)
 if [[ $? -ne 0 ]] || [[ ! -z "${checkRunFlag}" ]]; then
-    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Jobs (type:checkRun) found unsuccessful"
-    echo ${prURL}
-    jq -r '.statusCheckRollup[] | select(."__typename"=="CheckRun") | select(."conclusion"!="SUCCESS" and ."conclusion"!="NEUTRAL")' $prDetailJsonFile
-    exit 1
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Jobs (type:checkRun) not meeting criteria..." >> $failedMessageFile
+    # echo ${prURL}
+    jq -r '.statusCheckRollup[] | select(."__typename"=="CheckRun") | select(."conclusion"!="SUCCESS" and ."conclusion"!="NEUTRAL")' $prDetailJsonFile >> $failedMessageFile
+    # exit 1
+    validatedFail=true
 fi
 
 statusContextFlag=$(jq -r '.statusCheckRollup[] | select(."__typename"=="StatusContext") | select(."state"!="SUCCESS" and ."state"!="NEUTRAL")' $prDetailJsonFile)
 if [[ $? -ne 0 ]] || [[ ! -z "${statusContextFlag}" ]]; then
-    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Jobs (type:statusContext) found unsuccessful"
-    echo ${prURL}
-    jq -r '.statusCheckRollup[] | select(."__typename"=="StatusContext") | select(."state"!="SUCCESS" and ."state"!="NEUTRAL")' $prDetailJsonFile
-    exit 1
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Jobs (type:statusContext) not meeting criteria..." >> $failedMessageFile
+    # echo ${prURL}
+    jq -r '.statusCheckRollup[] | select(."__typename"=="StatusContext") | select(."state"!="SUCCESS" and ."state"!="NEUTRAL")' $prDetailJsonFile >> $failedMessageFile
+    # exit 1
+    validatedFail=true
 fi
 
+if [[ "$validatedFail" == "true" ]]; then
+    echo "========================================"
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): PR [${prNum}] failed validation(s).."
+    echo "[ERROR] Failed list:"
+    echo "========================================"
+    cat $failedMessageFile
+    echo "========================================"
+    echo "[DEBUG] PR URL: ${prURL}"
+    echo "========================================"
+    exit 1
+fi
 
 ## Approving PR
 echo "[INFO] Approving PR for merging..."
