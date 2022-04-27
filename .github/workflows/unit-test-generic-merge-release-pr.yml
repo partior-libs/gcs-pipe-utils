@@ -3,8 +3,8 @@ on:
   push:
     paths:
       - 'actions/generic-merge-release-pr/**'
-      - 'scripts/generic-merge-release-pr.sh'
-      - 'scripts/generic-validate-pr-status'
+      - 'scripts/generic-merge-pr.sh'
+      - 'scripts/generic-validate-pr-status.sh'
       - '.github/workflows/unit-test-generic-merge-release-pr.yml'
   workflow_dispatch:
 
@@ -17,4 +17,6 @@ jobs:
         with: 
           target-repo: partior-sandbox/ci-pipeline-playrgound
           pull-request-number: "4"
+          qualified-src-branches: "release"
+          qualified-target-branches: "master,main"
           pat-token: ${{ secrets.REPO_PAT }}
