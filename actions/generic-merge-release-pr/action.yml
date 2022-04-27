@@ -37,10 +37,6 @@ runs:
       run: ${{ github.action_path }}/../../scripts/generic-validate-pr-status.sh "${{ inputs.target-repo }}" "${{ inputs.pull-request-number }}"
       shell: bash
 
-      run: |
-          gh pr list --repo ${{ inputs.target-repo }}
-      shell: bash
-
 
     # - name: Set status
     #   id: promotion
