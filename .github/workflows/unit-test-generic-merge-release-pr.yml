@@ -1,4 +1,4 @@
-name: test-store-generic-merge-release-pr
+name: test-generic-merge-release-pr
 on:
   push:
     paths:
@@ -11,7 +11,7 @@ jobs:
   test-scenario-1-start:
     runs-on: ubuntu-latest
     steps:
-      - name: Start tag
+      - name: Start PR merge
         uses: partior-libs/gcs-pipe-utils/actions/generic-merge-release-pr@main
         with: 
           target-repo: partior-sandbox/ci-pipeline-playrgound
