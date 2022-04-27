@@ -60,6 +60,7 @@ function getSourceVersionId() {
 
 function updateVersionStatusInJira() {
     local payloadData=$1
+    local versionId=$2
     local responseOutFile=response.tmp 
     local response=""
     response=$(curl -k -s -u $jiraUsername:$jiraToken \
@@ -101,16 +102,19 @@ if [[ $? -ne 0 ]]; then
 	exit 1
 fi
 # Getting the IDs of all versions whose names startwith "$versionIdentifier_$releaseVersion"
+index=0
 filteredIds=$( jq -r --arg releaseVersion "$releaseVersion" --arg versionIdentifier "$versionIdentifier" '.[] | select(.archived==false and .released==false) | select (.name|startswith('\"${versionIdentifier}_${releaseVersion}\"')) | .id' < $versionsOutputFile)
+echo "Filtered Ids:${filteredIds[*]}"
 for versionId in ${filteredIds[@]}; do
     if (( $versionId == $sourceVersionId )); then
         echo "Promoting the version from $sourceVersion to $releaseVersion"
         data='{"name" : "'${versionIdentifier}_${releaseVersion}'","releaseDate" : "'${releaseDate}'","released" : true,"description":"Promoted from '$sourceVersion' to '$releaseVersion' \n '$buildUrl'"}'
-        updateVersionStatusInJira "$data"
+        updateVersionStatusInJira "$data" "$versionId"
+        unset 'filteredIds[$index]'
     else
         echo "Archiving pre-release version whose id is $versionId"
         data='{"archived" : true}'
-        updateVersionStatusInJira "$data"
+        updateVersionStatusInJira "$data" "$versionId"
     fi
     let index++
 done
