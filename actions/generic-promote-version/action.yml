@@ -78,6 +78,7 @@ runs:
             exit 1
           fi
         fi
+      shell: bash
 
     - name: Promote artifact version in jira  
       run: |
