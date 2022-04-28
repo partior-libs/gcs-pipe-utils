@@ -44,12 +44,12 @@ inputs:
 
   jira-version-identifier:
     description: 'Artifact version identifier'
-    required: true
+    required: false
     default: ''
 
   jira-project-key:
     description: 'Jira project key'
-    required: true
+    required: false
     default: ''
 
 runs:
@@ -70,9 +70,18 @@ runs:
    #     jfrog rt sp ${{ inputs.release-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promotion.promoted.from=${{ inputs.source-artifact-full-path }}"
       shell: bash
 
+    - name: Validate Jira Information
+      run: |
+        if [[ ! -z "${{ inputs.jira-project-key }}" ]]; then
+          if [[ -z "${{ inputs.jira-version-identifier }}" ]]; then
+            echo [ERROR] Jira version identifier must be specified.
+            exit 1
+          fi
+        fi
+
     - name: Promote artifact version in jira  
       run: |
-       ${{ github.action_path }}/../../scripts/generic-promote-version.sh "${{ inputs.jira-username }}" \
+       ${{ github.action_path }}/../../scripts/generic-promote-version-in-jira.sh "${{ inputs.jira-username }}" \
           "${{ inputs.jira-token }}" \
           "${{ inputs.jira-base-url }}" \
           "${{ inputs.final-artifact-source-version }}" \

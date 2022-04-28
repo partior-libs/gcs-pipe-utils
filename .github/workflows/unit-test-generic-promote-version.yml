@@ -4,7 +4,7 @@ on:
     paths:
       - 'actions/generic-promote-version/**'
       - '.github/workflows/unit-test-generic-promote-version.yml'
-      - 'scripts/generic-promote-version.sh'
+      - 'scripts/generic-promote-version-in-jira.sh'
   workflow_dispatch:
 
 jobs:
