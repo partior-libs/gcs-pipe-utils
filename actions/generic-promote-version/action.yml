@@ -74,7 +74,7 @@ runs:
       run: |
         if [[ ! -z "${{ inputs.jira-project-key }}" ]]; then
           if [[ -z "${{ inputs.jira-version-identifier }}" ]]; then
-            echo [ERROR] Jira version identifier must be specified.
+            echo "[ERROR] Jira version identifier must be specified."
             exit 1
           fi
         fi
