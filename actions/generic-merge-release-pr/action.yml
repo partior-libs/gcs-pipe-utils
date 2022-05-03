@@ -43,24 +43,33 @@ runs:
           gh auth login --with-token < passw.txt
       shell: bash
 
+    ## After validating, it will generate env variable SOURCE_MERGE_BRANCH and TARGET_MERGE_BRANCH 
     - name: Check PR if can proceed merge
-      run: ${{ github.action_path }}/../../scripts/generic-validate-pr-status.sh "${{ inputs.target-repo }}" "${{ inputs.pull-request-number }}"
+      run: ${{ github.action_path }}/../../scripts/generic-validate-pr-status.sh "${{ inputs.target-repo }}" "${{ inputs.pull-request-number }}" "${{ inputs.qualified-src-branches }}" "${{ inputs.qualified-target-branches }}
       shell: bash
+
+    - uses: actions/checkout@v3
+      with:
+        repository: "${{ inputs.target-repo }}"
+        token: ${{ inputs.pat-token }}
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+        fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
+        ref: ${{ env.TARGET_MERGE_BRANCH }}
 
     - name: Merge PR
-      run: ${{ github.action_path }}/../../scripts/generic-merge-pr.sh "${{ inputs.target-repo }}" "${{ inputs.pull-request-number }}" "${{ inputs.qualified-src-branches }}" "${{ inputs.qualified-target-branches }}"
+      run: |
+        echo [INFO] Start merging...
+        git merge ${SOURCE_MERGE_BRANCH} --ff-only
+        echo [INFO] Merging completed locally...
       shell: bash
 
+    - name: Push changes
+      uses: partior-libs/gjs-github-push@partior-stable
+      with:
+        github_token: ${{ inputs.pat-token }}
+        repository: "${{ inputs.target-repo }}"
+        branch: ${{ env.TARGET_MERGE_BRANCH }}
 
-    # - name: Set status
-    #   id: promotion
-    #   run: |
-    #     if [[ "${{ steps.get-properties.outputs.valid-result }}" == 'true' ]]; then
-    #         echo ::set-output name=valid-result::'true'
-    #     else
-    #         echo ::set-output name=valid-result::'false'
-    #     fi
-      # shell: bash  
         
     - run: echo [INFO] Done merging...
       shell: bash
