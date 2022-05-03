@@ -59,10 +59,13 @@ runs:
     - name: Merge PR
       run: |
         echo [INFO] Start merging...
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git remote set-url origin https://${{ inputs.pat-token }}@github.com/${{ inputs.target-repo }}
         git checkout ${SOURCE_MERGE_BRANCH}
         git pull
         git checkout ${TARGET_MERGE_BRANCH}
-        git merge ${SOURCE_MERGE_BRANCH} --ff-only
+        git merge ${SOURCE_MERGE_BRANCH} --ff-only -m "[Bot] Auto merged"
         echo [INFO] Merging completed locally...
       shell: bash
 
