@@ -3,6 +3,8 @@
 
 targetRepo="$1"
 prNum="$2"
+qualifiedSourceBranches="$3"
+qualifiedTargetBranches="$4"
 
 prDetailJsonFile=prDetail.$(date +%s).json
 prURL=https://github.com/${targetRepo}/pull/${prNum}
@@ -14,12 +16,40 @@ echo "[INFO] Listing all OPEN PRs"
 gh pr list --repo ${targetRepo}
 
 echo "[INFO] Retrieving PR [${prNum}] details.."
-echo gh pr view ${prNum} --json state,statusCheckRollup,isDraft,mergeable,mergeStateStatus,reviewDecision --repo ${targetRepo}
-gh pr view ${prNum} --json state,statusCheckRollup,isDraft,mergeable,mergeStateStatus,reviewDecision --repo ${targetRepo} > $prDetailJsonFile
+echo gh pr view ${prNum} --json state,statusCheckRollup,isDraft,mergeable,mergeStateStatus,reviewDecision,baseRefName,headRefName --repo ${targetRepo}
+gh pr view ${prNum} --json state,statusCheckRollup,isDraft,mergeable,mergeStateStatus,reviewDecision,baseRefName,headRefName --repo ${targetRepo} > $prDetailJsonFile
 if [[ $? -ne 0 ]]; then
     echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed to query PR [${prNum}] details from [${targetRepo}]"
     exit 1
 fi
+
+## Check branches if within allowed configuration
+srcBranchRaw=$(jq -r ".headRefName" $prDetailJsonFile)
+targetBranchRaw=$(jq -r ".baseRefName" $prDetailJsonFile)
+if [[ $? -ne 0 ]] || [[ -z "${srcBranchRaw}" ]] || [[ -z "${targetBranchRaw}" ]]; then
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed to retrieve source and target merge branch details. Src: [${srcBranchRaw}], target:[${targetBranchRaw}]"
+    exit 1
+fi
+srcBranch=$(echo ${srcBranchRaw} | cut -d"/" -f1)
+targetBranch=$(echo ${targetBranchRaw} | cut -d"/" -f1)
+echo srcBranch=$srcBranch
+if [[ "${qualifiedSourceBranches}" =~ (^|,)${srcBranch}(,|$) ]]; then
+    echo "[INFO] Source branch [${srcBranch}] is valid and within allowed branches [${qualifiedSourceBranches}]"
+    echo "SOURCE_MERGE_BRANCH=${srcBranch}" >> $GITHUB_ENV
+else
+    echo "[FAILED-${failureCounter}] $BASH_SOURCE (line:$LINENO): Source branch [${srcBranch}] not within qualified source branches [${qualifiedSourceBranches}]" >> $failedMessageFile
+    failureCounter=$((failureCounter+1))
+    validatedFail=true
+fi
+if [[ "${qualifiedTargetBranches}" =~ (^|,)${targetBranch}(,|$) ]]; then
+    echo "[INFO] Target branch [${targetBranch}] is valid and within allowed branches [${qualifiedTargetBranches}]"
+    echo "TARGET_MERGE_BRANCH=${targetBranch}" >> $GITHUB_ENV
+else
+    echo "[FAILED-${failureCounter}] $BASH_SOURCE (line:$LINENO): Target branch [${targetBranch}] not within qualified target branches [${qualifiedTargetBranches}]" >> $failedMessageFile
+    failureCounter=$((failureCounter+1))
+    validatedFail=true
+fi
+
 
 ## Check mergeable flag
 mergeableFlag=$(jq -r ".mergeable" $prDetailJsonFile)
