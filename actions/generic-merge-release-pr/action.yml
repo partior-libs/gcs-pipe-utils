@@ -1,0 +1,67 @@
+name: 'Partior - Merge a release PR'
+description: 'Merge a release PR. This action should be triggered during promotion stage'
+inputs:
+  target-repo:  
+    description: 'Repository name of the PR'
+    required: true
+    default: ''
+
+  pull-request-number:
+    description: 'PR number to be merged'
+    required: true
+    default: ''
+
+  qualified-src-branches:
+    description: 'Branches which allowed to be source of the PR. Support comma delimited'
+    required: false
+    default: 'release'
+
+  qualified-target-branches:
+    description: 'Branches which allowed to be target of the PR. Support comma delimited'
+    required: false
+    default: 'main,master'
+
+  pat-token:  
+    description: 'GitHub PAT Token to perform the merge'
+    required: true
+    default: ''
+
+outputs:
+  qualified:
+    description: "Return check result if artifact can be promoted. true/false"
+    value: ${{ steps.promotion.outputs.valid-result }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Login with GH cli
+      run: |
+        set +e
+          echo ${{ inputs.pat-token }} > passw.txt
+          gh version
+          gh auth login --with-token < passw.txt
+      shell: bash
+
+    - name: Check PR if can proceed merge
+      run: ${{ github.action_path }}/../../scripts/generic-validate-pr-status.sh "${{ inputs.target-repo }}" "${{ inputs.pull-request-number }}"
+      shell: bash
+
+    - name: Merge PR
+      run: ${{ github.action_path }}/../../scripts/generic-merge-pr.sh "${{ inputs.target-repo }}" "${{ inputs.pull-request-number }}" "${{ inputs.qualified-src-branches }}" "${{ inputs.qualified-target-branches }}"
+      shell: bash
+
+
+    # - name: Set status
+    #   id: promotion
+    #   run: |
+    #     if [[ "${{ steps.get-properties.outputs.valid-result }}" == 'true' ]]; then
+    #         echo ::set-output name=valid-result::'true'
+    #     else
+    #         echo ::set-output name=valid-result::'false'
+    #     fi
+      # shell: bash  
+        
+    - run: echo [INFO] Done merging...
+      shell: bash
+
