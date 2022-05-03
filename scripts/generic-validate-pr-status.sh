@@ -121,7 +121,8 @@ if [[ $? -ne 0 ]]; then
     echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to approve PR [${prNum}]"
     exit 1
 fi
-## Check reviewDecision flag
+
+## Check reviewDecision flag. This is after approval stage because bot can approve too.
 reviewDecisionFlag=$(gh pr view ${prNum} --json reviewDecision --repo ${targetRepo} --jq '.reviewDecision')
 if [[ $? -ne 0 ]]; then
     echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed to retrieve draff flag. Response content:"
