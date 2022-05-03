@@ -45,7 +45,7 @@ runs:
 
     ## After validating, it will generate env variable SOURCE_MERGE_BRANCH and TARGET_MERGE_BRANCH 
     - name: Check PR if can proceed merge
-      run: ${{ github.action_path }}/../../scripts/generic-validate-pr-status.sh "${{ inputs.target-repo }}" "${{ inputs.pull-request-number }}" "${{ inputs.qualified-src-branches }}" "${{ inputs.qualified-target-branches }}
+      run: ${{ github.action_path }}/../../scripts/generic-validate-pr-status.sh "${{ inputs.target-repo }}" "${{ inputs.pull-request-number }}" "${{ inputs.qualified-src-branches }}" "${{ inputs.qualified-target-branches }}"
       shell: bash
 
     - uses: actions/checkout@v3
