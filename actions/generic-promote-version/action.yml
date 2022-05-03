@@ -19,22 +19,22 @@ inputs:
 
   jira-username:
     description: 'Jira username'
-    required: true
+    required: false
     default: ''
  
   jira-token:
     description: 'Jira token'
-    required: true
+    required: false
     default: ''
 
-  final-artifact-source-version:
-    description: 'Final artifact source version'
-    required: true
+  source-artifact-version:
+    description: 'Final artifact source version. If not specified, will derived from "source-artifact-full-path"'
+    required: false
     default: ''
 
-  final-artifact-release-version:
-    description: 'Final artifact release version'
-    required: true
+  release-artifact-version:
+    description: 'Final artifact release version. If not specified, will derived from "release-artifact-full-path"'
+    required: false
     default: ''
 
   jira-base-url:
@@ -65,19 +65,30 @@ runs:
       run: |
         currentTimestamp=$(date +%s)
         echo "[INFO] Promoting from ${{ inputs.source-artifact-full-path }} to ${{ inputs.release-artifact-full-path }}"
-   #     jfrog rt cp ${{ inputs.source-artifact-full-path }} ${{ inputs.release-artifact-full-path }} --flat=true
-   #     jfrog rt sp ${{ inputs.source-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promotion.promoted.to=${{ inputs.release-artifact-full-path }}"
-   #     jfrog rt sp ${{ inputs.release-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promotion.promoted.from=${{ inputs.source-artifact-full-path }}"
+        jfrog rt cp ${{ inputs.source-artifact-full-path }} ${{ inputs.release-artifact-full-path }} --flat=true
+        jfrog rt sp ${{ inputs.source-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promotion.promoted.to=${{ inputs.release-artifact-full-path }}"
+        jfrog rt sp ${{ inputs.release-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promotion.promoted.from=${{ inputs.source-artifact-full-path }}"
       shell: bash
 
-    - name: Validate Jira Information
+    - name: Validate input parameters
       run: |
+        set +e
         if [[ ! -z "${{ inputs.jira-project-key }}" ]]; then
-          if [[ -z "${{ inputs.jira-version-identifier }}" ]]; then
-            echo "[ERROR] Jira version identifier must be specified."
+          if [[ -z "${{ inputs.jira-version-identifier }}" ]] || [[ -z "${{ inputs.jira-username }}" ]] || [[ -z "${{ inputs.jira-token }}" ]]; then
+            echo "[ERROR] Jira version identifier, username and password/token must be specified."
             exit 1
           fi
         fi
+        SOURCE_ARTIFACT_VERSION=${{ inputs.source-artifact-version }}
+        RELEASE_ARTIFACT_VERSION=${{ inputs.release-artifact-version }}
+        if [[ -z "${SOURCE_ARTIFACT_VERSION}" ]]; then
+          sourceArtifactFile=$(basename ${{ inputs.source-artifact-full-path }})
+          releaseArtifactFile=$(basename ${{ inputs.release-artifact-full-path }})
+          SOURCE_ARTIFACT_VERSION="${sourceArtifactFile%.*}"
+          RELEASE_ARTIFACT_VERSION="${releaseArtifactFile%.*}"
+        fi
+        echo "SOURCE_ARTIFACT_VERSION=${SOURCE_ARTIFACT_VERSION}" >> $GITHUB_ENV
+        echo "RELEASE_ARTIFACT_VERSION=${RELEASE_ARTIFACT_VERSION}" >> $GITHUB_ENV
       shell: bash
 
     - name: Promote artifact version in jira  
@@ -85,8 +96,8 @@ runs:
        ${{ github.action_path }}/../../scripts/generic-promote-version-in-jira.sh "${{ inputs.jira-username }}" \
           "${{ inputs.jira-token }}" \
           "${{ inputs.jira-base-url }}" \
-          "${{ inputs.final-artifact-source-version }}" \
-          "${{ inputs.final-artifact-release-version }}" \
+          "${SOURCE_ARTIFACT_VERSION}" \
+          "${RELEASE_ARTIFACT_VERSION}" \
           "${{ inputs.jira-version-identifier }}" \
           "${{ inputs.jira-project-key }}"
       shell: bash
