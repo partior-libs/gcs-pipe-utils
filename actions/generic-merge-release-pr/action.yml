@@ -59,6 +59,9 @@ runs:
     - name: Merge PR
       run: |
         echo [INFO] Start merging...
+        git checkout ${SOURCE_MERGE_BRANCH}
+        git pull
+        git checkout ${TARGET_MERGE_BRANCH}
         git merge ${SOURCE_MERGE_BRANCH} --ff-only
         echo [INFO] Merging completed locally...
       shell: bash
