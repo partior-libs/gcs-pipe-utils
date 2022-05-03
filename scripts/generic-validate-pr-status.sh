@@ -35,7 +35,7 @@ targetBranch=$(echo ${targetBranchRaw} | cut -d"/" -f1)
 echo srcBranch=$srcBranch
 if [[ "${qualifiedSourceBranches}" =~ (^|,)${srcBranch}(,|$) ]]; then
     echo "[INFO] Source branch [${srcBranch}] is valid and within allowed branches [${qualifiedSourceBranches}]"
-    echo "SOURCE_MERGE_BRANCH=${srcBranch}" >> $GITHUB_ENV
+    echo "SOURCE_MERGE_BRANCH=${srcBranchRaw}" >> $GITHUB_ENV
 else
     echo "[FAILED-${failureCounter}] $BASH_SOURCE (line:$LINENO): Source branch [${srcBranch}] not within qualified source branches [${qualifiedSourceBranches}]" >> $failedMessageFile
     failureCounter=$((failureCounter+1))
@@ -43,7 +43,7 @@ else
 fi
 if [[ "${qualifiedTargetBranches}" =~ (^|,)${targetBranch}(,|$) ]]; then
     echo "[INFO] Target branch [${targetBranch}] is valid and within allowed branches [${qualifiedTargetBranches}]"
-    echo "TARGET_MERGE_BRANCH=${targetBranch}" >> $GITHUB_ENV
+    echo "TARGET_MERGE_BRANCH=${targetBranchRaw}" >> $GITHUB_ENV
 else
     echo "[FAILED-${failureCounter}] $BASH_SOURCE (line:$LINENO): Target branch [${targetBranch}] not within qualified target branches [${qualifiedTargetBranches}]" >> $failedMessageFile
     failureCounter=$((failureCounter+1))
