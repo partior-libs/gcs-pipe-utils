@@ -1,3 +1,4 @@
+
 name: 'Partior - Check if artifact already promoted'
 description: 'Check artifactory if artifact has been promoted'
 inputs:
@@ -16,6 +17,40 @@ inputs:
     required: true
     default: ''
 
+  jira-username:
+    description: 'Jira username'
+    required: false
+    default: ''
+ 
+  jira-token:
+    description: 'Jira token'
+    required: false
+    default: ''
+
+  source-artifact-version:
+    description: 'Final artifact source version. If not specified, will derived from "source-artifact-full-path"'
+    required: false
+    default: ''
+
+  release-artifact-version:
+    description: 'Final artifact release version. If not specified, will derived from "release-artifact-full-path"'
+    required: false
+    default: ''
+
+  jira-base-url:
+    description: 'Jira base url'
+    required: false
+    default: 'https://partior.atlassian.net'
+
+  jira-version-identifier:
+    description: 'Artifact version identifier'
+    required: false
+    default: ''
+
+  jira-project-key:
+    description: 'Jira project key'
+    required: false
+    default: ''
 
 runs:
   using: "composite"
@@ -35,7 +70,37 @@ runs:
         jfrog rt sp ${{ inputs.release-artifact-full-path }} "promotion.promoted.stage=release;promotion.promoted.timestamp=${currentTimestamp};promotion.promoted.from=${{ inputs.source-artifact-full-path }}"
       shell: bash
 
-        
-    - run: echo [INFO] Done promotion...
+    - name: Validate input parameters
+      run: |
+        set +e
+        if [[ ! -z "${{ inputs.jira-project-key }}" ]]; then
+          if [[ -z "${{ inputs.jira-version-identifier }}" ]] || [[ -z "${{ inputs.jira-username }}" ]] || [[ -z "${{ inputs.jira-token }}" ]]; then
+            echo "[ERROR] Jira version identifier, username and password/token must be specified."
+            exit 1
+          fi
+        fi
+        SOURCE_ARTIFACT_VERSION=${{ inputs.source-artifact-version }}
+        RELEASE_ARTIFACT_VERSION=${{ inputs.release-artifact-version }}
+        if [[ -z "${SOURCE_ARTIFACT_VERSION}" ]]; then
+          sourceArtifactFile=$(basename ${{ inputs.source-artifact-full-path }})
+          releaseArtifactFile=$(basename ${{ inputs.release-artifact-full-path }})
+          SOURCE_ARTIFACT_VERSION="${sourceArtifactFile%.*}"
+          RELEASE_ARTIFACT_VERSION="${releaseArtifactFile%.*}"
+        fi
+        echo "SOURCE_ARTIFACT_VERSION=${SOURCE_ARTIFACT_VERSION}" >> $GITHUB_ENV
+        echo "RELEASE_ARTIFACT_VERSION=${RELEASE_ARTIFACT_VERSION}" >> $GITHUB_ENV
       shell: bash
 
+    - name: Promote artifact version in jira  
+      run: |
+       ${{ github.action_path }}/../../scripts/generic-promote-version-in-jira.sh "${{ inputs.jira-username }}" \
+          "${{ inputs.jira-token }}" \
+          "${{ inputs.jira-base-url }}" \
+          "${SOURCE_ARTIFACT_VERSION}" \
+          "${RELEASE_ARTIFACT_VERSION}" \
+          "${{ inputs.jira-version-identifier }}" \
+          "${{ inputs.jira-project-key }}"
+      shell: bash
+
+    - run: echo [INFO] Done promotion...
+      shell: bash

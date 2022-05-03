@@ -99,6 +99,14 @@ runs:
         artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactSrcVersion}.${artifactTypeQueryValue}"
         artifactReleasePackageName="${artifactBaseNameQueryValue}-${artifactReleaseVersion}.${artifactTypeQueryValue}"
 
+        jiraVersionIdentifierQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__jira_version_identifier
+        echo [DEBUG] jiraVersionIdentifierQueryPath=$versionIdentifierQueryPath
+        jiraVersionIdentifierQueryValue=${!jiraVersionIdentifierQueryPath}
+
+        jiraProjectKeyQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__jira_project_key
+        echo [DEBUG] jiraProjectKeyQueryPath=$jiraProjectKeyQueryPath
+        projectKeyQueryValue=${!jiraProjectKeyQueryPath}
+        		
         echo YAML_ARTIFACT_FILE="${fileQueryValue}" >> $GITHUB_ENV
         echo YAML_VERSION_QUERY_PATH="${versionQueryValue}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_BASE_NAME="${artifactBaseNameQueryValue}" >> $GITHUB_ENV
@@ -110,6 +118,8 @@ runs:
         echo FINAL_ARTIFACT_RELEASE_VERSION="${artifactReleaseVersion}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_SRC_PACKAGE_NAME="${artifactSrcPackageName}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_RELEASE_PACKAGE_NAME="${artifactReleasePackageName}" >> $GITHUB_ENV
+        echo JIRA_VERSION_IDENTIFIER="${versionIdentifierQueryValue}" >> $GITHUB_ENV
+        echo JIRA_PROJECT_KEY="${projectKeyQueryValue}" >> $GITHUB_ENV
       shell: bash
 
     - name: Get git storing details
@@ -148,7 +158,6 @@ runs:
     - name: Set jfrog path
       run: |
         set +e
-
         function failIfEmpty() {
             local inputKey="$1"
             local inputKeyValue=${!inputKey}
@@ -198,8 +207,9 @@ runs:
         echo [INFO] STORE_VERSION_GIT_REPO="${STORE_VERSION_GIT_REPO}"
         echo [INFO] STORE_VERSION_GIT_STORE_KEY="${STORE_VERSION_GIT_STORE_KEY}"
         echo [INFO] STORE_VERSION_GIT_TARGET_ENV_FILE="${STORE_VERSION_GIT_TARGET_ENV_FILE}"
+        echo [INFO] JIRA_VERSION_IDENTIFIER="${JIRA_VERSION_IDENTIFIER}"
+        echo [INFO] JIRA_PROJECT_KEY="${JIRA_PROJECT_KEY}"
       shell: bash
 
     - run: echo [INFO] Done injecting...
       shell: bash
-
