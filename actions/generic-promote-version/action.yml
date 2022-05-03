@@ -92,6 +92,7 @@ runs:
       shell: bash
 
     - name: Promote artifact version in jira  
+      if: inputs.jira-project-key != ''
       run: |
        ${{ github.action_path }}/../../scripts/generic-promote-version-in-jira.sh "${{ inputs.jira-username }}" \
           "${{ inputs.jira-token }}" \
