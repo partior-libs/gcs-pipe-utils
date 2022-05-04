@@ -158,6 +158,9 @@ smc:
     promotion:
       ## prerequisite-envs: Env must be deployed here before allowed for promotion. Support comma delimited
       prerequisite-envs: dev02
+      jira:
+        version-identifier: su
+        project-key: DEVPILOT
       artifacts:
         ## Yaml config stored in deploy-smc
         yaml-config:
@@ -168,8 +171,6 @@ smc:
             artifactory-src-repo: smc-generic-dev
             artifactory-promotion-repo: smc-generic-release
             artifact-type: tgz
-            jira-version-identifier: su
-            jira-project-key: DEVPILOT
             store-version:
               enabled: true
               git:

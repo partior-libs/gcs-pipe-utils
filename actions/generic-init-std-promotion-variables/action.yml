@@ -99,13 +99,13 @@ runs:
         artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactSrcVersion}.${artifactTypeQueryValue}"
         artifactReleasePackageName="${artifactBaseNameQueryValue}-${artifactReleaseVersion}.${artifactTypeQueryValue}"
 
-        jiraVersionIdentifierQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__jira_version_identifier
+        jiraVersionIdentifierQueryPath=artifacts__jira__version_identifier
         echo [DEBUG] jiraVersionIdentifierQueryPath=$versionIdentifierQueryPath
         jiraVersionIdentifierQueryValue=${!jiraVersionIdentifierQueryPath}
 
-        jiraProjectKeyQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__jira_project_key
+        jiraProjectKeyQueryPath=artifacts__jira__project_key
         echo [DEBUG] jiraProjectKeyQueryPath=$jiraProjectKeyQueryPath
-        projectKeyQueryValue=${!jiraProjectKeyQueryPath}
+        jiraProjectKeyQueryValue=${!jiraProjectKeyQueryPath}
         		
         echo YAML_ARTIFACT_FILE="${fileQueryValue}" >> $GITHUB_ENV
         echo YAML_VERSION_QUERY_PATH="${versionQueryValue}" >> $GITHUB_ENV
@@ -119,7 +119,7 @@ runs:
         echo FINAL_ARTIFACT_SRC_PACKAGE_NAME="${artifactSrcPackageName}" >> $GITHUB_ENV
         echo FINAL_ARTIFACT_RELEASE_PACKAGE_NAME="${artifactReleasePackageName}" >> $GITHUB_ENV
         echo JIRA_VERSION_IDENTIFIER="${versionIdentifierQueryValue}" >> $GITHUB_ENV
-        echo JIRA_PROJECT_KEY="${projectKeyQueryValue}" >> $GITHUB_ENV
+        echo JIRA_PROJECT_KEY="${jiraProjectKeyQueryValue}" >> $GITHUB_ENV
       shell: bash
 
     - name: Get git storing details
