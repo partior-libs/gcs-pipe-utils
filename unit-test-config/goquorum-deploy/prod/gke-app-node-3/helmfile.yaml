@@ -1,0 +1,118 @@
+repositories:
+  - name: helm-release
+    url: https://partior.jfrog.io/artifactory/helm-release/
+    username: {{ requiredEnv "USERNAME_HELM_RELEASE"}}
+    password: {{ requiredEnv "PASSWORD_HELM_RELEASE"}}
+  - name: helm-dev
+    url: https://partior.jfrog.io/artifactory/helm-dev/
+    username: {{ requiredEnv "USERNAME_HELM_RELEASE"}}
+    password: {{ requiredEnv "PASSWORD_HELM_RELEASE"}}
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+
+releases:
+  - name: goquorum-node
+    installed: true
+    namespace: quorum
+    chart: helm-release/goquorum-node
+    version: 0.12.1
+    wait: true
+    timeout: 1800
+    values:
+      - ./values/goquorum-node-values.yaml
+
+  - name: goquorum-tpsmonitor
+    installed: true
+    needs:
+    - quorum/goquorum-node
+    namespace: monitoring
+    chart: helm-release/goquorum-tpsmonitor
+    version: 0.3.2
+    wait: true
+    timeout: 300
+    values:
+      - ./values/goquorum-tpsmonitor-values.yaml
+
+  - name: goquorum-dapps
+    installed: false
+    namespace: dapps
+    chart: helm-dev/goquorum-dapps
+    version: 0.1.0-dev.30e05790
+    wait: true
+    timeout: 900
+    values:
+      - ./values/goquorum-dapps-values.yaml
+
+  - name: goquorum-dapps-ingress
+    installed: false
+    needs:
+    - dapps/goquorum-dapps
+    namespace: dapps
+    chart: helm-dev/goquorum-dapps-ingress
+    version: 0.1.0-dev.8c7da481
+    wait: true
+    timeout: 900
+    values:
+      - ./values/goquorum-dapps-ingress-values.yaml
+
+  - name: externaldns
+    installed: true
+    namespace: default
+    chart: bitnami/external-dns
+    version: 6.2.0
+    wait: true
+    timeout: 60
+    values:
+      - ./values/externaldns-values.yaml
+
+  - name: ethlogger
+    installed: false
+    namespace: logging
+    chart: helm-release/ethlogger
+    version: 2.1.1
+    wait: true
+    timeout: 60
+    values:
+      - ./values/ethlogger-values.yaml
+
+  - name: fluentbit
+    installed: false
+    namespace: logging
+    chart: helm-release/fluent-bit
+    version: 0.19.21
+    wait: true
+    timeout: 60
+    values:
+      - ./values/fluentbit-values.yaml
+
+  - name: goquorum-caliper
+    installed: true
+    namespace: testing
+    chart: helm-release/goquorum-caliper
+    version: 0.4.0
+    wait: true
+    timeout: 300
+    values:
+      - ./values/goquorum-caliper-values.yaml
+
+  - name: operator-clustersecret
+    installed: true
+    namespace: default
+    chart: helm-release/operator-clustersecret
+    version: 1.0.0
+    wait: true
+    timeout: 300
+    values:
+      - ./values/operator-clustersecret-values.yaml
+
+  - name: clustersecret-secret
+    installed: true
+    needs:
+    - operator-clustersecret
+    namespace: default
+    chart: helm-release/clustersecret-secret
+    version: 1.0.0
+    wait: true
+    timeout: 300
+    values:
+      - ./values/clustersecrets-values.yaml.gotmpl

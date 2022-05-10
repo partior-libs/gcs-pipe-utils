@@ -1,0 +1,95 @@
+goquorum:
+  cd:
+    promotion:
+      ## prerequisite-envs: Env must be deployed here before allowed for promotion. Support comma delimited
+      prerequisite-envs: dev02
+      jira:
+        version-identifier: SMC-SU
+        project-key: DEVPILOT
+      artifacts:
+        ## Yaml config stored in deploy-smc. Below info must first be read by action "partior-libs/gcs-pipe-utils/actions/generic-init-std-promotion-variables@partior-stable"
+        yaml-config:
+          - file: unit-test-config/goquorum-deploy/${LOWERCASE_TARGET_ENV}/gke-app-node-1/helmfile.yaml
+            ## Optional: search-list-key-path: Must contain @@SEARCH@@ as indication of which list item to be picked by matching "search-list-match-key-path-value"
+            search-list-key-path: .releases.@@SEARCH@@.name
+            search-list-match-key-path-value: ${ARTIFACT_BASE_NAME}
+            ## The token @@FOUND@@ must be used along with "search-list-key-path" and "search-list-match-key-path-value". @@FOUND@@ contain the numeric item number of a yaml list
+            version-path: .releases.@@FOUND@@.version
+            artifact-base-name: ${ARTIFACT_BASE_NAME}
+            artifact-group: partior
+            artifactory-src-repo: sandbox-helm-dev
+            artifactory-promotion-repo: sandbox-helm-release-local
+            artifact-type: tgz
+            store-version:
+              enabled: false
+              git:
+                enabled: false
+                repo: partior-quorum/deploy-goquorum-v2 
+                ## Optional: search-list-key-path: Must contain @@SEARCH@@ as indication of which list item to be picked by matching "search-list-match-key-path-value"
+                search-list-key-path: .releases.@@SEARCH@@.name
+                search-list-match-key-path-value: ${ARTIFACT_BASE_NAME}
+                ## The token @@FOUND@@ must be used along with "search-list-key-path" and "search-list-match-key-path-value". @@FOUND@@ contain the numeric item number of a yaml list
+                yaml-store-path-key: .releases.@@FOUND@@.version
+                # Placeholder "@@ENV_NAME@@" will be replaced during iteration of list items in "store-version.git.target-envs"
+                target-env-file: config/@@ENV_NAME@@/gke-app-node-1/helmfile.yaml
+                target-envs:
+                  - prod
+    environments:
+      default:
+        clusters-config: 
+          gke:
+            #active-cluster-keys - Support comma delimited
+            active-cluster-keys: node1,node2,node3,node4,utility
+            node1:
+              project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-1
+            node2:
+              project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-2
+            node3:
+              project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-3
+            node4:
+              project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-4
+            node5:
+              gke-project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-5
+            node6:
+              gke-project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-6
+            node7:
+              gke-project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-7
+            node8:
+              gke-project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-8
+            node9:
+              gke-project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-9
+            node10:
+              gke-project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-10
+            node11:
+              gke-project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-11
+            node12:
+              gke-project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-app-node-12
+            utility:
+              gke-project: prj-dev-${LOWERCASE_TARGET_ENV}
+              zone: asia-southeast1
+              cluster: gke-utility
+

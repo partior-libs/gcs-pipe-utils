@@ -1,0 +1,169 @@
+repositories:
+  - name: helm-release
+    url: https://partior.jfrog.io/artifactory/helm-release/
+    username: {{ requiredEnv "USERNAME_HELM_RELEASE"}}
+    password: {{ requiredEnv "PASSWORD_HELM_RELEASE"}}
+  - name: helm-dev
+    url: https://partior.jfrog.io/artifactory/helm-dev/
+    username: {{ requiredEnv "USERNAME_HELM_RELEASE"}}
+    password: {{ requiredEnv "PASSWORD_HELM_RELEASE"}}
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: actions-runner-controller
+    url: https://actions-runner-controller.github.io/actions-runner-controller
+
+
+releases:
+  - name: externaldns
+    installed: true
+    namespace: default
+    chart: bitnami/external-dns
+    version: 6.2.0
+    wait: true
+    timeout: 120
+    values:
+      - ./values/externaldns-values.yaml
+
+  - name: goquorum-cakeshop
+    installed: true
+    needs:
+    - default/clustersecret-secret
+    namespace: monitoring
+    chart: helm-release/goquorum-cakeshop
+    version: 0.4.1
+    wait: true
+    timeout: 300
+    values:
+      - ./values/goquorum-cakeshop-values.yaml
+
+  - name: grafana
+    installed: true
+    namespace: monitoring
+    chart: grafana/grafana
+    version: 6.21.1
+    wait: true
+    timeout: 300
+    values:
+      - ./values/grafana-values.yaml
+
+  - name: prometheus
+    installed: true
+    namespace: monitoring
+    chart: prometheus-community/prometheus
+    version: 15.1.1
+    wait: true
+    timeout: 300
+    values:
+      - ./values/prometheus-values.yaml
+
+  - name: eclipse-mosquitto
+    installed: true
+    namespace: testing
+    chart: helm-release/eclipse-mosquitto
+    version: 0.3.0
+    wait: true
+    timeout: 300
+    values:
+      - ./values/eclipse-mosquitto-values.yaml
+
+  - name: goquorum-caliper-master
+    installed: true
+    namespace: testing
+    chart: helm-release/goquorum-caliper-master
+    version: 0.2.0
+    wait: true
+    timeout: 300
+    values:
+      - ./values/goquorum-caliper-master-values.yaml
+
+  - name: goquorum-its
+    installed: false
+    namespace: testing
+    chart: helm-dev/goquorum-its
+    version: 0.0.3-dev.88d597be
+    wait: true
+    timeout: 300
+    values:
+      - ./values/goquorum-its-values.yaml
+
+  - name: goquorum-its-ingress
+    installed: false
+    needs:
+    - testing/goquorum-its
+    namespace: testing
+    chart: helm-dev/goquorum-its-ingress
+    version: 0.0.1-dev.727337d1
+    wait: true
+    timeout: 300
+    values:
+      - ./values/goquorum-its-ingress-values.yaml
+
+  - name: cert-manager
+    installed: true
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    version: 1.7.1
+    wait: true
+    timeout: 300
+    values: []
+    set:
+      - name: prometheus.enabled
+        value: false
+      - name: installCRDs
+        value: true
+
+  - name: actions-runner-controller
+    installed: true
+    needs:
+    - cert-manager/cert-manager
+    namespace: actions-runner-system
+    chart: actions-runner-controller/actions-runner-controller
+    version: 0.16.1
+    wait: true
+    timeout: 300
+    values: []
+    set:
+      - name: syncPeriod
+        value: 60s
+
+  - name: github-runners
+    installed: true
+    needs:
+    - actions-runner-system/actions-runner-controller
+    namespace: actions-runner-system
+    chart: helm-release/github-runners
+    version: 0.0.1
+    wait: true
+    timeout: 300
+    values:
+      - ./values/github-runners-values.yaml
+
+  - name: operator-clustersecret
+    installed: true
+    namespace: default
+    chart: helm-release/operator-clustersecret
+    version: 1.0.0
+    wait: true
+    timeout: 300
+    values:
+      - ./values/operator-clustersecret-values.yaml
+
+  - name: clustersecret-secret
+    installed: true
+    needs:
+    - operator-clustersecret
+    namespace: default
+    chart: helm-release/clustersecret-secret
+    version: 1.0.0
+    wait: true
+    timeout: 300
+    values:
+      - ./values/clustersecrets-values.yaml.gotmpl
