@@ -1,0 +1,32 @@
+[
+  {
+    "NAME": "node1",
+    "GKE_PROJECT": "prj-dev-dev10",
+    "GKE_ZONE": "asia-southeast1",
+    "GKE_CLUSTER": "gke-app-node-1"
+  },
+  {
+    "NAME": "node2",
+    "GKE_PROJECT": "prj-dev-dev10",
+    "GKE_ZONE": "asia-southeast1",
+    "GKE_CLUSTER": "gke-app-node-2"
+  },
+  {
+    "NAME": "node3",
+    "GKE_PROJECT": "prj-dev-dev10",
+    "GKE_ZONE": "asia-southeast1",
+    "GKE_CLUSTER": "gke-app-node-3"
+  },
+  {
+    "NAME": "node4",
+    "GKE_PROJECT": "prj-dev-dev10",
+    "GKE_ZONE": "asia-southeast1",
+    "GKE_CLUSTER": "gke-app-node-4"
+  },
+  {
+    "NAME": "utility",
+    "GKE_PROJECT": "prj-dev-dev10",
+    "GKE_ZONE": "asia-southeast1",
+    "GKE_CLUSTER": "gke-utility"
+  }
+]

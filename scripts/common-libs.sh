@@ -54,3 +54,14 @@ function jfrogGetArtifactStorageMeta() {
     fi
     return 0
 }
+
+function getListItemNumberBySearchItem() {
+    local yamlFile="$1"
+    local queryPath="$2"
+    local matchValue="$3"
+    if [[ -z "$queryPath" ]] || [[ -z "$matchValue" ]]; then
+        return 0
+    fi
+    local searchParentPath=$(echo $queryPath | awk -F'.@@SEARCH@@.' '{print $1}')
+    local searchKeyName=$(echo $queryPath | awk -F'.@@SEARCH@@.' '{print $2}')
+}

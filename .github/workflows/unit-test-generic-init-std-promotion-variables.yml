@@ -5,6 +5,8 @@ on:
     paths:
       - 'actions/generic-init-std-promotion-variables/**'
       - 'scripts/generic-init-std-promotion-variables.sh'
+      - 'scripts/generic-init-promotion-vars-get-artifacts-details.sh'
+      - 'scripts/generic-init-promotion-vars-get-store-git-details.sh'
       - 'scripts/common-libs.sh'
       - '.github/workflows/unit-test-generic-init-std-promotion-variables.yml'
   workflow_dispatch:
