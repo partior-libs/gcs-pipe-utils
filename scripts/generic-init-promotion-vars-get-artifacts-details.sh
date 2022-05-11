@@ -36,6 +36,16 @@ artifactBaseNameQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artif
 echo [DEBUG] artifactBaseNameQueryPath=$artifactBaseNameQueryPath
 artifactBaseNameQueryValue=${!artifactBaseNameQueryPath}
 
+## If contain special SEARCH key, then get version from array list
+if [[ "$searchListQueryPath" =~ "@@SEARCH@@" ]]; then
+    versionQueryValue=$(getItemValueFromListByMatchingSearch "$fileQueryValue" "$searchListQueryValue" "$artifactBaseNameQueryValue" "$versionQueryValue")
+    if [[ $? -gt 0 ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed get item value from list"
+        echo $versionQueryValue
+        exit 1
+    fi
+fi
+
 artifactGroupQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_group
 echo [DEBUG] artifactGroupQueryPath=$artifactGroupQueryPath
 artifactGroupQueryValue=${!artifactGroupQueryPath}

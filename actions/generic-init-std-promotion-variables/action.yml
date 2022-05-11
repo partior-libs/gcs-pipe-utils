@@ -9,6 +9,11 @@ inputs:
     required: true
     default: ''
 
+  yaml-importer-file:  
+    description: 'Yaml importer file which contain the promotion config'
+    required: false
+    default: ''
+
   pat-token:
     description: 'PAT token to push code'
     required: false
@@ -28,6 +33,9 @@ runs:
         SEQUENCE_ITEM_NO=$(echo $currentSequenceItem | awk -F'__' '{print $2}')
         ARTIFACT_BASE_NAME=${ARTIFACT_BASE_NAME}
         YAML_FINAL_PROMOTION_CONFIG_IMPORTER=yaml_final_promotion_config_importer_${ARTIFACT_BASE_NAME}_${{ github.run_id }}_${{ github.run_number }}
+        if [[ ! -z "${{ inputs.yaml-importer-file }}" ]]; then
+          YAML_FINAL_PROMOTION_CONFIG_IMPORTER="${{ inputs.yaml-importer-file }}"
+        fi
 
         # echo SMC_NAME=${SMC_NAME} >> $GITHUB_ENV
         echo "SEQUENCE_ITEM_NO=${SEQUENCE_ITEM_NO}" >> $GITHUB_ENV

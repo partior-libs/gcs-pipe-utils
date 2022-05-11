@@ -55,13 +55,76 @@ function jfrogGetArtifactStorageMeta() {
     return 0
 }
 
-function getListItemNumberBySearchItem() {
+function getItemValueFromListByMatchingSearch() {
     local yamlFile="$1"
     local queryPath="$2"
     local matchValue="$3"
+    ## This shall contain the @@FOUND@@ token
+    local postSearchQueryPath="$4"
+
+    if [[ ! -f "$yamlFile" ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate yamlFile [$yamlFile]"
+        return 1
+    fi
+
     if [[ -z "$queryPath" ]] || [[ -z "$matchValue" ]]; then
         return 0
     fi
-    local searchParentPath=$(echo $queryPath | awk -F'.@@SEARCH@@.' '{print $1}')
-    local searchKeyName=$(echo $queryPath | awk -F'.@@SEARCH@@.' '{print $2}')
+
+    if [[ ! "$queryPath" =~ '@@SEARCH@@' ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): queryPath does not contain token @@SEARCH@@"
+        return 1
+    fi
+    local searchParentPath=$(echo $queryPath | awk -F'.@@SEARCH@@' '{print $1}')
+    local searchKeyName=$(echo $queryPath | awk -F'.@@SEARCH@@' '{print $2}')
+
+    if [[ ! "$postSearchQueryPath" =~ '@@FOUND@@' ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): postSearchQueryPath does not contain token @@FOUND@@"
+        return 1
+    fi
+    local postSearchKeyName=$(echo $postSearchQueryPath | awk -F'@@FOUND@@' '{print $2}')
+    local yqQuery="${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\") | ${postSearchKeyName}"
+
+    yq "$yqQuery" "$yamlFile"
+}
+
+function setItemValueInListByMatchingSearch() {
+    local yamlFile="$1"
+    local queryPath="$2"
+    local matchValue="$3"
+    ## This shall contain the @@FOUND@@ token
+    local postSearchQueryPath="$4"
+    local newValue="$5"
+
+    if [[ ! -f "$yamlFile" ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate yamlFile [$yamlFile]"
+        return 1
+    fi
+
+    if [[ -z "$queryPath" ]] || [[ -z "$matchValue" ]]; then
+        return 0
+    fi
+
+    if [[ -z "$newValue" ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): newValue cannot be empty"
+        return 1
+    fi
+
+    if [[ ! "$queryPath" =~ '@@SEARCH@@' ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): queryPath does not contain token @@SEARCH@@"
+        return 1
+    fi
+    local searchParentPath=$(echo $queryPath | awk -F'.@@SEARCH@@' '{print $1}')
+    local searchKeyName=$(echo $queryPath | awk -F'.@@SEARCH@@' '{print $2}')
+
+    if [[ ! "$postSearchQueryPath" =~ '@@FOUND@@' ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): postSearchQueryPath does not contain token @@FOUND@@"
+        return 1
+    fi
+    local postSearchKeyName=$(echo $postSearchQueryPath | awk -F'@@FOUND@@' '{print $2}')
+    local yqQuery="(${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\") | ${postSearchKeyName}) = $newValue"
+
+    yq -i "$yqQuery" "$yamlFile"
+    sed -i 's/{? {/{{ /g' "$yamlFile"
+    sed -i "s/: ''} : ''}/ }}/g" "$yamlFile"
 }
