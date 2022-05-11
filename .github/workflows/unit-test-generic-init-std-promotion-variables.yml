@@ -23,7 +23,6 @@ jobs:
     outputs: 
       ARTIFACTS-SEQUENCE-LIST: ${{ steps.promotion-artifact-sequence-list.outputs.found-list }}
     env:
-
       LOWERCASE_TARGET_ENV: dev02
       ARTIFACT_BASE_NAME: settlement-utility
     steps:
@@ -89,7 +88,7 @@ jobs:
         uses: partior-libs/gcs-pipe-utils/actions/generic-get-yaml-list-count-in-json-sequence@main
         with:
           yaml-path-to-config: ${{ env.PROMOTION_CONFIG_QUERY_PATH }}
-          prepend-identifier: settlement-utility
+          prepend-identifier: goquorum-dapps
 
   test-scenario-1-matrix-test:
     needs: [ test-scenario-1-reader ]
