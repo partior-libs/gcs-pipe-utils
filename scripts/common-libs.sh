@@ -30,7 +30,8 @@ function jfrogGetArtifactStorageMeta() {
     local queryKey=$2
     local artifactResultFile=$3
     echo "[INFO] Getting artifactory meta /api/storage/${targetArtifactPath}?${queryKey} ..."
-
+    echo "[INFO] Result file: $artifactResultFile"
+    
     rm -f $artifactResultFile
     local response=""
     response=$(jfrog rt curl -XGET /api/storage/${targetArtifactPath}?${queryKey} \
