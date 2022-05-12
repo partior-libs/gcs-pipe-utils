@@ -27,6 +27,7 @@ runs:
   using: "composite"
   steps:
     - name: Initialize promotion variables for ${{ matrix.artifact-sequence-item }}
+      id: init-variables
       run: |
         currentSequenceItem="${{ inputs.sequence-item }}"
         ARTIFACT_BASE_NAME=$(echo $currentSequenceItem | awk -F'__' '{print $1}')
@@ -41,6 +42,7 @@ runs:
         echo "SEQUENCE_ITEM_NO=${SEQUENCE_ITEM_NO}" >> $GITHUB_ENV
         echo "ARTIFACT_BASE_NAME=${ARTIFACT_BASE_NAME}" >> $GITHUB_ENV
         echo "YAML_FINAL_PROMOTION_CONFIG_IMPORTER=${YAML_FINAL_PROMOTION_CONFIG_IMPORTER}" >> $GITHUB_ENV
+        echo ::set-output name=YAML_FINAL_PROMOTION_CONFIG_IMPORTER::${YAML_FINAL_PROMOTION_CONFIG_IMPORTER}
 
         # echo [INFO] SMC_NAME=${SMC_NAME}
         echo [INFO] SEQUENCE_ITEM_NO=${SEQUENCE_ITEM_NO}
@@ -51,13 +53,13 @@ runs:
     - name: Download Final Promotion importer
       uses: actions/download-artifact@v3
       with:
-        name: ${{ env.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
+        name: ${{ steps.init-variables.outputs.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
 
     - name: Start import Final Promotion config
       id: final-promotion-config
       run: |
-        echo Importing ...${{ env.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
-        source ./${{ env.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
+        echo Importing ...${{ steps.init-variables.outputs.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
+        source ./${{ steps.init-variables.outputs.YAML_FINAL_PROMOTION_CONFIG_IMPORTER }}
       shell: bash
 
     - uses: actions/checkout@v3

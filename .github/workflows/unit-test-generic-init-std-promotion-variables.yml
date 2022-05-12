@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Generate SMC Promotion config importer
+      - name: Generate DApps Promotion config importer
         id: yaml-importer-creator
         uses: partior-libs/gcs-yaml-importer@partior-stable
         with:
