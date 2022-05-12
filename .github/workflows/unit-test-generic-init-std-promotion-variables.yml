@@ -179,7 +179,7 @@ jobs:
     env:
       ## LOWERCASE_TARGET_ENV is crucial
       LOWERCASE_TARGET_ENV: dev10
-      ARTIFACT_BASE_NAME: goquorum-tpsmonitor
+      ARTIFACT_BASE_NAME: goquorum-node
     steps:
       - name: Try ${{ matrix.artifact-sequence-item }}
         run: |
