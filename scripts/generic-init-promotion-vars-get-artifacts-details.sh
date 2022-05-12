@@ -19,22 +19,27 @@ promotionQueryPathInEnv=$(echo $promotionQueryPath | sed "s/-/_/g" | sed "s/\./_
 fileQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__file
 echo [DEBUG] fileQueryPath=$fileQueryPath
 fileQueryValue=${!fileQueryPath}
+echo [DEBUG] fileQueryValue=$fileQueryValue
 
 searchListQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__search_list_key_path
 echo [DEBUG] searchListQueryPath=$searchListQueryPath
 searchListQueryValue=${!searchListQueryPath}
+echo [DEBUG] searchListQueryValue=$searchListQueryValue
 
 searchListMatchQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__search_list_match_key_path_value
 echo [DEBUG] searchListMatchQueryPath=$searchListMatchQueryPath
 searchListMatchQueryValue=${!searchListMatchQueryPath}
+echo [DEBUG] searchListMatchQueryValue=$searchListMatchQueryValue
 
 versionQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__version_path
 echo [DEBUG] versionQueryPath=$versionQueryPath
 versionQueryValue=${!versionQueryPath}
+echo [DEBUG] versionQueryValue=$versionQueryValue
 
 artifactBaseNameQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_base_name
 echo [DEBUG] artifactBaseNameQueryPath=$artifactBaseNameQueryPath
 artifactBaseNameQueryValue=${!artifactBaseNameQueryPath}
+echo [DEBUG] artifactBaseNameQueryValue=$artifactBaseNameQueryValue
 
 ## If contain special SEARCH key, then get version from array list
 if [[ "$searchListQueryPath" =~ "@@SEARCH@@" ]]; then
@@ -44,23 +49,29 @@ if [[ "$searchListQueryPath" =~ "@@SEARCH@@" ]]; then
         echo $versionQueryValue
         exit 1
     fi
+    echo [DEBUG] Updated versionQueryValue...
+    echo [DEBUG] versionQueryValue=$versionQueryValue
 fi
 
 artifactGroupQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_group
 echo [DEBUG] artifactGroupQueryPath=$artifactGroupQueryPath
 artifactGroupQueryValue=${!artifactGroupQueryPath}
+echo [DEBUG] artifactGroupQueryValue=$artifactGroupQueryValue
 
 artiSrcRepoQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifactory_src_repo
 echo [DEBUG] artiSrcRepoQueryPath=$artiSrcRepoQueryPath
 artiSrcRepoQueryValue=${!artiSrcRepoQueryPath}
+echo [DEBUG] artiSrcRepoQueryValue=$artiSrcRepoQueryValue
 
 artiPromoRepoQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifactory_promotion_repo
 echo [DEBUG] artiPromoRepoQueryPath=$artiPromoRepoQueryPath
 artiPromoRepoQueryValue=${!artiPromoRepoQueryPath}
+echo [DEBUG] artiPromoRepoQueryValue=$artiPromoRepoQueryValue
 
 artifactTypeQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_type
 echo [DEBUG] artifactTypeQueryPath=$artifactTypeQueryPath
 artifactTypeQueryValue=${!artifactTypeQueryPath}
+echo [DEBUG] artifactTypeQueryValue=$artifactTypeQueryValue
 
 artifactSrcVersion=$(cat ${fileQueryValue} | yq "${versionQueryValue}")
 artifactReleaseVersion=$(echo $artifactSrcVersion | cut -d"-" -f1)
