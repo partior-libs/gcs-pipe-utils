@@ -86,6 +86,42 @@ function getItemValueFromListByMatchingSearch() {
     local yqQuery="${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\") | ${postSearchKeyName}"
 
     yq "$yqQuery" "$yamlFile"
+
+}
+
+function getItemValueFromMultiListByMatchingSearch() {
+    local yamlFile="$1"
+    local queryPath="$2"
+    local matchValue="$3"
+    ## This shall contain the @@FOUND@@ token
+    local postSearchQueryPath="$4"
+    local commaDelimitedYamlFile="$5"
+
+    local finalYamlList=""
+    if [[ ! -z "$yamlFile" ]]; then
+        if [[ ! -z "$commaDelimitedYamlFile" ]]; then
+            finalYamlList=$yamlFile,$commaDelimitedYamlFile
+        else
+            finalYamlList=$yamlFile
+        fi
+    else
+        if [[ ! -z "$commaDelimitedYamlFile" ]]; then
+            finalYamlList=$commaDelimitedYamlFile
+        else
+            echo "[ERROR] $BASH_SOURCE (line:$LINENO): file and files cannot be empty."
+            return 1
+        fi
+    fi
+    for eachYamlFile in ${finalYamlList//,/ }
+    do
+        local returnValue=""
+        returnValue=$(getItemValueFromListByMatchingSearch "$eachYamlFile" "$queryPath" "$matchValue" "$postSearchQueryPath")
+        if [[ $? -eq 0 ]] && [[ ! -z "$returnValue" ]]; then
+            echo $returnValue
+            return 0
+        fi
+    done
+
 }
 
 function setItemValueInListByMatchingSearch() {

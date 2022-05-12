@@ -21,6 +21,11 @@ echo [DEBUG] fileQueryPath=$fileQueryPath
 fileQueryValue=${!fileQueryPath}
 echo [DEBUG] fileQueryValue=$fileQueryValue
 
+filesQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__files
+echo [DEBUG] fileQueryPath=$filesQueryPath
+filesQueryValue=${!filesQueryPath}
+echo [DEBUG] filesQueryValue=$filesQueryValue
+
 searchListQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__search_list_key_path
 echo [DEBUG] searchListQueryPath=$searchListQueryPath
 searchListQueryValue=${!searchListQueryPath}
@@ -63,8 +68,8 @@ echo [DEBUG] artifactTypeQueryValue=$artifactTypeQueryValue
 
 ## If contain special SEARCH key, then get version from array list
 if [[ "$searchListQueryValue" =~ "@@SEARCH@@" ]]; then
-    artifactSrcVersion=$(getItemValueFromListByMatchingSearch "$fileQueryValue" "$searchListQueryValue" "$artifactBaseNameQueryValue" "$versionQueryValue")
-    if [[ $? -gt 0 ]]; then
+    artifactSrcVersion=$(getItemValueFromMultiListByMatchingSearch "$fileQueryValue" "$searchListQueryValue" "$artifactBaseNameQueryValue" "$versionQueryValue" "$filesQueryValue")
+    if [[ $? -gt 0 ]] || [[ -z "$artifactSrcVersion" ]]; then
         echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed get item value from list"
         echo $artifactSrcVersion
         exit 1
@@ -88,6 +93,7 @@ echo [DEBUG] jiraProjectKeyQueryPath=$jiraProjectKeyQueryPath
 jiraProjectKeyQueryValue=${!jiraProjectKeyQueryPath}
         
 echo YAML_ARTIFACT_FILE="${fileQueryValue}" >> $GITHUB_ENV
+echo YAML_ARTIFACT_FILES="${filesQueryValue}" >> $GITHUB_ENV
 echo YAML_VERSION_QUERY_PATH="${versionQueryValue}" >> $GITHUB_ENV
 echo YAML_SEARCH_LIST_QUERY_PATH="${searchListQueryValue}" >> $GITHUB_ENV
 echo YAML_SEARCH_LIST_MATCH_KEY_VALUE="${searchListMatchQueryValue}" >> $GITHUB_ENV
