@@ -56,6 +56,14 @@ runs:
             echo "[ERROR] Unable to find source artifact: ${{ inputs.source-artifact-full-path }}"
             exit 1
         fi
+        if [[ -f "${SRC_ARTIFACT_PROP_JSON_FILE}" ]]; then
+            echo "[ERROR] Unable to find property file: ${SRC_ARTIFACT_PROP_JSON_FILE}"
+            exit 1
+        fi
+        echo "[DEBUG] Start of properties:"
+        cat ${SRC_ARTIFACT_PROP_JSON_FILE} 
+        echo "[DEBUG] End of properties"
+
         PROMO_QL_FLAG=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.qualified"[]')
         PROMO_QL_DEPLOYED_ENV=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.prerequisite.deployed.env"[]')
         PROMO_QL_DEPLOYED_TIMESTAMP=$(cat ${SRC_ARTIFACT_PROP_JSON_FILE} | jq -r '.properties."promotion.prerequisite.deployed.timestamp"[]')
