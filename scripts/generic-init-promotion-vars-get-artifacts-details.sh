@@ -41,18 +41,6 @@ echo [DEBUG] artifactBaseNameQueryPath=$artifactBaseNameQueryPath
 artifactBaseNameQueryValue=${!artifactBaseNameQueryPath}
 echo [DEBUG] artifactBaseNameQueryValue=$artifactBaseNameQueryValue
 
-## If contain special SEARCH key, then get version from array list
-if [[ "$searchListQueryPath" =~ "@@SEARCH@@" ]]; then
-    versionQueryValue=$(getItemValueFromListByMatchingSearch "$fileQueryValue" "$searchListQueryValue" "$artifactBaseNameQueryValue" "$versionQueryValue")
-    if [[ $? -gt 0 ]]; then
-        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed get item value from list"
-        echo $versionQueryValue
-        exit 1
-    fi
-    echo [DEBUG] Updated versionQueryValue...
-    echo [DEBUG] versionQueryValue=$versionQueryValue
-fi
-
 artifactGroupQueryPath=${promotionQueryPathInEnv}__${SEQUENCE_ITEM_NO}__artifact_group
 echo [DEBUG] artifactGroupQueryPath=$artifactGroupQueryPath
 artifactGroupQueryValue=${!artifactGroupQueryPath}
@@ -73,7 +61,20 @@ echo [DEBUG] artifactTypeQueryPath=$artifactTypeQueryPath
 artifactTypeQueryValue=${!artifactTypeQueryPath}
 echo [DEBUG] artifactTypeQueryValue=$artifactTypeQueryValue
 
-artifactSrcVersion=$(cat ${fileQueryValue} | yq "${versionQueryValue}")
+## If contain special SEARCH key, then get version from array list
+if [[ "$searchListQueryValue" =~ "@@SEARCH@@" ]]; then
+    artifactSrcVersion=$(getItemValueFromListByMatchingSearch "$fileQueryValue" "$searchListQueryValue" "$artifactBaseNameQueryValue" "$versionQueryValue")
+    if [[ $? -gt 0 ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed get item value from list"
+        echo $artifactSrcVersion
+        exit 1
+    fi
+    echo [DEBUG] Updated versionQueryValue...
+    echo [DEBUG] artifactSrcVersion=$artifactSrcVersion
+else
+    artifactSrcVersion=$(cat ${fileQueryValue} | yq "${versionQueryValue}")
+fi
+
 artifactReleaseVersion=$(echo $artifactSrcVersion | cut -d"-" -f1)
 artifactSrcPackageName="${artifactBaseNameQueryValue}-${artifactSrcVersion}.${artifactTypeQueryValue}"
 artifactReleasePackageName="${artifactBaseNameQueryValue}-${artifactReleaseVersion}.${artifactTypeQueryValue}"
