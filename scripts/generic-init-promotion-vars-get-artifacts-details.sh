@@ -78,6 +78,16 @@ if [[ "$searchListQueryValue" =~ "@@SEARCH@@" ]]; then
     echo [DEBUG] artifactSrcVersion=$artifactSrcVersion
 else
     artifactSrcVersion=$(cat ${fileQueryValue} | yq "${versionQueryValue}")
+    if [[ $? -gt 0 ]] || [[ -z "$artifactSrcVersion" ]]; then
+        for eachYamlFile in ${filesQueryValue//,/ }
+        do
+            artifactSrcVersion=$(cat ${eachYamlFile} | yq "${versionQueryValue}")
+            if [[ $? -eq 0 ]] && [[ ! -z "$artifactSrcVersion" ]]; then
+                break
+            fi
+        done
+    fi
+    echo [DEBUG] artifactSrcVersion=$artifactSrcVersion
 fi
 
 artifactReleaseVersion=$(echo $artifactSrcVersion | cut -d"-" -f1)
