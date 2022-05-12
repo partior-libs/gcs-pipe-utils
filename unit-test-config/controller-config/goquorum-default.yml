@@ -10,6 +10,7 @@ goquorum:
         ## Yaml config stored in deploy-smc. Below info must first be read by action "partior-libs/gcs-pipe-utils/actions/generic-init-std-promotion-variables@partior-stable"
         yaml-config:
           - file: unit-test-config/goquorum-deploy/${LOWERCASE_TARGET_ENV}/gke-app-node-1/helmfile.yaml
+            files: unit-test-config/goquorum-deploy/${LOWERCASE_TARGET_ENV}/gke-utility/helmfile.yaml
             ## Optional: search-list-key-path: Must contain @@SEARCH@@ as indication of which list item to be picked by matching "search-list-match-key-path-value"
             search-list-key-path: .releases.@@SEARCH@@.name
             search-list-match-key-path-value: ${ARTIFACT_BASE_NAME}

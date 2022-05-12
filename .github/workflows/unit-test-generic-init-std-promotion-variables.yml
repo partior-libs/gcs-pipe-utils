@@ -90,13 +90,13 @@ jobs:
           yaml-path-to-config: ${{ env.PROMOTION_CONFIG_QUERY_PATH }}
           prepend-identifier: goquorum-node
 
-  test-scenario-goquorum-tpsmonitor-config-reader:
+  test-scenario-github-runners-config-reader:
     runs-on: ubuntu-latest
     outputs: 
       ARTIFACTS-SEQUENCE-LIST: ${{ steps.promotion-artifact-sequence-list.outputs.found-list }}
     env:
       LOWERCASE_TARGET_ENV: dev10
-      ARTIFACT_BASE_NAME: goquorum-tpsmonitor
+      ARTIFACT_BASE_NAME: github-runners
     steps:
       - uses: actions/checkout@v3
 
@@ -124,7 +124,7 @@ jobs:
         uses: partior-libs/gcs-pipe-utils/actions/generic-get-yaml-list-count-in-json-sequence@main
         with:
           yaml-path-to-config: ${{ env.PROMOTION_CONFIG_QUERY_PATH }}
-          prepend-identifier: goquorum-tpsmonitor
+          prepend-identifier: github-runners
 
   test-scenario-1-matrix-test:
     needs: [ test-scenario-1-reader ]
@@ -195,6 +195,7 @@ jobs:
         run: |
           echo [INFO] Listing...
           echo [INFO] YAML_ARTIFACT_FILE="${YAML_ARTIFACT_FILE}"
+          echo [INFO] YAML_ARTIFACT_FILED="${YAML_ARTIFACT_FILES}"
           echo [INFO] YAML_VERSION_QUERY_PATH="${YAML_VERSION_QUERY_PATH}"
           echo [INFO] YAML_SEARCH_LIST_QUERY_PATH="${YAML_SEARCH_LIST_QUERY_PATH}"
           echo [INFO] YAML_SEARCH_LIST_MATCH_KEY_VALUE="${YAML_SEARCH_LIST_MATCH_KEY_VALUE}"
@@ -212,18 +213,18 @@ jobs:
           echo [INFO] JIRA_VERSION_IDENTIFIER="${JIRA_VERSION_IDENTIFIER}"
           echo [INFO] JIRA_PROJECT_KEY="${JIRA_PROJECT_KEY}"
 
-  test-scenario-goquorum-tpsmonitor-config-matrix-test:
-    needs: [ test-scenario-goquorum-tpsmonitor-config-reader ]
+  test-scenario-github-runners-config-matrix-test:
+    needs: [ test-scenario-github-runners-config-reader ]
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
       fail-fast: false
       matrix:
-        artifact-sequence-item: ${{fromJSON(needs.test-scenario-goquorum-tpsmonitor-config-reader.outputs.ARTIFACTS-SEQUENCE-LIST)}}
+        artifact-sequence-item: ${{fromJSON(needs.test-scenario-github-runners-config-reader.outputs.ARTIFACTS-SEQUENCE-LIST)}}
     env:
       ## LOWERCASE_TARGET_ENV is crucial
       LOWERCASE_TARGET_ENV: dev10
-      ARTIFACT_BASE_NAME: goquorum-tpsmonitor
+      ARTIFACT_BASE_NAME: github-runners
     steps:
       - name: Try ${{ matrix.artifact-sequence-item }}
         run: |
