@@ -53,31 +53,31 @@ jobs:
         with:
           yaml-path-to-config: ${{ env.PROMOTION_CONFIG_QUERY_PATH }}
           prepend-identifier: settlement-utility
-  test-scenario-helm-config-reader:
+
+  test-scenario-goquorum-node-config-reader:
     runs-on: ubuntu-latest
     outputs: 
       ARTIFACTS-SEQUENCE-LIST: ${{ steps.promotion-artifact-sequence-list.outputs.found-list }}
     env:
-
       LOWERCASE_TARGET_ENV: dev10
-      ARTIFACT_BASE_NAME: goquorum-dapps
+      ARTIFACT_BASE_NAME: goquorum-node
     steps:
       - uses: actions/checkout@v3
 
-      - name: Generate DApps Promotion config importer
+      - name: Generate GoQuorum Promotion config importer
         id: yaml-importer-creator
         uses: partior-libs/gcs-yaml-importer@partior-stable
         with:
           yaml-file: unit-test-config/controller-config/goquorum-default.yml
           query-path: .goquorum.cd.promotion
-          output-file: ${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
+          output-file: ${{ env.ARTIFACT_BASE_NAME }}_${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
           upload: true
 
       - name: Inject env for promotion config
         id: yaml-config
         run: |
-          echo Importing ...${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
-          source ./${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
+          echo Importing ...${{ env.ARTIFACT_BASE_NAME }}_${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
+          source ./${{ env.ARTIFACT_BASE_NAME }}_${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
         shell: bash  
 
         ## For this to work, must have following env injected before:
@@ -88,7 +88,43 @@ jobs:
         uses: partior-libs/gcs-pipe-utils/actions/generic-get-yaml-list-count-in-json-sequence@main
         with:
           yaml-path-to-config: ${{ env.PROMOTION_CONFIG_QUERY_PATH }}
-          prepend-identifier: goquorum-dapps
+          prepend-identifier: goquorum-node
+
+  test-scenario-goquorum-tpsmonitor-config-reader:
+    runs-on: ubuntu-latest
+    outputs: 
+      ARTIFACTS-SEQUENCE-LIST: ${{ steps.promotion-artifact-sequence-list.outputs.found-list }}
+    env:
+      LOWERCASE_TARGET_ENV: dev10
+      ARTIFACT_BASE_NAME: goquorum-tpsmonitor
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate GoQuorum Promotion config importer
+        id: yaml-importer-creator
+        uses: partior-libs/gcs-yaml-importer@partior-stable
+        with:
+          yaml-file: unit-test-config/controller-config/goquorum-default.yml
+          query-path: .goquorum.cd.promotion
+          output-file: ${{ env.ARTIFACT_BASE_NAME }}_${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
+          upload: true
+
+      - name: Inject env for promotion config
+        id: yaml-config
+        run: |
+          echo Importing ...${{ env.ARTIFACT_BASE_NAME }}_${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
+          source ./${{ env.ARTIFACT_BASE_NAME }}_${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
+        shell: bash  
+
+        ## For this to work, must have following env injected before:
+        # LOWERCASE_TARGET_ENV
+        # ARTIFACT_BASE_NAME
+      - name: Get sequence list
+        id: promotion-artifact-sequence-list
+        uses: partior-libs/gcs-pipe-utils/actions/generic-get-yaml-list-count-in-json-sequence@main
+        with:
+          yaml-path-to-config: ${{ env.PROMOTION_CONFIG_QUERY_PATH }}
+          prepend-identifier: goquorum-tpsmonitor
 
   test-scenario-1-matrix-test:
     needs: [ test-scenario-1-reader ]
@@ -132,14 +168,57 @@ jobs:
           echo [INFO] FINAL_ARTIFACT_VERSION_IDENTIFIER="${FINAL_ARTIFACT_VERSION_IDENTIFIER}"
           echo [INFO] JIRA_PROJECT_KEY="${JIRA_PROJECT_KEY}"
 
-  test-scenario-helm-config-matrix-test:
-    needs: [ test-scenario-helm-config-reader ]
+  test-scenario-goquorum-node-config-matrix-test:
+    needs: [ test-scenario-goquorum-node-config-reader ]
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
       fail-fast: false
       matrix:
-        artifact-sequence-item: ${{fromJSON(needs.test-scenario-helm-config-reader.outputs.ARTIFACTS-SEQUENCE-LIST)}}
+        artifact-sequence-item: ${{fromJSON(needs.test-scenario-goquorum-node-config-reader.outputs.ARTIFACTS-SEQUENCE-LIST)}}
+    env:
+      ## LOWERCASE_TARGET_ENV is crucial
+      LOWERCASE_TARGET_ENV: dev10
+    steps:
+      - name: Try ${{ matrix.artifact-sequence-item }}
+        run: |
+          echo [INFO] Now is ${{ matrix.artifact-sequence-item }}
+
+      - name: Get promotion details
+        uses: partior-libs/gcs-pipe-utils/actions/generic-init-std-promotion-variables@main
+        with:
+          sequence-item: ${{ matrix.artifact-sequence-item }}
+          yaml-importer-file: ${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
+
+      - name: Show details
+        run: |
+          echo [INFO] Listing...
+          echo [INFO] YAML_ARTIFACT_FILE="${YAML_ARTIFACT_FILE}"
+          echo [INFO] YAML_VERSION_QUERY_PATH="${YAML_VERSION_QUERY_PATH}"
+          echo [INFO] YAML_SEARCH_LIST_QUERY_PATH="${YAML_SEARCH_LIST_QUERY_PATH}"
+          echo [INFO] YAML_SEARCH_LIST_MATCH_KEY_VALUE="${YAML_SEARCH_LIST_MATCH_KEY_VALUE}"
+          echo [INFO] FINAL_ARTIFACT_SRC_VERSION="${FINAL_ARTIFACT_SRC_VERSION}"
+          echo [INFO] FINAL_ARTIFACT_RELEASE_VERSION="${FINAL_ARTIFACT_RELEASE_VERSION}"
+          echo [INFO] FINAL_ARTIFACT_SRC_PACKAGE_NAME="${FINAL_ARTIFACT_SRC_PACKAGE_NAME}"
+          echo [INFO] FINAL_ARTIFACT_RELEASE_PACKAGE_NAME="${FINAL_ARTIFACT_RELEASE_PACKAGE_NAME}"
+          echo [INFO] FINAL_ARTIFACT_BASE_NAME="${FINAL_ARTIFACT_BASE_NAME}"
+          echo [INFO] FINAL_ARTIFACT_GROUP="${FINAL_ARTIFACT_GROUP}"
+          echo [INFO] FINAL_ARTIFACT_SRC_REPO="${FINAL_ARTIFACT_SRC_REPO}"
+          echo [INFO] FINAL_ARTIFACT_PROMO_REPO="${FINAL_ARTIFACT_PROMO_REPO}"
+          echo [INFO] FINAL_ARTIFACT_TYPE="${FINAL_ARTIFACT_TYPE}"
+          echo [INFO] FINAL_ARTIFACT_SOURCE_FULL_PATH="${FINAL_ARTIFACT_SOURCE_FULL_PATH}"
+          echo [INFO] FINAL_ARTIFACT_RELEASE_FULL_PATH="${FINAL_ARTIFACT_RELEASE_FULL_PATH}"
+          echo [INFO] FINAL_ARTIFACT_VERSION_IDENTIFIER="${FINAL_ARTIFACT_VERSION_IDENTIFIER}"
+          echo [INFO] JIRA_PROJECT_KEY="${JIRA_PROJECT_KEY}"
+
+  test-scenario-goquorum-tpsmonitor-config-matrix-test:
+    needs: [ test-scenario-goquorum-tpsmonitor-config-reader ]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        artifact-sequence-item: ${{fromJSON(needs.test-scenario-goquorum-tpsmonitor-config-reader.outputs.ARTIFACTS-SEQUENCE-LIST)}}
     env:
       ## LOWERCASE_TARGET_ENV is crucial
       LOWERCASE_TARGET_ENV: dev10
