@@ -179,6 +179,7 @@ jobs:
     env:
       ## LOWERCASE_TARGET_ENV is crucial
       LOWERCASE_TARGET_ENV: dev10
+      ARTIFACT_BASE_NAME: goquorum-tpsmonitor
     steps:
       - name: Try ${{ matrix.artifact-sequence-item }}
         run: |
@@ -188,7 +189,7 @@ jobs:
         uses: partior-libs/gcs-pipe-utils/actions/generic-init-std-promotion-variables@main
         with:
           sequence-item: ${{ matrix.artifact-sequence-item }}
-          yaml-importer-file: ${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
+          yaml-importer-file: ${{ env.ARTIFACT_BASE_NAME }}_${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
 
       - name: Show details
         run: |
@@ -222,6 +223,7 @@ jobs:
     env:
       ## LOWERCASE_TARGET_ENV is crucial
       LOWERCASE_TARGET_ENV: dev10
+      ARTIFACT_BASE_NAME: goquorum-tpsmonitor
     steps:
       - name: Try ${{ matrix.artifact-sequence-item }}
         run: |
@@ -231,7 +233,7 @@ jobs:
         uses: partior-libs/gcs-pipe-utils/actions/generic-init-std-promotion-variables@main
         with:
           sequence-item: ${{ matrix.artifact-sequence-item }}
-          yaml-importer-file: ${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
+          yaml-importer-file: ${{ env.ARTIFACT_BASE_NAME }}_${{ env.YAML_FINAL_PROMOTION_HELM_CONFIG_IMPORTER }}
 
       - name: Show details
         run: |
