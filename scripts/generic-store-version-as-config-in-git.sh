@@ -25,7 +25,7 @@ githubPatToken="$8"
 matchValue="$9"
 postSearchQueryPath="${10}"
 commaDelimitedYamlFile="${11}"
-strictUpdate="${12-true}"
+strictUpdate="${12:-true}"
 
 
 
