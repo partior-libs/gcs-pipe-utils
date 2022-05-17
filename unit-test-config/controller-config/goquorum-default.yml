@@ -21,7 +21,8 @@ goquorum:
                 yaml-store-path-key: .releases.@@FOUND@@.version
                 # Placeholder "@@ENV_NAME@@" will be replaced during iteration of list items in "store-version.git.target-envs"
                 target-env-file: unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-1/helmfile.yaml
-                multi-target-env-files: unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-2/helmfile.yaml,unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-3/helmfile.yaml
+                multi-target-env-files: unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-2/helmfile.yaml,unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-lost/helmfile.yaml
+                strict-update: true
                 target-envs:
                   - dev10
                   - prod
