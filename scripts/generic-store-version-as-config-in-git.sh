@@ -54,16 +54,29 @@ function updateEnvConfig() {
     if [[ ! -z "$matchValue" ]]; then
         echo "[INFO] Updating with matching item in list..."
         setItemValueInListByMatchingSearch "$targetConfigFile" "$yamlStorePathKey" "$matchValue" "$postSearchQueryPath" "$artifactVersion"
-        if [[ $? -ne 0 ]] && [[ "$strictUpdate" == "true" ]]; then
+        local execReturnCode=$?
+        if [[ $execReturnCode -ne 0 ]] && [[ "$strictUpdate" == "true" ]]; then
+            echo "[ERROR] execReturnCode=$execReturnCode"
             echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed updating file: $targetConfigFile"
             echo "[DEBUG] cmd: setItemValueInListByMatchingSearch \"$targetConfigFile\" \"$yamlStorePathKey\" \"$matchValue\" \"$postSearchQueryPath\" \"$artifactVersion\""
             exit 1
+        else
+            echo "[INFO] execReturnCode=$execReturnCode"
+            if [[ $execReturnCode -ne 0 ]]; then
+                echo "[WARN] Update failed on [$targetConfigFile]. Skipping...(because strictUpdate=$strictUpdate)"
+            fi
         fi
     else
         yq -i "${yamlStorePathKey} = \"${artifactVersion}\"" ${targetConfigFile}
-        if [[ $? -ne 0 ]] && [[ "$strictUpdate" == "true" ]]; then
+        if [[ $execReturnCode -ne 0 ]] && [[ "$strictUpdate" == "true" ]]; then
+            echo "[ERROR] execReturnCode=$execReturnCode"
             echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error updating config file [${targetConfigFile}] with key [${yamlStorePathKey}] and value [${artifactVersion}]"
             exit 1
+        else
+            echo "[INFO] execReturnCode=$execReturnCode"
+            if [[ $execReturnCode -ne 0 ]]; then
+                echo "[WARN] Update failed on [$targetConfigFile]. Skipping...(because strictUpdate=$strictUpdate)"
+            fi
         fi
     fi
 

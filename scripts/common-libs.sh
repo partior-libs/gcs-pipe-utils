@@ -165,13 +165,22 @@ function setItemValueInListByMatchingSearch() {
         return 1
     fi
     local postSearchKeyName=$(echo $postSearchQueryPath | awk -F'@@FOUND@@' '{print $2}')
-    local yqQuery="(${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\") | ${postSearchKeyName}) = $newValue"
+    local yqQueryCheck="(${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\")"
+    local yqQueryWrite="(${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\") | ${postSearchKeyName}) = \"$newValue\""
+    
+    echo "[DEBUG] yqQueryCheck=$yqQueryCheck"
+    yq -e "$yqQueryCheck" "$yamlFile"
+    if [[ $? -ne 0 ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Yaml Query Path not found"
+        return 1
+    fi
 
-    yq -e -i "$yqQuery" "$yamlFile"
+    echo "[DEBUG] yqQueryWrite=$yqQueryWrite"
+    yq -e -i "$yqQueryWrite" "$yamlFile"
     local returnCode=$?
     sed -i 's/{? {/{{ /g' "$yamlFile"
     sed -i "s/: ''} : ''}/ }}/g" "$yamlFile"
-    return returnCode
+    return $returnCode
 }
 
 function setItemValueInMultiListByMatchingSearch() {
