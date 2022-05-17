@@ -141,33 +141,4 @@ jobs:
           search-list-yaml-post-query: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_yaml-store-path-key }}"
           target-multi-yaml-config-files: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_multi-target-env-files }}"
           strict-update: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_strict-update }}"
-  # search-list-match-value:
-  #   description: 'Used only during list searching. Matching value from the object @@FOUND@@'
-  #   required: false
-  #   default: ''
-  # search-list-yaml-post-query:
-  #   description: 'Used only during list searching. Must contain @@SEARCH@@ as list object reference'
-  #   required: false
-  #   default: ''
-  # target-multi-yaml-config-files:  
-  #   description: 'Additional yaml files to be updated. Support comma delimited.'
-  #   required: false
-  #   default: ''
-  # strict-update:  
-  #   description: 'If true, will fail if updating failed'
-  #   required: false
-  #   default: 'true'
-          # store-version:
-          #     enabled: false
-          #     git:
-          #       enabled: false
-          #       repo: partior-libs/gcs-pipe-utils 
-          #       ## Optional: search-list-key-path: Must contain @@SEARCH@@ as indication of which list item to be picked by matching "search-list-match-key-path-value"
-          #       search-list-key-path: .releases.@@SEARCH@@.name
-          #       search-list-match-key-path-value: ${ARTIFACT_BASE_NAME}
-          #       ## The token @@FOUND@@ must be used along with "search-list-key-path" and "search-list-match-key-path-value". @@FOUND@@ contain the numeric item number of a yaml list
-          #       yaml-store-path-key: .releases.@@FOUND@@.version
-          #       # Placeholder "@@ENV_NAME@@" will be replaced during iteration of list items in "store-version.git.target-envs"
-          #       target-env-file: unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-1/helmfile.yaml
-          #       multi-target-env-files: unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-2/helmfile.yaml,unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-3/helmfile.yaml
-          #       target-envs:
+
