@@ -39,6 +39,29 @@ jobs:
           output-file: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
           upload: true
 
+  test-scenario-2-reader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get repo details
+        id: get-repo
+        run: |
+          branchName="$(echo ${GITHUB_REF_NAME} | cut -d"/" -f1)"
+          if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
+            branchName=$(echo $GITHUB_HEAD_REF | cut -d"/" -f1)
+          fi         
+          echo ::set-output name=branch-name::${branchName}
+          echo ::set-output name=name::$(echo ${GITHUB_REPOSITORY}  | cut -d"/" -f2)
+          
+      - name: Read sample SU CI Branch config
+        uses: partior-libs/gcs-yaml-importer@main
+        with:
+          yaml-file: unit-test-config/controller-config/goquorum-default.yml
+          query-path: .smc.ci.branches.default
+          output-file: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
+          upload: true
+
   test-scenario-1-start:
     needs: [ test-scenario-1-reader ]
     runs-on: ubuntu-latest
@@ -73,4 +96,70 @@ jobs:
           pat-token: ${{ secrets.REPO_PAT }}
           git-push: false
 
+  test-scenario-2-start:
+    needs: [ test-scenario-2-reader ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
 
+      - name: Source env file
+        id: pipeline-branch-config
+        run: |
+          source ./${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
+
+      - name: Initialize mock data
+        run: |
+          newVersion=$(date +"v1.0.0-%Y%m%d_%H%M")
+          echo [INFO] New generated version: $newVersion
+          echo ARTIFACT_VERSION=${newVersion} >> $GITHUB_ENV
+          echo ARTIFACT_BASE_NAME="settlement-utility" >> $GITHUB_ENV
+
+      - name: Store version in config
+        if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_enabled == 'true'
+        uses: partior-libs/gcs-pipe-utils/actions/generic-store-version-as-config-in-git@main
+        with: 
+          yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_search-list-key-path }}"
+          target-yaml-config-file: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_target-env-file }}"
+          target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_repo }}"
+          artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
+          artifact-version: "${{ env.ARTIFACT_VERSION }}"
+          create-if-new-config: true
+          target-repo-ref: ${{ github.ref }}
+          pat-token: ${{ secrets.REPO_PAT }}
+          git-push: false
+          search-list-match-value: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_search-list-match-key-path-value }}"
+          search-list-yaml-post-query: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_yaml-store-path-key }}"
+          target-multi-yaml-config-files: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_multi-target-env-files }}"
+          strict-update: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_strict-update }}"
+  # search-list-match-value:
+  #   description: 'Used only during list searching. Matching value from the object @@FOUND@@'
+  #   required: false
+  #   default: ''
+  # search-list-yaml-post-query:
+  #   description: 'Used only during list searching. Must contain @@SEARCH@@ as list object reference'
+  #   required: false
+  #   default: ''
+  # target-multi-yaml-config-files:  
+  #   description: 'Additional yaml files to be updated. Support comma delimited.'
+  #   required: false
+  #   default: ''
+  # strict-update:  
+  #   description: 'If true, will fail if updating failed'
+  #   required: false
+  #   default: 'true'
+          # store-version:
+          #     enabled: false
+          #     git:
+          #       enabled: false
+          #       repo: partior-libs/gcs-pipe-utils 
+          #       ## Optional: search-list-key-path: Must contain @@SEARCH@@ as indication of which list item to be picked by matching "search-list-match-key-path-value"
+          #       search-list-key-path: .releases.@@SEARCH@@.name
+          #       search-list-match-key-path-value: ${ARTIFACT_BASE_NAME}
+          #       ## The token @@FOUND@@ must be used along with "search-list-key-path" and "search-list-match-key-path-value". @@FOUND@@ contain the numeric item number of a yaml list
+          #       yaml-store-path-key: .releases.@@FOUND@@.version
+          #       # Placeholder "@@ENV_NAME@@" will be replaced during iteration of list items in "store-version.git.target-envs"
+          #       target-env-file: unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-1/helmfile.yaml
+          #       multi-target-env-files: unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-2/helmfile.yaml,unit-test-config/goquorum-deploy/@@ENV_NAME@@/gke-app-node-3/helmfile.yaml
+          #       target-envs:

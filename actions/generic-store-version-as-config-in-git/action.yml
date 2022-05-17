@@ -41,6 +41,22 @@ inputs:
     description: 'PAT token to push code'
     required: true
     default: ''
+  search-list-match-value:
+    description: 'Used only during list searching. Matching value from the object @@FOUND@@'
+    required: false
+    default: ''
+  search-list-yaml-post-query:
+    description: 'Used only during list searching. Must contain @@SEARCH@@ as list object reference'
+    required: false
+    default: ''
+  target-multi-yaml-config-files:  
+    description: 'Additional yaml files to be updated. Support comma delimited.'
+    required: false
+    default: ''
+  strict-update:  
+    description: 'If true, will fail if updating failed'
+    required: false
+    default: 'true'
 runs:
   using: "composite"
   steps:
@@ -67,7 +83,11 @@ runs:
           "${{ inputs.artifact-version }}" \
           "${{ inputs.target-repo }}" \
           "${{ inputs.create-if-new-config }}" \
-          "${{ inputs.pat-token }}"
+          "${{ inputs.pat-token }}" \
+          "${{ inputs.search-list-match-value }}" \
+          "${{ inputs.search-list-yaml-post-query }}" \
+          "${{ inputs.target-multi-yaml-config-files }}" \
+          "${{ inputs.strict-update }}"
       shell: bash
        
     - name: Push changes
