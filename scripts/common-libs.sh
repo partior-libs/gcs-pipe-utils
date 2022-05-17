@@ -183,7 +183,7 @@ function setItemValueInMultiListByMatchingSearch() {
     local newValue="$5"
     local commaDelimitedYamlFile="$6"
     ## Fail if update failed
-    local strictUpdate="${7-true}"
+    local strictUpdate="${7:-true}"
 
     local finalYamlList=""
     if [[ ! -z "$yamlFile" ]]; then
