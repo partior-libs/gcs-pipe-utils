@@ -25,7 +25,7 @@ githubPatToken="$8"
 matchValue="$9"
 postSearchQueryPath="${10}"
 commaDelimitedYamlFile="${11}"
-strictUpdate="${12-false}"
+strictUpdate="${12-true}"
 
 
 
@@ -47,12 +47,16 @@ function updateEnvConfig() {
 
     echo UPPERCASE_TARGET_ENV=${targetEnv^^} >> $GITHUB_ENV
 
+    echo "[INFO] Yaml file before update..."
+    cat ${targetConfigFile} | yq
+
     ## Update version
     if [[ ! -z "$matchValue" ]]; then
-        setItemValueInListByMatchingSearch "$targetConfigFile" "$queryPath" "$matchValue" "$postSearchQueryPath" "$artifactVersion"
+        echo "[INFO] Updating with matching item in list..."
+        setItemValueInListByMatchingSearch "$targetConfigFile" "$yamlStorePathKey" "$matchValue" "$postSearchQueryPath" "$artifactVersion"
         if [[ $? -ne 0 ]] && [[ "$strictUpdate" == "true" ]]; then
             echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed updating file: $targetConfigFile"
-            echo "[DEBUG] cmd: setItemValueInListByMatchingSearch \"$targetConfigFile\" \"$queryPath\" \"$matchValue\" \"$postSearchQueryPath\" \"$artifactVersion\""
+            echo "[DEBUG] cmd: setItemValueInListByMatchingSearch \"$targetConfigFile\" \"$yamlStorePathKey\" \"$matchValue\" \"$postSearchQueryPath\" \"$artifactVersion\""
             exit 1
         fi
     else
@@ -62,10 +66,6 @@ function updateEnvConfig() {
             exit 1
         fi
     fi
-
-
-    echo "[INFO] Stored version in config file..."
-    cat ${targetConfigFile} | yq
 
     ## If redeployment, there will be no new changes to version file
     if (git status | grep "nothing to commit"); then 
@@ -86,20 +86,6 @@ function updateEnvConfig() {
 
 }
 
-# setItemValueInMultiListByMatchingSearch() {
-#     local yamlFile="$1"
-#     local queryPath="$2"
-#     local matchValue="$3"
-#     ## This shall contain the @@FOUND@@ token
-#     local postSearchQueryPath="$4"
-#     local newValue="$5"
-#     local commaDelimitedYamlFile="$6"
-#     ## Fail if update failed
-#     local strictUpdate="${7-false}"
-# matchValue="$9"
-# postSearchQueryPath="${10}"
-# commaDelimitedYamlFile="${11}"
-# strictUpdate="${12-false}"
 
 function startUpdateConfig() {
     local targetEnvCount=$(getListCount "$yamlEnvListQueryPath")
