@@ -58,11 +58,11 @@ jobs:
           echo ::set-output name=branch-name::${branchName}
           echo ::set-output name=name::$(echo ${GITHUB_REPOSITORY}  | cut -d"/" -f2)
           
-      - name: Read sample SU CI Branch config
+      - name: Read sample GoQuorum CI Branch config
         uses: partior-libs/gcs-yaml-importer@main
         with:
           yaml-file: unit-test-config/controller-config/goquorum-default.yml
-          query-path: .goquorum.cd.branches.default
+          query-path: .goquorum.ci.branches.default
           output-file: ${{ env.GOQUORUM_CI_BRANCH_CONFIG_IMPORTER }}
           upload: true
 
