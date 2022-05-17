@@ -132,10 +132,16 @@ function setItemValueInListByMatchingSearch() {
     ## This shall contain the @@FOUND@@ token
     local postSearchQueryPath="$4"
     local newValue="$5"
+    local createNewConfig="$6"
 
     if [[ ! -f "$yamlFile" ]]; then
-        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate yamlFile [$yamlFile]"
-        return 1
+        if [[ "${createNewConfig}" == "true" ]]; then
+            mkdir -p $(dirname $yamlFile)
+            touch ${yamlFile}
+        else
+            echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate yamlFile [$yamlFile]"
+            return 1
+        fi        
     fi
 
     if [[ -z "$queryPath" ]] || [[ -z "$matchValue" ]]; then
@@ -161,7 +167,46 @@ function setItemValueInListByMatchingSearch() {
     local postSearchKeyName=$(echo $postSearchQueryPath | awk -F'@@FOUND@@' '{print $2}')
     local yqQuery="(${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\") | ${postSearchKeyName}) = $newValue"
 
-    yq -i "$yqQuery" "$yamlFile"
+    yq -e -i "$yqQuery" "$yamlFile"
+    local returnCode=$?
     sed -i 's/{? {/{{ /g' "$yamlFile"
     sed -i "s/: ''} : ''}/ }}/g" "$yamlFile"
+    return returnCode
+}
+
+function setItemValueInMultiListByMatchingSearch() {
+    local yamlFile="$1"
+    local queryPath="$2"
+    local matchValue="$3"
+    ## This shall contain the @@FOUND@@ token
+    local postSearchQueryPath="$4"
+    local newValue="$5"
+    local commaDelimitedYamlFile="$6"
+    ## Fail if update failed
+    local strictUpdate="${7-true}"
+
+    local finalYamlList=""
+    if [[ ! -z "$yamlFile" ]]; then
+        if [[ ! -z "$commaDelimitedYamlFile" ]]; then
+            finalYamlList=$yamlFile,$commaDelimitedYamlFile
+        else
+            finalYamlList=$yamlFile
+        fi
+    else
+        if [[ ! -z "$commaDelimitedYamlFile" ]]; then
+            finalYamlList=$commaDelimitedYamlFile
+        else
+            echo "[ERROR] $BASH_SOURCE (line:$LINENO): file and files cannot be empty."
+            exit 1
+        fi
+    fi
+    for eachYamlFile in ${finalYamlList//,/ }
+    do
+        setItemValueInListByMatchingSearch "$eachYamlFile" "$queryPath" "$matchValue" "$postSearchQueryPath" "$newValue"
+        if [[ $? -gt 0 ]] && [[ "$strictUpdate" == "true" ]]; then
+            echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed updating file: $eachYamlFile"
+            echo "[DEBUG] cmd: setItemValueInListByMatchingSearch \"$eachYamlFile\" \"$queryPath\" \"$matchValue\" \"$postSearchQueryPath\" \"$newValue\""
+            exit 1
+        fi
+    done
 }

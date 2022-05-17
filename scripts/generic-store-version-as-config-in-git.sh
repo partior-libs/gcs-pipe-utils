@@ -22,11 +22,23 @@ artifactVersion="$5"
 targetRepo="$6"
 createNewConfig="$7"
 githubPatToken="$8"
+matchValue="$9"
+postSearchQueryPath="${10}"
+commaDelimitedYamlFile="${11}"
+strictUpdate="${12-false}"
+
+
 
 echo "[INFO] Artifact Base Name: ${artifactBaseName}"
 echo "[INFO] Artifact Version: ${artifactVersion}"
 echo "[INFO] YAML Store key: ${yamlStorePathKey}"
 echo "[INFO] Target Repo: ${targetRepo}"
+echo "[INFO] Strict Update: ${strictUpdate}"
+if [[ ! -z "$matchValue" ]]; then
+    echo "[INFO] List Search Enabled - Match item value: ${matchValue}"
+    echo "[INFO] List Search Enabled - Post match query: ${postSearchQueryPath}"
+    echo "[INFO] List Search Enabled - Multi files: ${commaDelimitedYamlFile}"
+fi
 # yamlEnvListQueryPath="artifact.packager.store-version.git.target-envs"
 
 function updateEnvConfig() {
@@ -36,18 +48,32 @@ function updateEnvConfig() {
     echo UPPERCASE_TARGET_ENV=${targetEnv^^} >> $GITHUB_ENV
 
     ## Update version
-    yq -i "${yamlStorePathKey} = \"${artifactVersion}\"" ${targetConfigFile}
-    if [[ $? -ne 0 ]]; then
-        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error updating config file [${targetConfigFile}] with key [${yamlStorePathKey}] and value [${artifactVersion}]"
-        exit 1
+    if [[ ! -z "$matchValue" ]]; then
+        setItemValueInListByMatchingSearch "$targetConfigFile" "$queryPath" "$matchValue" "$postSearchQueryPath" "$artifactVersion"
+        if [[ $? -ne 0 ]] && [[ "$strictUpdate" == "true" ]]; then
+            echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed updating file: $targetConfigFile"
+            echo "[DEBUG] cmd: setItemValueInListByMatchingSearch \"$targetConfigFile\" \"$queryPath\" \"$matchValue\" \"$postSearchQueryPath\" \"$artifactVersion\""
+            exit 1
+        fi
+    else
+        yq -i "${yamlStorePathKey} = \"${artifactVersion}\"" ${targetConfigFile}
+        if [[ $? -ne 0 ]] && [[ "$strictUpdate" == "true" ]]; then
+            echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error updating config file [${targetConfigFile}] with key [${yamlStorePathKey}] and value [${artifactVersion}]"
+            exit 1
+        fi
     fi
+
+
     echo "[INFO] Stored version in config file..."
     cat ${targetConfigFile} | yq
 
     ## If redeployment, there will be no new changes to version file
     if (git status | grep "nothing to commit"); then 
-        echo VERSION_UPDATED=false >> $GITHUB_ENV
+        if [[ ! -f VERSION_UPDATED ]]; then
+            echo VERSION_UPDATED=false >> $GITHUB_ENV
+        fi
     else 
+        touch VERSION_UPDATED
         VERSION_UPDATED=true
         echo VERSION_UPDATED=true >> $GITHUB_ENV 
         echo "[INFO] Preparing to push into Git..."
@@ -60,6 +86,21 @@ function updateEnvConfig() {
 
 }
 
+# setItemValueInMultiListByMatchingSearch() {
+#     local yamlFile="$1"
+#     local queryPath="$2"
+#     local matchValue="$3"
+#     ## This shall contain the @@FOUND@@ token
+#     local postSearchQueryPath="$4"
+#     local newValue="$5"
+#     local commaDelimitedYamlFile="$6"
+#     ## Fail if update failed
+#     local strictUpdate="${7-false}"
+# matchValue="$9"
+# postSearchQueryPath="${10}"
+# commaDelimitedYamlFile="${11}"
+# strictUpdate="${12-false}"
+
 function startUpdateConfig() {
     local targetEnvCount=$(getListCount "$yamlEnvListQueryPath")
     if [[ $targetEnvCount -eq 0 ]]; then
@@ -71,21 +112,47 @@ function startUpdateConfig() {
     do
         local envKeyName=$(getValueByQueryPath "${yamlEnvListQueryPath}__${eachEnvID}")
         echo "[INFO] Env name: $envKeyName"
-        local targetConfigFile=$(echo ${targetConfigFileRaw} | sed "s/@@ENV_NAME@@/${envKeyName}/g")
-        echo "[INFO] Updating config file: ${targetConfigFile}"
-        ## Fail if config file not found
-        if [[ ! -f "${targetConfigFile}" ]]; then
-            if [[ "${createNewConfig}" == "true" ]]; then
-                touch ${targetConfigFile}
+
+        local finalYamlList=""
+        if [[ ! -z "$targetConfigFileRaw" ]]; then
+            if [[ ! -z "$commaDelimitedYamlFile" ]]; then
+                finalYamlList=$targetConfigFileRaw,$commaDelimitedYamlFile
             else
-                echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate deploy config file: ${targetConfigFile}"
+                finalYamlList=$targetConfigFileRaw
+            fi
+        else
+            if [[ ! -z "$commaDelimitedYamlFile" ]]; then
+                finalYamlList=$commaDelimitedYamlFile
+            else
+                echo "[ERROR] $BASH_SOURCE (line:$LINENO): Target file(s) cannot be empty."
                 exit 1
             fi
         fi
-        updateEnvConfig "${envKeyName}" "${targetConfigFile}"
-        echo "[INFO] Viewing transformed config: ${targetConfigFile}"
-        cat ${targetConfigFile}
-        echo "[INFO] Update completed: ${targetConfigFile}"
+        for eachYamlFile in ${finalYamlList//,/ }
+        do
+            local updatedYamlFile=$(echo ${eachYamlFile} | sed "s/@@ENV_NAME@@/${envKeyName}/g")
+            echo "[INFO] Updating yaml file: ${updatedYamlFile}"
+            ## Fail if config file not found
+            if [[ ! -f "${updatedYamlFile}" ]]; then
+                if [[ "${createNewConfig}" == "true" ]]; then
+                    mkdir -p $(dirname $updatedYamlFile)
+                    touch ${updatedYamlFile}
+                else
+                    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate target yaml file: ${updatedYamlFile}"
+                    exit 1
+                fi
+            fi
+            updateEnvConfig "${envKeyName}" "${updatedYamlFile}"
+
+            echo "[INFO] Viewing transformed config: ${updatedYamlFile}"
+            cat ${updatedYamlFile}
+            echo "[INFO] Update completed: ${updatedYamlFile}"
+
+        done
+
+
+        
+
     done
     ## Perform merge with remote to ensure picking up the latest changes
     if [[ "${VERSION_UPDATED}" == "true" ]]; then
