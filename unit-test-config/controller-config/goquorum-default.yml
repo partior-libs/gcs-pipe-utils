@@ -1,5 +1,6 @@
 goquorum:
   ci:
+    artifact-base-name: goquorum-node
     branches:
       default:
         artifact:

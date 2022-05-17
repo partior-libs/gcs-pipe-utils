@@ -122,7 +122,7 @@ jobs:
           newVersion=$(date +"v1.0.0-%Y%m%d_%H%M")
           echo [INFO] New generated version: $newVersion
           echo ARTIFACT_VERSION=${newVersion} >> $GITHUB_ENV
-          echo ARTIFACT_BASE_NAME="settlement-utility" >> $GITHUB_ENV
+          echo ARTIFACT_BASE_NAME="goquorum-node" >> $GITHUB_ENV
 
       - name: Store version in config
         if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_enabled == 'true'
