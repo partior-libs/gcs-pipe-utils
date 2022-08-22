@@ -50,7 +50,7 @@ do
     touch ${finalEnvTargetSMCYamlFile}
 
     echo "[INFO] $listMapCount map(s) to be processed on ${eachEnv}..."
-    echo "$targetStoreYqlBase" > ${finalEnvTargetSMCYamlFile}
+    echo "$targetStoreYqlBase:" > ${finalEnvTargetSMCYamlFile}
     for eachMapID in `seq 0 $((${listMapCount}-1))`
     do
         echo "[INFO] Processing list [$((${eachMapID}+1)) out of ${listMapCount}]..."
