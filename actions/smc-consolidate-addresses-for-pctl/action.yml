@@ -1,0 +1,49 @@
+name: 'Partior - Retrieve and store SMC addresses in Git'
+description: 'Retrieve and store SMC addresses in Git in defined format'
+inputs:
+targetStoreYqlBase=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_smc-address-file_target-yql-write-base }}
+targetSMCYamlFilename=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_smc-address-file_target-yaml-filename }}
+commonConfigDir=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_basedir }}
+sourceSMCBaseDir=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_smc-address-file_source-yaml-base-dir }}
+smcWs=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_smc-address-file_checkout-ws }}
+yamlEnvListQueryPath="artifact-commonconfig.smc-address-file.maps"
+  target-yql-write-base:  
+    description: 'Target Yaml Query Path to be written'
+    required: true
+    default: ''
+  target-smc-yml-filename:
+    description: 'Filename (without path) of smc yaml to be written/created'
+    required: true
+    default: 'smc.yml'
+  commonconfig-dir:  
+    description: 'Path to commonconfig'
+    required: true
+    default: 'commonconfig'
+  source-smc-basedir:  
+    description: 'Base dir of the checkedout smc repo'
+    required: true
+    default: 'smc-tmp/config'
+  smc-workspace:  
+    description: 'Path of checkedout smc config repo'
+    required: true
+    default: 'smc-tmp'
+  yaml-maps-query-path:  
+    description: 'Yaml query path to read from controller config for the KV maps value'
+    required: false
+    default: 'artifact-commonconfig.smc-address-file.maps'
+runs:
+  using: "composite"
+  steps:
+    - name: convert yaml to props config
+      run: |
+        ${{ github.action_path }}/../../scripts/smc-consolidate-addresses-for-pctl.sh \
+          "${{ inputs.target-yql-write-base }}" \
+          "${{ inputs.target-smc-yml-filename }}" \
+          "${{ inputs.commonconfig-dir }}" \
+          "${{ inputs.source-smc-basedir }}" \
+          "${{ inputs.smc-workspace }}" \
+          "${{ inputs.yaml-maps-query-path }}"
+      shell: bash
+
+    - run: echo Done processing SMC addresses
+      shell: bash
