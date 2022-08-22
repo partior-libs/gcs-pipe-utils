@@ -1,12 +1,6 @@
-name: 'Partior - Retrieve and store SMC addresses in Git'
-description: 'Retrieve and store SMC addresses in Git in defined format'
+name: 'Partior - Consolidate mapped SMC addresses for PCTL'
+description: 'Consolidate mapped SMC addresses for PCTL'
 inputs:
-targetStoreYqlBase=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_smc-address-file_target-yql-write-base }}
-targetSMCYamlFilename=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_smc-address-file_target-yaml-filename }}
-commonConfigDir=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_basedir }}
-sourceSMCBaseDir=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_smc-address-file_source-yaml-base-dir }}
-smcWs=${{ steps.pipeline-branch-config.outputs.artifact-commonconfig_smc-address-file_checkout-ws }}
-yamlEnvListQueryPath="artifact-commonconfig.smc-address-file.maps"
   target-yql-write-base:  
     description: 'Target Yaml Query Path to be written'
     required: true
