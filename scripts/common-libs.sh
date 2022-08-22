@@ -25,6 +25,14 @@ function getValueByQueryPath() {
     echo $foundValue
 }
 
+function getKVListValueByQueryPathAndKey() {
+    local searchQueryPath=$1
+    local searchKey=$2
+    local searchQueryPathConverted=$(convertQueryToEnv "${searchQueryPath}__${searchKey}")
+    local foundValue=$(set | grep -e "^${searchQueryPathConverted}=" | cut -d"=" -f1 --complement)
+    echo $foundValue
+}
+
 function jfrogGetArtifactStorageMeta() {
     local targetArtifactPath=$1
     local queryKey=$2
