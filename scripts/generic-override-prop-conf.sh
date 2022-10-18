@@ -25,11 +25,11 @@ IFS=$'\n'       # make newlines the only separator
 for eachConfigLine in $(cat ${targetConfigFile} | grep -v -e "^\s*#" | grep "=" | xargs -i echo {})    
 do
     currentConfigKey=$(echo $eachConfigLine | cut -d"=" -f1 | xargs)
-    currentConfigValue=$(echo $eachConfigLine | cut -d"=" -f1 --complement| xargs)
+    currentConfigValue=$(echo $eachConfigLine | cut -d"=" -f1 --complement | cut -d"#" -f1 | xargs)
     for eachBaseLine in $(cat ${baseValueFile} | grep -v -e "^\s*#" -e "^\s*$" | xargs -i echo {})    
     do
         currentBaseKey=$(echo $eachBaseLine | cut -d"=" -f1 | xargs)
-        currentBaseValue=$(echo $eachBaseLine | cut -d"=" -f1 --complement| xargs)
+        currentBaseValue=$(echo $eachBaseLine | cut -d"=" -f1 --complement | cut -d"#" -f1 | xargs)
         if [[ "$currentConfigKey" == "$currentBaseKey" ]]; then
             currentConfigValue=$currentBaseValue
         fi
