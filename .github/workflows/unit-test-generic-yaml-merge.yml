@@ -1,0 +1,89 @@
+name: test-override-prop-conf
+
+on:
+  push:
+    paths:
+      - 'actions/generic-yaml-merge/**'
+      - 'scripts/generic-yaml-merge.sh'
+      - '.github/workflows/unit-test-generic-yaml-merge.yml'
+      - 'unit-test-config/controller-config/smc-default.yml'
+      - 'unit-test-config/deploy-config/env/devnet01.yml'
+      - 'unit-test-config/project-config/application.yml'
+  workflow_dispatch:
+
+env:
+  SU_CD_CONFIG_IMPORTER: su_cd_config_importer
+  BASE_CONFIG_FILE: base_config
+
+jobs:
+  test-scenario-1-reader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Read sample SU CD config
+        uses: partior-libs/gcs-yaml-importer@main
+        with:
+          yaml-file: unit-test-config/controller-config/smc-settlement-utility.yml
+          query-path: .smc.cd.environments.devnet01
+          output-file: ${{ env.SU_CD_CONFIG_IMPORTER }}
+          yaml-file-for-default: unit-test-config/controller-config/smc-default.yml
+          query-path-for-default: .smc.cd.environments.default
+          upload: true
+
+  test-scenario-1-start:
+    needs: [ test-scenario-1-reader ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.SU_CD_CONFIG_IMPORTER }}
+
+      - name: Source env file
+        id: pipeline-config
+        run: |
+          source ./${{ env.SU_CD_CONFIG_IMPORTER }}
+
+      - name: Merge with inputs
+        uses: partior-libs/gcs-pipe-utils/actions/generic-yaml-merge@main
+        with:
+          source-yaml-file: unit-test-config/project-config/application.yml
+          target-yaml-file: unit-test-config/deploy-config/env/devnet01.yml
+          start-merge-path: .ethersQuorumDeploy
+          output-file: merged-test-scenario1.yml
+          upload: true
+
+      - name: View merged yaml file
+        run:  |
+          cat merged-test-scenario1.yml
+
+  test-scenario-2-start:
+    needs: [ test-scenario-1-reader ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.SU_CD_CONFIG_IMPORTER }}
+
+      - name: Source env file
+        id: pipeline-config
+        run: |
+          source ./${{ env.SU_CD_CONFIG_IMPORTER }}
+
+      - name: Merge with config
+        uses: partior-libs/gcs-pipe-utils/actions/generic-yaml-merge@main
+        with:
+          merge-config-key: merge-yaml-config
+          output-file: merged-test-scenario2.yml
+          upload: true
+
+      - name: View merged yaml file
+        run:  |
+          cat merged-test-scenario2.yml
+
+
+

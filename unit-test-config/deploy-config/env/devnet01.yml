@@ -1,0 +1,151 @@
+---
+packages:
+  settlement-utility:
+    package-version: 2.0.1
+  onboarding:
+    package-version: 0.0.8
+  payment-utility:
+    package-version: 0.0.6
+  utility:
+    package-version: 0.0.7
+  address-directory:
+    package-version: 0.0.8-dev.2+bld.25.1
+  operator:
+    package-version: 0.0.5
+ethersQuorumDeploy:
+  rpcUrl2:
+    protocol: 3
+    host: quorum-int-lb-0.partior5.devnet01.partior.cloud
+    port: 8545
+    suffix: # OPTIONAL
+  rpcUrl:
+    protocol: https
+    host: quorum-int-lb-0.partior5.devnet01.partior.cloud
+    port: 8545
+    suffix: # OPTIONAL
+  dappSigner:
+    useDappSigner: false
+  privacy:
+    isPrivate: false
+  from: "0x82de4b8e2c3a6b765cb470eab8cc4c3928c5e5f9"
+  action: FULL_UPGRADE # DEPLOY_ONLY, DEPLOY_AND_ARCHIVE, FULL_UPGRADE
+  directory: # See table at https://partior.atlassian.net/wiki/spaces/prodsupp/pages/148800038/Contract+Address+Directory#Contract-Key-Names
+    registerDeployment: false
+  deploy: # All child fields MANDATORY for DEPLOY_ONLY / DEPLOY_AND_ARCHIVE
+    owner: "0x82de4b8e2c3a6b765cb470eab8cc4c3928c5e5f9"
+    facets: ["DiamondCutFacet", 
+        "DiamondLoupeFacet", 
+        "OwnershipFacet", 
+        "AccessControlFacet", 
+        "AddressDirectoryFacet"]
+  archive: # All child fields MANDATORY for DEPLOY_AND_ARCHIVE action
+    archivalInstanceId: latest-2023-01-222
+    archivalDate: 2023-01-10T00:00:00Z
+  upgrade: # All child fields MANDATORY for FULL_UPGRADE action
+    lookupOverride: "0xAD0000004ed6FF7273E2F82606D432167053e5Ac" # OPTIONAL. If defined, will skip addressDirectory lookup for upgrades.
+    dryRun: false
+    removeOldFunctions: true
+    doNotRemove: ["DiamondCutFacet", 
+      "DiamondLoupeFacet", 
+      "OwnershipFacet", 
+      "AccessControlFacet"
+    ]
+    facets: ["AddressDirectoryFacet"]
+truffle-config:
+  networks:
+    devnet01:
+      url: https://quorum-int-lb-0.partior5.devnet01.partior.cloud:8545
+      network_id: 8101
+      gasPrice: 0
+      from: 0x82de4b8e2c3a6b765cb470eab8cc4c3928c5e5f9
+    dbssg:
+      url: https://quorum-int-lb-0.partior4.devnet01.partior.cloud:8545
+      network_id: 8101
+      gasPrice: 0
+      from: 0x9cc7b89ef74d2371932e4c430f09719f8b32e78a
+    jpmny:
+      url: https://quorum-int-lb-0.partior2.devnet01.partior.cloud:8545
+      network_id: 8101
+      gasPrice: 0
+      from: 0x92fe46bd4be4d9a0fad232911abc4e783d99ae10
+    jpmsg:
+      url: https://quorum-int-lb-0.partior3.devnet01.partior.cloud:8545
+      network_id: 8101
+      gasPrice: 0
+      from: 0x14df8b8cca03875d3e54539fcad7ab9ef299c211
+  compilers:
+    solc:
+      settings:
+        optimizer:
+          enabled: true
+          runs: 200
+      version: "node_modules/solc"
+  mocha:
+    enableTimeouts: false
+    timeout: 20000
+## Custom Values for specified smart contract to be used in deployment.conf
+custom-override:
+  smc-operator:
+    privateFor: xTfobLkAcRUZct8HLakbFSDJ7QAMYYDpD8gy4er6GnY=
+## Generic values for deployment.conf
+deployment-config:
+  network: devnet01
+  migrationTool: truffle
+  privateFor:
+    - gt+xceHndMb6rSXK9spGN7MWLbWpZiIxrb2YfaieuCM=
+    - exjaHdDT9TAOhjtErK47lOoain/oDEOU3LKJo9bfWw4=
+    - YVvEOg9Z/jELYx0WIkyjikRL4u+vT1ZusOZt2YC+JF0=
+    - xTfobLkAcRUZct8HLakbFSDJ7QAMYYDpD8gy4er6GnY=
+  operator: 0x82de4b8e2c3a6b765cb470eab8cc4c3928c5e5f9
+  proxyOwner: 0x82de4b8e2c3a6b765cb470eab8cc4c3928c5e5f9
+  signerUrl: ""
+  tesseraUrl: ""
+  contract: "0xc3055B81cAe2Ad47F91fE8BC275162232dC90b10"
+  contracts:
+    - 0xfF47AF3f31905D03eeAbb688D21DfC3d545D833B
+    - 0x0564E86B2404F215Fc96ef0E9F993734d454e92e
+  onboardingAddress: "0xc3055B81cAe2Ad47F91fE8BC275162232dC90b10"
+  currency:
+    - USD
+    - SGD
+  bic:
+    - CHASUS33MCY
+    - DBSSSGSGXXX
+  timezone:
+    - America/New_York
+    - Asia/Singapore
+  offset:
+    - "-4"
+    - "8"
+  TRUFFLE_CONFIG_NETWORK: devnet01
+  TRUFFLE_CONFIG_NETWORK_JPMNY: jpmny
+  TRUFFLE_CONFIG_NETWORK_JPMSG: jpmsg
+  TRUFFLE_CONFIG_NETWORK_DBSSG: dbssg
+  NETWORK_NAME: "partior"
+  NETWORK_DESC: "partior wholesale network"
+  PARTIOR_TM_PUB_KEY: "xTfobLkAcRUZct8HLakbFSDJ7QAMYYDpD8gy4er6GnY="
+  # DBS_SG_ENODE_IDS must store in list format
+  DBS_SG_ENODE_IDS:
+    - 23c3f99c12095c0b2ca8f68ea5cae0db8cfb9036ead64942e6cca47d19afd02d00b3558cd40375ca35fd106f9dc04dd26b7b6e8f6765e889ffba776bf70536b1
+    - 193ea20c79ddb84c7ce02275acd19e94f20d29406272b25edd11ed45e5e6f77dd3d340105d6bb21c69ac98dabed5b0ab52387a9bfc4c2960ce9e9a29e019c995
+    - 62bcda49a48319e22ab6395d866afcb8aaebc98a8c96ac930bd3241c2c8ca8540dbe486adcb0184c5c4ea0531defc827bc549f92fc680c0b1c49a64c496baab1
+  DBS_SG_TM_PUB_KEYS: gt+xceHndMb6rSXK9spGN7MWLbWpZiIxrb2YfaieuCM=
+  DBS_SG_ACCOUNT: 0x9cc7b89ef74d2371932e4c430f09719f8b32e78a
+  DBS_SG_ACCOUNT_P: 0xd75e19fb869e3bfb78b2f51711bafe11bf2c9121
+  # JPM_NY_ENODE_IDS must store in list format
+  JPM_NY_ENODE_IDS:
+    - 7a3b7943c79251080628342ebc17f196a86a64c65e9e0f8be1c4b0cd2b1054317d496890db4aea67b76cf6a26126ee6a2d2ee68d7e7c1d1583693f3c6926d7ed
+    - 193ea20c79ddb84c7ce02275acd19e94f20d29406272b25edd11ed45e5e6f77dd3d340105d6bb21c69ac98dabed5b0ab52387a9bfc4c2960ce9e9a29e019c995
+    - 62bcda49a48319e22ab6395d866afcb8aaebc98a8c96ac930bd3241c2c8ca8540dbe486adcb0184c5c4ea0531defc827bc549f92fc680c0b1c49a64c496baab1
+  JPM_NY_TM_PUB_KEYS: exjaHdDT9TAOhjtErK47lOoain/oDEOU3LKJo9bfWw4=
+  JPM_NY_ACCOUNT: 0x92fe46bd4be4d9a0fad232911abc4e783d99ae10
+  # JPM_SG_ENODE_IDS must store in list format
+  JPM_SG_ENODE_IDS:
+    - d197d3ea575f5c830622c6a45d73fe9618b5c4365ae1a867bbb34c0e481c05646171cddd55b4c74d4382fea4aa53292cdf77c236ed53d0fdcefa5261a6165ecb
+    - b1c3c160fc3d3afe4ab364a18d917292878341a1b09682dc4b5a9239a21dd7d1488a56878d976dd391528f2afdfc3807798288dbdb46a6196e344c14d9350665
+    - 946afeef2095e04e5ff7014897bbabf0184cb701466ce8b658d08d53eb2640f4f7d244ec703bfa06e6ac60e11f6c5eb66c90faad46989d74d4978d14fe14df26
+  JPM_SG_TM_PUB_KEYS: YVvEOg9Z/jELYx0WIkyjikRL4u+vT1ZusOZt2YC+JF0=
+  JPM_SG_ACCOUNT: 0x14df8b8cca03875d3e54539fcad7ab9ef299c211
+  USD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS: 0xfF47AF3f31905D03eeAbb688D21DfC3d545D833B
+  SGD_SETTLEMENT_UTILITY_CONTRACT_ADDRESS: 0x0564E86B2404F215Fc96ef0E9F993734d454e92e
+  PAYMENT_UTILITY_CONTRACT_ADDRESS: "0xD4588136Cb7bB4c7c642dbf6dB89CFb97db01Bc3"

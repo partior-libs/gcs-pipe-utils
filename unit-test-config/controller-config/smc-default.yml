@@ -301,6 +301,13 @@ smc:
             enabled: true
             yaml-path-key: .deployment-config
             override-config-file: unit-test-config/deploy-config/env/dev02.yml
+        merge-yaml-config:
+          enabled: false
+          target-file: unit-test-config/project-config/application.yml
+          git-config:
+            enabled: true
+            yaml-path-key: .ethersQuorumDeploy
+            override-config-file: unit-test-config/deploy-config/env/devnet01.yml
         pre-deployment:
           runner: ubuntu-latest
           inside-deployment-job: true

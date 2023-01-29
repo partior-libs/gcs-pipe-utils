@@ -1,0 +1,39 @@
+ethersQuorumDeploy:
+  rpcUrl2:
+    protocol: 3
+    host: quorum-int-lb-0.partior5.devnet01.partior.d
+    port: 8545
+    suffix: # OPTIONAL
+  rpcUrl:
+    protocol: http
+    host: localhost
+    port: 8545
+    suffix: # OPTIONAL
+  dappSigner:
+    useDappSigner: false
+  privacy:
+    isPrivate: false
+  from: "0xlocalsample"
+  action: FULL_UPGRADE # DEPLOY_ONLY, DEPLOY_AND_ARCHIVE, FULL_UPGRADE
+  directory: # See table at https://partior.atlassian.net/wiki/spaces/prodsupp/pages/148800038/Contract+Address+Directory#Contract-Key-Names
+    registerDeployment: false
+  deploy: # All child fields MANDATORY for DEPLOY_ONLY / DEPLOY_AND_ARCHIVE
+    owner: "0xlocalsample"
+    facets: ["DiamondCutFacet", 
+        "DiamondLoupeFacet", 
+        "OwnershipFacet", 
+        "AccessControlFacet", 
+        "AddressDirectoryFacet"]
+  archive: # All child fields MANDATORY for DEPLOY_AND_ARCHIVE action
+    archivalInstanceId: latest-2023-01-222
+    archivalDate: 2023-01-10T00:00:00Z
+  upgrade: # All child fields MANDATORY for FULL_UPGRADE action
+    lookupOverride: "0xAD0000004ed6FF7273E2F82606D432167053e5Ac" # OPTIONAL. If defined, will skip addressDirectory lookup for upgrades.
+    dryRun: false
+    removeOldFunctions: true
+    doNotRemove: ["DiamondCutFacet", 
+      "DiamondLoupeFacet", 
+      "OwnershipFacet", 
+      "AccessControlFacet"
+    ]
+    facets: ["AddressDirectoryFacet"]
