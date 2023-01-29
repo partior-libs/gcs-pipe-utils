@@ -1,0 +1,82 @@
+name: 'Partior - Merge two yaml based on input config'
+description: 'Merge two yaml based on input config'
+inputs:
+  source-yaml-file:  
+    description: 'Path to YAML file'
+    required: false
+    default: ''
+  target-yaml-file:  
+    description: 'Path to YAML file'
+    required: false
+    default: ''
+  start-merge-path:  
+    description: 'The starting path to merge. ie: .parentkey.subkey'
+    required: false
+    default: '.'
+  merge-config-key:
+    description: 'Filter config path from controller config (ie: merge-yaml-config). These values should already be injected into env (ie: merge-yaml-config.target-file'
+  output-file:  
+    description: 'Custom path of the output file'
+    required: false
+    default: 'final-merged.yaml'
+  upload:  
+    description: 'Flag to indicate if require to upload the file'
+    required: false
+    default: false
+outputs:
+  generated-filename:
+    description: "Filename of the converted config script"
+    value: ${{ inputs.output-file }}
+runs:
+  using: "composite"
+  steps:
+    - name: Validate input
+      run: |
+        srcYaml="${{ inputs.source-yaml-file }}"
+        targetYaml="${{ inputs.target-yaml-file }}"
+        startMergePath="${{ inputs.start-merge-path }}"
+        mergeConfigKey="${{ inputs.merge-config-key }}"
+        configMode=input
+
+        ## Get the common function
+        source ${{ github.action_path }}/../../scripts/common-libs/sh
+        if ([[ -z "$srcYaml" ]] || [[ -z "$targetYaml" ]]) && [[ -z "$mergeConfigKey" ]]; then
+            echo "[ERROR] Invalid input. Must contain at least both src/target files or merge config key"
+            exit 1
+        elif [[ ! -z "$mergeConfigKey" ]]; then
+            echo "[INFO] Retrieving config from $mergeConfigKey..."
+            targetYaml=$(getValueByQueryPath "$mergeConfigKey.target-file")
+            srcYaml=$(getValueByQueryPath "$mergeConfigKey.github-config.override-config-file")
+            startMergePath=$(getValueByQueryPath "$mergeConfigKey.github-config.yaml-path-key")
+            if [[ -z "$srcYaml" ]] || [[ -z "$targetYaml" ]]; then
+              echo "[ERROR] Invalid input. Must contain at least both src [$srcYaml] and target [$targetYaml] files"
+              exit 1
+            fi
+            configMode=controller
+        fi
+        echo "[INFO] SRC_YAML_FILE=$srcYaml"
+        echo "[INFO] TARGET_YAML_FILE=$targetYaml"
+        echo "[INFO] CONFIG_MODE=$configMode"
+        echo SRC_YAML_FILE=$srcYaml >> $GITHUB_ENV
+        echo TARGET_YAML_FILE=$targetYaml >> $GITHUB_ENV
+        echo START_MERGE_PATH=$startMergePath >> $GITHUB_ENV
+        echo CONFIG_MODE=$configMode >> $GITHUB_ENV
+      shell: bash
+
+    - name: convert yaml to props config
+      run: ${{ github.action_path }}/../../scripts/generic-yaml-merge.sh "${{ env.SRC_YAML_FILE }}" "${{  env.TARGET_YAML_FILE }}" "${{ env.START_MERGE_PATH }}" "${{ inputs.output-file }}" "${{ env.CONFIG_MODE }}"
+      shell: bash
+
+    - name: Upload merged yaml file
+      uses: actions/upload-artifact@v3
+      if: inputs.upload == 'true'
+      with:
+        name: ${{ inputs.output-file }}
+        path: ${{ inputs.output-file }}
+        if-no-files-found: error
+        retention-days: 1
+        
+    - run: |
+        echo Done merging yaml...
+        cat ${{ inputs.output-file }}
+      shell: bash
