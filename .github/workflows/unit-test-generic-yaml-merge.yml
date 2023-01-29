@@ -1,4 +1,4 @@
-name: test-override-prop-conf
+name: test-merge-yaml
 
 on:
   push:
