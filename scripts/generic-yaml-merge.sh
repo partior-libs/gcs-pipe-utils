@@ -77,7 +77,7 @@ mergeYaml "$yamlQueryPath" "$srcYamlFile" "$targetYamlFile" "$outputFile"
 ## If config from controller, expect to have exclusion list
 if [[ "$configMode" == "controller" ]]; then
     searchQueryPath=$controllerConfigKey.$CTLR_EXCLUDE_LIST_KEYNAME
-    local listCount=$(getListCount "$searchQueryPath")
+    listCount=$(getListCount "$searchQueryPath")
 
     ## Restore keys which are in exclusion list
     if [[ $listCount -gt 0 ]]; then
