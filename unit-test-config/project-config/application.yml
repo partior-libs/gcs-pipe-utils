@@ -1,7 +1,7 @@
 ethersQuorumDeploy:
   rpcUrl2:
     protocol: 3
-    host: quorum-int-lb-0.partior5.devnet01.partior.d
+    host: localhost2
     port: 8545
     suffix: # OPTIONAL
   rpcUrl:
