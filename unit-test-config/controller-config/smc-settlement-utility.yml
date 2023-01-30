@@ -302,6 +302,7 @@ smc:
           target-file: unit-test-config/project-config/application.yml
           exclude-keys:
             - rpcUrl
+            - rpcUrl2
             - dappSigner
             - privacy.isPrivate
             - from
