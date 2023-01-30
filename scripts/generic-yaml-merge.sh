@@ -20,10 +20,26 @@ yamlQueryPath="${3-empty}"
 outputFile="$4"
 configMode="${5-input}"
 
-yqRunnerFile=runner-$(date '+%Y%m%d%H%M%S').sh
+## Global constants
+CTLR_EXCLUDE_LIST_KEYNAME="exclude-keys"
+
 echo "[INFO] Source YAML: $srcYamlFile"
 echo "[INFO] Target YAML: $targetYamlFile"
 echo "[INFO] YAML Query Path: $yamlQueryPath"
+
+function mergeYaml() {
+    local mergeQueryPath="$1"
+    local mergeSrcYaml="$2"
+    local mergeTargetYaml="$3"
+    local mergeOutputFile="$4"
+
+    local yqRunnerFile=runner-$(date '+%Y%m%d%H%M%S').sh
+
+    echo "yq '$mergeQueryPath *= load(\"$mergeSrcYaml\") $mergeQueryPath' $mergeTargetYaml > $mergeOutputFile" > $yqRunnerFile
+    chmod 755 $yqRunnerFile
+    ./$yqRunnerFile
+    rm -f ./$yqRunnerFile
+}
 
 if [[ ! -f "$srcYamlFile" ]]; then
     echo "[ERROR] $BASH_SOURCE (line:$LINENO): Source config YAML file not found: $srcYamlFile"
@@ -36,7 +52,7 @@ if [[ $? -gt 0 ]] || [[ -z "$yamlQueryPath" ]]; then
     exit 1 
 fi
 
-if [[ "$(yq $yamlQueryPath $srcYamlFile)" == "null" ]] || [[ "$(yq $yamlQueryPath $srcYamlFile)" == "null" ]]; then
+if [[ "$(yq $yamlQueryPath $srcYamlFile)" == "null" ]]; then
     echo "[ERROR] $BASH_SOURCE (line:$LINENO): Yaml query path [$yamlQueryPath] not found in source yaml: $srcYamlFile"
     exit 1
 fi
@@ -52,50 +68,35 @@ if [[ "$(yq $yamlQueryPath $targetYamlFile)" == "null" ]]; then
 fi
 
 echo "[INFO] Merging.."
-echo "yq '$yamlQueryPath *= load(\"$srcYamlFile\") $yamlQueryPath' $targetYamlFile > $outputFile" > $yqRunnerFile
-chmod 755 $yqRunnerFile
-./$yqRunnerFile
-# mykey=$mykey  yq 'eval(strenv(mykey)) = load("local.yml") eval(strenv(mykey))' sample2.yml
-# rm -f $tmpDeploymentConfFile
-# cat $inputYamlFile | yq -o props "${deploymentYamlQueryPath}" > $tmpDeploymentConfFile
 
-# rm -f $finalDeploymentConfFile
+## Merge first, filter later with exclusion list
+mergeYaml "$yamlQueryPath" "$srcYamlFile" "$targetYamlFile" "$outputFile"
 
-# IFS=$'\n'       # make newlines the only separator
-# isList=false
-# tmpBuffer=""
-# tmpKey=""
-# for eachTemplateLine in $(cat ${tmpDeploymentConfFile})    
-# do
-# currentKey=$(echo $eachTemplateLine | cut -d"=" -f1 | xargs)
-# currentValue=$(echo $eachTemplateLine | cut -d"=" -f1 --complement| xargs)
-# ## Making sure list is converted to comma delimited
-# if [[ "$currentKey" =~ [\.] ]] && [[ ${currentKey##*.} =~ ^[0-9]+$ ]]; then
-#     isList=true
-#     if [[ -z "$tmpKey" ]]; then
-#         tmpKey=${currentKey%.*}
-#     elif [[ ! "$tmpKey" == "${currentKey%.*}" ]]; then
-#         echo $tmpKey=$tmpBuffer >> $finalDeploymentConfFile
-#         tmpKey=${currentKey%.*}
-#         tmpBuffer=""
-#     fi
+## If config from controller, expect to have exclusion list
+if [[ "$configMode" == "controller" ]]; then
+    searchQueryPath=$yamlQueryPath.$CTLR_EXCLUDE_LIST_KEYNAME
+    local listCount=$(getListCount "$searchQueryPath")
 
-#     if [[ -z "$tmpBuffer" ]]; then
-#         tmpBuffer=$currentValue
-#     else
-#         tmpBuffer=$tmpBuffer,$currentValue
-#     fi
-# else
-#     if [[ "$isList" == "true" ]]; then
-#         isList=false
-#         echo $tmpKey=$tmpBuffer >> $finalDeploymentConfFile
-#         tmpKey=""
-#         tmpBuffer=""
-#     fi
-#     echo $currentKey=$currentValue >> $finalDeploymentConfFile
-# fi
-# done
-# unset IFS
+    ## Restore keys which are in exclusion list
+    if [[ $listCount -gt 0 ]]; then
+        echo "[INFO] Sequence list from [$searchQueryPath] is $listCount. Begin exclusion filter..."
+        for eachSequenceItem in `seq 0 $((${listCount}-1))`
+        do
+            listSearchPath=$searchQueryPath.$eachSequenceItem
+            pathValue="$(getValueByQueryPath $listSearchPath)"
+            ## If key in target file is null, delete the key to prevent unwanted keys in final merged
+            if [[ "$(yq $listSearchPath $targetYamlFile)" == "null" ]]; then
+                echo "[INFO] Key not found in override file. Restoring..."
+                cat "$outputFile" | delKey=$listSearchPath yq 'del(eval(strenv(delKey)))' > "$outputFile.tmp"
+            else
+                mergeYaml "$listSearchPath" "$targetYamlFile" "$outputFile" "$outputFile.tmp"
+            fi
+            mv -f "$outputFile.tmp" "$outputFile"
+        done
+    else
+        echo "[INFO] Sequence list from [$searchQueryPath] is $listCount. Skip exclusion filter..."
+    fi
+fi
 
-# echo [INFO] Transformed deployment-override.conf
-# cat $finalDeploymentConfFile
+echo [INFO] Merged yaml...
+cat $outputFile

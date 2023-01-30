@@ -45,8 +45,8 @@ runs:
             exit 1
         elif [[ ! -z "$mergeConfigKey" ]]; then
             echo "[INFO] Retrieving config from $mergeConfigKey..."
-            targetYaml=$(getValueByQueryPath "$mergeConfigKey.target-file")
-            srcYaml=$(getValueByQueryPath "$mergeConfigKey.git-config.override-config-file")
+            srcYaml=$(getValueByQueryPath "$mergeConfigKey.target-file")
+            targetYaml=$(getValueByQueryPath "$mergeConfigKey.git-config.override-config-file")
             startMergePath=$(getValueByQueryPath "$mergeConfigKey.git-config.yaml-path-key")
             if [[ -z "$srcYaml" ]] || [[ -z "$targetYaml" ]]; then
               echo "[ERROR] Invalid input. Must contain at least both src [$srcYaml] and target [$targetYaml] files"
@@ -63,7 +63,7 @@ runs:
         echo CONFIG_MODE=$configMode >> $GITHUB_ENV
       shell: bash
 
-    - name: convert yaml to props config
+    - name: Start merging
       run: ${{ github.action_path }}/../../scripts/generic-yaml-merge.sh "${{ env.SRC_YAML_FILE }}" "${{  env.TARGET_YAML_FILE }}" "${{ env.START_MERGE_PATH }}" "${{ inputs.output-file }}" "${{ env.CONFIG_MODE }}"
       shell: bash
 

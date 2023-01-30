@@ -300,6 +300,13 @@ smc:
         merge-yaml-config:
           enabled: true
           target-file: unit-test-config/project-config/application.yml
+          exclude-keys:
+            - rpcUrl
+            - dappSigner
+            - privacy.isPrivate
+            - from
+            - deploy.owner
+            - upgrade.dryRun
           git-config:
             enabled: true
             yaml-path-key: .ethersQuorumDeploy

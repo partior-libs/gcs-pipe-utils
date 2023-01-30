@@ -304,6 +304,7 @@ smc:
         merge-yaml-config:
           enabled: false
           target-file: unit-test-config/project-config/application.yml
+          exclude-keys: ''
           git-config:
             enabled: true
             yaml-path-key: .ethersQuorumDeploy
