@@ -13,11 +13,6 @@ packages:
   operator:
     package-version: 0.0.5
 ethersQuorumDeploy:
-  rpcUrl2:
-    protocol: 3
-    host: quorum-int-lb-0.partior5.devnet01.partior.cloud
-    port: 8545
-    suffix: # OPTIONAL
   rpcUrl:
     protocol: https
     host: quorum-int-lb-0.partior5.devnet01.partior.cloud
