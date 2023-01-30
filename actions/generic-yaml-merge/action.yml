@@ -39,7 +39,7 @@ runs:
         configMode=input
 
         ## Get the common function
-        source ${{ github.action_path }}/../../scripts/common-libs/sh
+        source ${{ github.action_path }}/../../scripts/common-libs.sh
         if ([[ -z "$srcYaml" ]] || [[ -z "$targetYaml" ]]) && [[ -z "$mergeConfigKey" ]]; then
             echo "[ERROR] Invalid input. Must contain at least both src/target files or merge config key"
             exit 1
