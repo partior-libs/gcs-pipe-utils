@@ -21,6 +21,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Debug
+        run: |
+          yq --version
+          
       - name: Read sample SU CD config
         uses: partior-libs/gcs-yaml-importer@main
         with:
