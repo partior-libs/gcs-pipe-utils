@@ -65,7 +65,7 @@ runs:
       shell: bash
 
     - name: Start merging
-      run: ${{ github.action_path }}/../../scripts/generic-yaml-merge.sh "${{ env.SRC_YAML_FILE }}" "${{  env.TARGET_YAML_FILE }}" "${{ env.START_MERGE_PATH }}" "${{ inputs.output-file }}" "${{ env.CONFIG_MODE }}" "${{ env.CTLR_CONFIG_KEYNAME ||"
+      run: ${{ github.action_path }}/../../scripts/generic-yaml-merge.sh "${{ env.SRC_YAML_FILE }}" "${{  env.TARGET_YAML_FILE }}" "${{ env.START_MERGE_PATH }}" "${{ inputs.output-file }}" "${{ env.CONFIG_MODE }}" "${{ env.CTLR_CONFIG_KEYNAME }}"
       shell: bash
 
     - name: Upload merged yaml file
