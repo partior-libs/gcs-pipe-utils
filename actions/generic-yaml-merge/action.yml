@@ -46,8 +46,8 @@ runs:
         elif [[ ! -z "$mergeConfigKey" ]]; then
             echo "[INFO] Retrieving config from $mergeConfigKey..."
             targetYaml=$(getValueByQueryPath "$mergeConfigKey.target-file")
-            srcYaml=$(getValueByQueryPath "$mergeConfigKey.github-config.override-config-file")
-            startMergePath=$(getValueByQueryPath "$mergeConfigKey.github-config.yaml-path-key")
+            srcYaml=$(getValueByQueryPath "$mergeConfigKey.git-config.override-config-file")
+            startMergePath=$(getValueByQueryPath "$mergeConfigKey.git-config.yaml-path-key")
             if [[ -z "$srcYaml" ]] || [[ -z "$targetYaml" ]]; then
               echo "[ERROR] Invalid input. Must contain at least both src [$srcYaml] and target [$targetYaml] files"
               exit 1
