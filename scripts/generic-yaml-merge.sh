@@ -82,13 +82,17 @@ if [[ "$configMode" == "controller" ]]; then
         echo "[INFO] Sequence list from [$searchQueryPath] is $listCount. Begin exclusion filter..."
         for eachSequenceItem in `seq 0 $((${listCount}-1))`
         do
+            
             listSearchPath=$searchQueryPath.$eachSequenceItem
             pathValue="$(getValueByQueryPath $listSearchPath)"
+            echo "[INFO] Exclusion for key: $listSearchPath"
+            echo "[INFO] Original Key Value: $pathValue"
             ## If key in target file is null, delete the key to prevent unwanted keys in final merged
             if [[ "$(yq $listSearchPath $targetYamlFile)" == "null" ]]; then
                 echo "[INFO] Key not found in override file. Restoring..."
                 cat "$outputFile" | delKey=$listSearchPath yq 'del(eval(strenv(delKey)))' > "$outputFile.tmp"
             else
+                echo "[INFO] Restoring key ..."
                 mergeYaml "$listSearchPath" "$targetYamlFile" "$outputFile" "$outputFile.tmp"
             fi
             mv -f "$outputFile.tmp" "$outputFile"
