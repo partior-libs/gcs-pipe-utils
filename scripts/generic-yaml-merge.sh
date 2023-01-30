@@ -23,6 +23,7 @@ controllerConfigKey="${6-merge-yaml-config}"
 
 ## Global constants
 CTLR_EXCLUDE_LIST_KEYNAME="exclude-keys"
+CTLR_MERGE_MODE_REPLACE="replace"
 
 echo "[INFO] Source YAML: $srcYamlFile"
 echo "[INFO] Target YAML: $targetYamlFile"
@@ -34,10 +35,16 @@ function mergeYaml() {
     local mergeSrcYaml="$2"
     local mergeTargetYaml="$3"
     local mergeOutputFile="$4"
+    local mergeMode="${5-multiply}"
 
     local yqRunnerFile=runner-$(date '+%Y%m%d%H%M%S').sh
+    ## Default to multiply
+    local mergeParam="*="
+    if [[ "$mergeMode" == "$CTLR_MERGE_MODE_REPLACE" ]]; then
+        mergeParam="="
+    fi
 
-    echo "yq '$mergeQueryPath *= load(\"$mergeSrcYaml\") $mergeQueryPath' $mergeTargetYaml > $mergeOutputFile" > $yqRunnerFile
+    echo "yq '$mergeQueryPath $mergeParam load(\"$mergeSrcYaml\") $mergeQueryPath' $mergeTargetYaml > $mergeOutputFile" > $yqRunnerFile
     chmod 755 $yqRunnerFile
     ./$yqRunnerFile
     rm -f ./$yqRunnerFile
@@ -97,7 +104,7 @@ if [[ "$configMode" == "controller" ]]; then
                 cat "$outputFile" | delKey=$exclusionSearchQueryPath yq 'del(eval(strenv(delKey)))' > "$outputFile.tmp"
             else
                 echo "[INFO] Restoring key ..."
-                mergeYaml "$exclusionSearchQueryPath" "$targetYamlFile" "$outputFile" "$outputFile.tmp"
+                mergeYaml "$exclusionSearchQueryPath" "$targetYamlFile" "$outputFile" "$outputFile.tmp" "$CTLR_MERGE_MODE_REPLACE"
             fi
             mv -f "$outputFile.tmp" "$outputFile"
         done
