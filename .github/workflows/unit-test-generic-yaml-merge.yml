@@ -7,6 +7,7 @@ on:
       - 'scripts/generic-yaml-merge.sh'
       - '.github/workflows/unit-test-generic-yaml-merge.yml'
       - 'unit-test-config/controller-config/smc-default.yml'
+      - 'unit-test-config/controller-config/smc-settlement-utility'
       - 'unit-test-config/deploy-config/env/devnet01.yml'
       - 'unit-test-config/project-config/application.yml'
   workflow_dispatch:
@@ -24,7 +25,7 @@ jobs:
       - name: Debug
         run: |
           yq --version
-          
+
       - name: Read sample SU CD config
         uses: partior-libs/gcs-yaml-importer@main
         with:
