@@ -100,10 +100,10 @@ if [[ "$configMode" == "controller" ]]; then
             echo "[INFO] Original Key Ref: $exclusionSearchQueryPath"
             ## If key in target file is null, delete the key to prevent unwanted keys in final merged
             if [[ "$(yq $exclusionSearchQueryPath $targetYamlFile)" == "null" ]]; then
-                echo "[INFO] Key not found in override file. Restoring..."
-                cat "$outputFile" | delKey=$exclusionSearchQueryPath yq 'del(eval(strenv(delKey)))' > "$outputFile.tmp"
+                echo "[INFO] Key [$exclusionSearchQueryPath] not found in override file. Resetting..."
+                cat "$outputFile" | delKey="$exclusionSearchQueryPath" yq 'del(eval(strenv(delKey)))' > "$outputFile.tmp"
             else
-                echo "[INFO] Restoring key ..."
+                echo "[INFO] Restoring key [$exclusionSearchQueryPath]"
                 mergeYaml "$exclusionSearchQueryPath" "$targetYamlFile" "$outputFile" "$outputFile.tmp" "$CTLR_MERGE_MODE_REPLACE"
             fi
             mv -f "$outputFile.tmp" "$outputFile"
