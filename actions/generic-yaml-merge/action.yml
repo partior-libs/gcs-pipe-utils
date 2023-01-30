@@ -60,11 +60,12 @@ runs:
         echo SRC_YAML_FILE=$srcYaml >> $GITHUB_ENV
         echo TARGET_YAML_FILE=$targetYaml >> $GITHUB_ENV
         echo START_MERGE_PATH=$startMergePath >> $GITHUB_ENV
+        echo CTLR_CONFIG_KEYNAME=$mergeConfigKey >> $GITHUB_ENV
         echo CONFIG_MODE=$configMode >> $GITHUB_ENV
       shell: bash
 
     - name: Start merging
-      run: ${{ github.action_path }}/../../scripts/generic-yaml-merge.sh "${{ env.SRC_YAML_FILE }}" "${{  env.TARGET_YAML_FILE }}" "${{ env.START_MERGE_PATH }}" "${{ inputs.output-file }}" "${{ env.CONFIG_MODE }}"
+      run: ${{ github.action_path }}/../../scripts/generic-yaml-merge.sh "${{ env.SRC_YAML_FILE }}" "${{  env.TARGET_YAML_FILE }}" "${{ env.START_MERGE_PATH }}" "${{ inputs.output-file }}" "${{ env.CONFIG_MODE }}" "${{ env.CTLR_CONFIG_KEYNAME ||"
       shell: bash
 
     - name: Upload merged yaml file

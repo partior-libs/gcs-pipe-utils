@@ -19,6 +19,7 @@ targetYamlFile="$2"
 yamlQueryPath="${3-empty}"
 outputFile="$4"
 configMode="${5-input}"
+controllerConfigKey="${6-merge-yaml-config}"
 
 ## Global constants
 CTLR_EXCLUDE_LIST_KEYNAME="exclude-keys"
@@ -26,6 +27,7 @@ CTLR_EXCLUDE_LIST_KEYNAME="exclude-keys"
 echo "[INFO] Source YAML: $srcYamlFile"
 echo "[INFO] Target YAML: $targetYamlFile"
 echo "[INFO] YAML Query Path: $yamlQueryPath"
+echo "[INFO] Controller Config Key Path: $controllerConfigKey"
 
 function mergeYaml() {
     local mergeQueryPath="$1"
@@ -74,7 +76,7 @@ mergeYaml "$yamlQueryPath" "$srcYamlFile" "$targetYamlFile" "$outputFile"
 
 ## If config from controller, expect to have exclusion list
 if [[ "$configMode" == "controller" ]]; then
-    searchQueryPath=$yamlQueryPath.$CTLR_EXCLUDE_LIST_KEYNAME
+    searchQueryPath=$controllerConfigKey.$CTLR_EXCLUDE_LIST_KEYNAME
     local listCount=$(getListCount "$searchQueryPath")
 
     ## Restore keys which are in exclusion list
