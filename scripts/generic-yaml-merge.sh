@@ -21,6 +21,9 @@ outputFile="$4"
 configMode="${5-input}"
 controllerConfigKey="${6-merge-yaml-config}"
 
+
+runtimeOutputFile=$outputFile.runtime
+
 ## Global constants
 CTLR_EXCLUDE_LIST_KEYNAME="exclude-keys"
 CTLR_MERGE_MODE_REPLACE="replace"
@@ -79,7 +82,7 @@ fi
 echo "[INFO] Merging.."
 
 ## Merge first, filter later with exclusion list
-mergeYaml "$yamlQueryPath" "$srcYamlFile" "$targetYamlFile" "$outputFile"
+mergeYaml "$yamlQueryPath" "$srcYamlFile" "$targetYamlFile" "$runtimeOutputFile"
 
 ## If config from controller, expect to have exclusion list
 if [[ "$configMode" == "controller" ]]; then
@@ -101,12 +104,12 @@ if [[ "$configMode" == "controller" ]]; then
             ## If key in target file is null, delete the key to prevent unwanted keys in final merged
             if [[ "$(yq $exclusionSearchQueryPath $targetYamlFile)" == "null" ]]; then
                 echo "[INFO] Key [$exclusionSearchQueryPath] not found in override file. Resetting..."
-                cat "$outputFile" | delKey="$exclusionSearchQueryPath" yq 'del(eval(strenv(delKey)))' > "$outputFile.tmp"
+                cat "$runtimeOutputFile" | delKey="$exclusionSearchQueryPath" yq 'del(eval(strenv(delKey)))' > "$runtimeOutputFile.tmp"
             else
                 echo "[INFO] Restoring key [$exclusionSearchQueryPath]"
-                mergeYaml "$exclusionSearchQueryPath" "$targetYamlFile" "$outputFile" "$outputFile.tmp" "$CTLR_MERGE_MODE_REPLACE"
+                mergeYaml "$exclusionSearchQueryPath" "$targetYamlFile" "$runtimeOutputFile" "$runtimeOutputFile.tmp" "$CTLR_MERGE_MODE_REPLACE"
             fi
-            mv -f "$outputFile.tmp" "$outputFile"
+            mv -f "$runtimeOutputFile.tmp" "$runtimeOutputFile"
         done
     else
         echo "[INFO] Sequence list from [$searchQueryPath] is $listCount. Skip exclusion filter..."
@@ -114,4 +117,6 @@ if [[ "$configMode" == "controller" ]]; then
 fi
 
 echo [INFO] Merged yaml...
+## Rename the file and force true because it could be the same filename
+mv -f "$runtimeOutputFile" "$outputFile" || true
 cat $outputFile
