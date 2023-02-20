@@ -27,22 +27,14 @@ ethersQuorumDeploy:
       host:
       port:
       suffix: # OPTIONAL
-    privateFor:
-      - gt+xceHndMb6rSXK9spGN7MWLbWpZiIxrb2YfaieuCM=
-      - exjaHdDT9TAOhjtErK47lOoain/oDEOU3LKJo9bfWw4=
-      - YVvEOg9Z/jELYx0WIkyjikRL4u+vT1ZusOZt2YC+JF0=
-      - xTfobLkAcRUZct8HLakbFSDJ7QAMYYDpD8gy4er6GnY=
+    privateFor: xTfobLkAcRUZct8HLakbFSDJ7QAMYYDpD8gy4er6GnY=
   from: "0x82de4b8e2c3a6b765cb470eab8cc4c3928c5e5f9"
   action: FULL_UPGRADE # DEPLOY_ONLY, DEPLOY_AND_ARCHIVE, FULL_UPGRADE
   directory: # See table at https://partior.atlassian.net/wiki/spaces/prodsupp/pages/148800038/Contract+Address+Directory#Contract-Key-Names
     registerDeployment: false
   deploy: # All child fields MANDATORY for DEPLOY_ONLY / DEPLOY_AND_ARCHIVE
     owner: "0x82de4b8e2c3a6b765cb470eab8cc4c3928c5e5f9"
-    facets: ["DiamondCutFacet", 
-        "DiamondLoupeFacet", 
-        "OwnershipFacet", 
-        "AccessControlFacet", 
-        "AddressDirectoryFacet"]
+    facets: ["DiamondCutFacet", "DiamondLoupeFacet", "OwnershipFacet", "AccessControlFacet", "AddressDirectoryFacet"]
   archive: # All child fields MANDATORY for DEPLOY_AND_ARCHIVE action
     archivalInstanceId: latest-2023-01-222
     archivalDate: 2023-01-10T00:00:00Z
@@ -50,11 +42,7 @@ ethersQuorumDeploy:
     lookupOverride: "0xAD0000004ed6FF7273E2F82606D432167053e5Ac" # OPTIONAL. If defined, will skip addressDirectory lookup for upgrades.
     dryRun: false
     removeOldFunctions: true
-    doNotRemove: ["DiamondCutFacet", 
-      "DiamondLoupeFacet", 
-      "OwnershipFacet", 
-      "AccessControlFacet"
-    ]
+    doNotRemove: ["DiamondCutFacet", "DiamondLoupeFacet", "OwnershipFacet", "AccessControlFacet"]
     facets: ["AddressDirectoryFacet"]
 truffle-config:
   networks:

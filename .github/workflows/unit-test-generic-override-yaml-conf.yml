@@ -1,0 +1,71 @@
+name: test-merge-yaml
+
+on:
+  push:
+    paths:
+      - 'actions/generic-override-yaml-conf/**'
+      - 'scripts/generic-override-yaml-conf.sh'
+      - '.github/workflows/unit-test-generic-override-yaml-conf.yml'
+      - 'unit-test-config/controller-config/smc-default.yml'
+      - 'unit-test-config/controller-config/smc-settlement-utility'
+      - 'unit-test-config/deploy-config/env/devnet01.yml'
+      - 'unit-test-config/project-config/application.yml'
+  workflow_dispatch:
+
+env:
+  SU_CD_CONFIG_IMPORTER: su_cd_config_importer
+  BASE_CONFIG_FILE: base_config
+
+jobs:
+  test-scenario-1-reader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Debug
+        run: |
+          yq --version
+
+      - name: Read sample SU CD config
+        uses: partior-libs/gcs-yaml-importer@main
+        with:
+          yaml-file: unit-test-config/controller-config/smc-settlement-utility.yml
+          query-path: .smc.cd.environments.devnet01
+          output-file: ${{ env.SU_CD_CONFIG_IMPORTER }}
+          yaml-file-for-default: unit-test-config/controller-config/smc-default.yml
+          query-path-for-default: .smc.cd.environments.default
+          upload: true
+
+  test-scenario-1-start:
+    needs: [ test-scenario-1-reader ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.SU_CD_CONFIG_IMPORTER }}
+
+      - name: Source env file
+        id: pipeline-config
+        run: |
+          source ./${{ env.SU_CD_CONFIG_IMPORTER }}
+
+      - name: Merge with inputs
+        if: steps.pipeline-config.outputs.override-deployment-yaml_enabled == 'true' && steps.pipeline-config.outputs.override-deployment-yaml_git-config_enabled == 'true'
+        uses: partior-libs/gcs-pipe-utils/actions/generic-override-yaml-conf@main
+        with:
+          source-yaml-file: ${{ steps.pipeline-config.outputs.override-deployment-yaml_source-config-file }}
+          target-yaml-file: ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_override-config-file }}
+          query-path: ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_src-yaml-path-key }}
+          write-query-path: ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_write-yaml-path-key }}
+          output-file: ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_output-file }}
+          upload: true
+
+      - name: View overidden yaml file
+        run:  |
+          cat ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_output-file }}
+
+
+
+
