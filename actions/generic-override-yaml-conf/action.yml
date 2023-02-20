@@ -33,7 +33,7 @@ runs:
   using: "composite"
   steps:
     - name: convert yaml to props config
-      run: ${{ github.action_path }}/../../scripts/generic-override-yaml-conf "${{ inputs.yaml-file }}" "${{ inputs.query-path }}" "${{ inputs.write-query-path }}" "${{ inputs.output-file }}"
+      run: ${{ github.action_path }}/../../scripts/generic-override-yaml-conf.sh "${{ inputs.yaml-file }}" "${{ inputs.query-path }}" "${{ inputs.write-query-path }}" "${{ inputs.output-file }}"
       shell: bash
 
     - name: upload yaml config
