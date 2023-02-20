@@ -50,7 +50,7 @@ runs:
       uses: actions/upload-artifact@v3
       if: inputs.upload == 'true'
       with:
-        name: ${{ steps.output-file.outputs.filename }}
+        name: final_yaml
         path: ${{ steps.output-file.outputs.filename }}
         if-no-files-found: error
         retention-days: 1
