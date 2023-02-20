@@ -303,7 +303,7 @@ smc:
             override-config-file: unit-test-config/deploy-config/env/dev02.yml
         override-deployment-yaml:
           enabled: false
-          source-config-file: unit-test-config/deploy-config/devnet01.yml
+          source-config-file: unit-test-config/deploy-config/env/devnet01.yml
           git-config:
             enabled: true
             src-yaml-path-key: .custom-override.smc-operator.privateFor
