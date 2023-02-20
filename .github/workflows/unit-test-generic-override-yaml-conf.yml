@@ -66,6 +66,34 @@ jobs:
         run:  |
           cat ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_output-file }}
 
+  test-scenario-2-start:
+    needs: [ test-scenario-1-reader ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.SU_CD_CONFIG_IMPORTER }}
+
+      - name: Source env file
+        id: pipeline-config
+        run: |
+          source ./${{ env.SU_CD_CONFIG_IMPORTER }}
+
+      - name: Merge with inputs
+        if: steps.pipeline-config.outputs.override-deployment-yaml_enabled == 'true' && steps.pipeline-config.outputs.override-deployment-yaml_git-config_enabled == 'true'
+        uses: partior-libs/gcs-pipe-utils/actions/generic-override-yaml-conf@main
+        with:
+          source-yaml-file: ${{ steps.pipeline-config.outputs.override-deployment-yaml_source-config-file }}
+          target-yaml-file: ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_override-config-file }}
+          query-path: ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_src-yaml-path-key }}
+          write-query-path: ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_write-yaml-path-key }}
+          upload: true
+
+      - name: View overidden yaml file
+        run:  |
+          cat ${{ steps.pipeline-config.outputs.override-deployment-yaml_git-config_output-file }}
 
 
 
