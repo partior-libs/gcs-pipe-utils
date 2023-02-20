@@ -312,6 +312,8 @@ smc:
             enabled: true
             yaml-path-key: .ethersQuorumDeploy
             override-config-file: unit-test-config/deploy-config/env/devnet01.yml
+        override-deployment-yaml:
+          enabled: true
         contract-addresses:
           ## To enable extract-by-log, the deployment log must be piped into a file, else it wont work
           extract-by-log:

@@ -1,4 +1,4 @@
-name: test-merge-yaml
+name: test-override-custom-yaml
 
 on:
   push:
