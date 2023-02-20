@@ -1,0 +1,49 @@
+name: 'Partior - Override yaml file'
+description: 'Override target yaml config custom value'
+inputs:
+  source-yaml-file:  
+    description: 'Path to source YAML file'
+    required: true
+    default: 'default-config.yaml'
+  target-yaml-file:  
+    description: 'Path to target YAML file to be overwritten'
+    required: true
+    default: 'default-target-config.yaml'
+  query-path:  
+    description: 'YAML query path'
+    required: true
+    default: ''
+  write-query-path:  
+    description: 'YAML query path to be overwritten'
+    required: true
+    default: ''
+  output-file:  
+    description: 'Custom path of the output file'
+    required: false
+    default: 'output.yaml'
+  upload:  
+    description: 'Flag to indicate if require to upload the file'
+    required: false
+    default: false
+outputs:
+  generated-filename:
+    description: "Filename of the converted config script"
+    value: ${{ inputs.output-file }}
+runs:
+  using: "composite"
+  steps:
+    - name: convert yaml to props config
+      run: ${{ github.action_path }}/../../scripts/generic-override-yaml-conf "${{ inputs.yaml-file }}" "${{ inputs.query-path }}" "${{ inputs.write-query-path }}" "${{ inputs.output-file }}"
+      shell: bash
+
+    - name: upload yaml config
+      uses: actions/upload-artifact@v3
+      if: inputs.upload == 'true'
+      with:
+        name: ${{ inputs.output-file }}
+        path: ${{ inputs.output-file }}
+        if-no-files-found: error
+        retention-days: 1
+        
+    - run: echo Done creating yaml config file...
+      shell: bash
