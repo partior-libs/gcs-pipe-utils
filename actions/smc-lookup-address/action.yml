@@ -13,5 +13,5 @@ outputs:
   contract-address:
     description: "Contract address"
 runs:
-  using: 'node14'
+  using: 'node16'
   main: 'dist/index.js'
