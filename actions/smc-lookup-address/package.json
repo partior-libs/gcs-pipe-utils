@@ -1,0 +1,15 @@
+{
+  "name": "adhoc",
+  "version": "1.0.0",
+  "description": "adhoc scripts",
+  "main": "index.js",
+  "scripts": {
+    "lookup": "node run lookup.js http://localhost:8545 pu.latest"
+  },
+  "author": "",
+  "license": "PARTIOR",
+  "dependencies": {
+    "axios": "0.21.1",
+    "ethers-quorum": "1.0.9"
+  }
+}

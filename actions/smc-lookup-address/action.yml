@@ -1,0 +1,17 @@
+name: 'Partior - Retrieve smart contract address through contract key'
+description: 'Retrieve smart contract address through contract key'
+inputs:
+  rpc-url:
+    description: 'RPC url to quorum'
+    required: true
+    default: ''
+  lookup-key:  
+    description: 'Contact key to lookup'
+    required: true
+    default: ''
+outputs:
+  contract-address:
+    description: "Contract address"
+runs:
+  using: 'node14'
+  main: 'dist/index.js'
