@@ -6,9 +6,11 @@
   "scripts": {
     "lookup": "node run lookup.js http://localhost:8545 pu.latest"
   },
-  "author": "",
+  "author": "anthony.yeong@partior.com",
   "license": "PARTIOR",
   "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
     "axios": "0.21.1",
     "ethers-quorum": "1.0.9"
   }
