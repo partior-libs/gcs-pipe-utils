@@ -46,8 +46,12 @@ function mergeYaml() {
     if [[ "$mergeMode" == "$CTLR_MERGE_MODE_REPLACE" ]]; then
         mergeParam="="
     fi
-
-    echo "yq '$mergeQueryPath $mergeParam load(\"$mergeSrcYaml\") $mergeQueryPath' $mergeTargetYaml > $mergeOutputFile" > $yqRunnerFile
+    local mergeTargetQueryPath=$mergeQueryPath
+    if [[ "$mergeQueryPath" == "." ]]; then
+        mergeTargetQueryPath=""
+    fi
+    echo "[DEBUG] yq '$mergeQueryPath $mergeParam load(\"$mergeSrcYaml\") $mergeTargetQueryPath' $mergeTargetYaml"
+    echo "yq '$mergeQueryPath $mergeParam load(\"$mergeSrcYaml\") $mergeTargetQueryPath' $mergeTargetYaml > $mergeOutputFile" > $yqRunnerFile
     chmod 755 $yqRunnerFile
     ./$yqRunnerFile
     rm -f ./$yqRunnerFile
@@ -82,6 +86,7 @@ fi
 echo "[INFO] Merging.."
 
 ## Merge first, filter later with exclusion list
+echo [DEBUG] mergeYaml "$yamlQueryPath" "$srcYamlFile" "$targetYamlFile" "$runtimeOutputFile"
 mergeYaml "$yamlQueryPath" "$srcYamlFile" "$targetYamlFile" "$runtimeOutputFile"
 
 ## If config from controller, expect to have exclusion list
