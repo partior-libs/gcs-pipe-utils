@@ -54,6 +54,10 @@ function mergeYaml() {
     echo "yq '$mergeQueryPath $mergeParam load(\"$mergeSrcYaml\") $mergeTargetQueryPath' $mergeTargetYaml > $mergeOutputFile" > $yqRunnerFile
     chmod 755 $yqRunnerFile
     ./$yqRunnerFile
+    if [[ $? -gt 0 ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to merge files"
+        exit 1
+    fi
     rm -f ./$yqRunnerFile
 }
 
