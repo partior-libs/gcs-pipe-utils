@@ -279,7 +279,6 @@ function ghGetMembersCsvFile() {
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to download GitHub members csv file"
         echo "[DEBUG] Curl: ${membersListDownloadLink}"
         echo "$response"
-        echo lala
         return 1
     fi
     
