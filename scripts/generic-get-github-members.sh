@@ -57,7 +57,7 @@ if [[ $? -gt 0 ]]; then
 fi
 
 echo "[INFO] Preview Json..."
-cat $targetJsonFile | jq . > $targetJsonFile
+cat $targetJsonFile | jq . 
 
 echo "[INFO] Lookup for user [$targetSearchUser]..."
 foundUser=$(findGhUser "$targetSearchUser" "$targetJsonFile" "$targetUsernameValueFile" "$targetUserEmailValueFile")

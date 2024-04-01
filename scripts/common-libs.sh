@@ -324,6 +324,8 @@ function convertGhCsvToJson() {
     done < "$csvFile"
 
     echo "]" >> "$targetJsonFile"
+    cat "$targetJsonFile" | jq . > "$targetJsonFile".tmp
+    mv "$targetJsonFile".tmp "$targetJsonFile"
 }
 
 ## Function to find github user from the generated json file by email or username
