@@ -1,0 +1,27 @@
+name: test-generic-get-github-members
+on:
+  push:
+    paths:
+      - 'actions/generic-get-github-members/**'
+      - 'scripts/generic-get-github-members.sh'
+      - 'scripts/common-libs.sh'
+      - '.github/workflows/unit-test-generic-get-github-members.yml'
+  workflow_dispatch:
+
+jobs:
+  test-scenario-1-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get GitHub Member
+        id: get-member
+        uses: partior-libs/gcs-pipe-utils/actions/generic-get-github-members@main
+        with: 
+          target-github-user: 'bot02@partior.com'
+          auth-token: ${{ secrets.GH_AUTH_TOKEN }}
+          auth-cookie-session: ${{ secrets.GH_AUTH_COOKIE_SESSION }}
+          upload: true
+
+      - name: View lookup result
+        run:  |
+          echo "[INFO] Username: ${{ steps.get-member.outputs.member-username }}"
+          echo "[INFO] Email: ${{ steps.get-member.outputs.member-email }}"
