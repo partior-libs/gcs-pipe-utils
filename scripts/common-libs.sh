@@ -267,17 +267,19 @@ function ghGetMembersCsvFile() {
     local cookieSession="$1"
     local membersListDownloadLink="$2"
     local responseOutFile="${3:-members.csv}"
+
+    local response=""
     response=$(curl -k -s \
                 -w "status_code:[%{http_code}]" \
                 -XGET \
+                --header "Cookie: user_session=$cookieSession" \
                 "${membersListDownloadLink}" \
-                --header "Cookie: user_session=${cookieSession}" \
-                -o "$responseOutFile")
-
+		        -o "$responseOutFile")
     if [[ $? -ne 0 ]]; then
         echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to download GitHub members csv file"
         echo "[DEBUG] Curl: ${membersListDownloadLink}"
         echo "$response"
+        echo lala
         return 1
     fi
     
@@ -304,24 +306,24 @@ function convertGhCsvToJson() {
         exit 1
     fi
 
-    echo "["
+    echo "[" > "$targetJsonFile"
     isFirstItem=true
     while read -r eachLine; do
         foundUsername=$(echo $eachLine | cut -d"," -f1)
         foundEmail=$(grep -oP '[\.\w]+@[\.\w]+' <<< $eachLine | tail -1)
         if ($isFirstItem); then
-            echo "  {"
+            echo "  {" >> "$targetJsonFile"
             isFirstItem=false
         else
-            echo "  ,{"
+            echo "  ,{" >> "$targetJsonFile"
         fi
-        echo "    \"github_login\": \""$foundUsername"\","
-        echo "    \"github_verified_emails\": \""$foundEmail"\""
-        echo "  }"
+        echo "    \"github_login\": \""$foundUsername"\"," >> "$targetJsonFile"
+        echo "    \"github_verified_emails\": \""$foundEmail"\"" >> "$targetJsonFile"
+        echo "  }" >> "$targetJsonFile"
         # Perform actions on each line here
     done < "$csvFile"
 
-    echo "]"
+    echo "]" >> "$targetJsonFile"
 }
 
 ## Function to find github user from the generated json file by email or username

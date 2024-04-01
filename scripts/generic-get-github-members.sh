@@ -37,8 +37,11 @@ if [[ $? -gt 0 ]]; then
 fi
 
 echo "[INFO] Retrieved download link: $downloadLink"
+echo "[INFO] Sleep 2sec..."
+sleep 2
 echo "[INFO] Start Downloading CSV data..."
-ghGetMembersCsvFile "$authToken" "$cookieSession" "$targetCsvFile"
+echo ghGetMembersCsvFile "$cookieSession" "$downloadLink" "$targetCsvFile"
+ghGetMembersCsvFile "$cookieSession" "$downloadLink" "$targetCsvFile"
 if [[ $? -gt 0 ]]; then
     echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to dowload CSV member list"
     echo "[ERROR_MSG] $(cat $targetCsvFile)"
@@ -54,7 +57,7 @@ if [[ $? -gt 0 ]]; then
 fi
 
 echo "[INFO] Preview Json..."
-cat $targetJsonFile | jq .
+cat $targetJsonFile | jq . > $targetJsonFile
 
 echo "[INFO] Lookup for user [$targetSearchUser]..."
 foundUser=$(findGhUser "$targetSearchUser" "$targetJsonFile" "$targetUsernameValueFile" "$targetUserEmailValueFile")
