@@ -26,8 +26,8 @@ targetUserEmailValueFile="${5:-email.tmp}"
 authToken="${GH_AUTH_TOKEN}"
 cookieSession="${GH_AUTH_COOKIE_SESSION}"
 
-echo "[DEBUG] authToken: $authToken"
-echo "[DEBUG] cookieSession: $cookieSession"
+#echo "[DEBUG] authToken: $authToken"
+#echo "[DEBUG] cookieSession: $cookieSession"
 
 downloadLink=$(ghGetMembersCsvDownloadLink "$authToken" "$cookieSession")
 if [[ $? -gt 0 ]]; then
