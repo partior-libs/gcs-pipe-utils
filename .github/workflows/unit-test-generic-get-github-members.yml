@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Get GitHub Member
         id: get-member
-        uses: partior-libs/gcs-pipe-utils/actions/generic-get-github-members@feature/DSO-2862-export-members
+        uses: partior-libs/gcs-pipe-utils/actions/generic-get-github-members@main
         with: 
           target-github-user: 'bot02@partior.com'
           auth-token: ${{ secrets.GH_AUTH_TOKEN }}
