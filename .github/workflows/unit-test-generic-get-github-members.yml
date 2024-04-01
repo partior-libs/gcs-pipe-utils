@@ -62,7 +62,7 @@ jobs:
 
   test-scenario-1-start:
     runs-on: ubuntu-latest
-    needs: [read-repo]
+    needs: [ read-repo ]
     steps:
       - name: Get GitHub Member
         id: get-member
