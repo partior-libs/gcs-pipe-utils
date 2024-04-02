@@ -1,0 +1,78 @@
+name: 'Partior - Get Github member detail'
+description: 'Retrieve github member detail'
+inputs:
+  target-github-user:  
+    description: 'Find user detail by username or email'
+    required: false
+    default: 'NIL'
+  target-output-json-file:  
+    description: 'Path of the output json file'
+    required: false
+    default: 'github-members.json'
+  target-output-csv-file:  
+    description: 'Path of the output csv file'
+    required: false
+    default: 'github-members.csv'
+  auth-token:
+    description: 'GitHub Auth Token with enterprise admin access'
+    required: true
+  auth-cookie-session:
+    description: 'GitHub Auth Cookie Session with enterprise admin access'
+    required: true
+  upload:  
+    description: 'Flag to indicate if require to upload the file'
+    required: false
+    default: 'false'
+outputs:
+  member-username:
+    description: "Filename of the converted config script"
+    value: ${{ steps.get-member.outputs.username }}
+  member-email:
+    description: "Filename of the converted config script"
+    value: ${{ steps.get-member.outputs.email }}
+  output-json-file:
+    description: "Filename of the converted config script"
+    value: ${{ inputs.target-output-json-file }}
+  output-csv-file:
+    description: "Filename of the converted config script"
+    value: ${{ inputs.target-output-csv-file }}
+runs:
+  using: "composite"
+  steps:
+    - name: convert yaml to props config
+      run: ${{ github.action_path }}/../../scripts/generic-get-github-members.sh "${{ inputs.target-github-user }}" "${{ inputs.target-output-json-file }}" "${{ inputs.target-output-csv-file }}"
+      shell: bash
+      env:
+        GH_AUTH_TOKEN: ${{ inputs.auth-token }}
+        GH_AUTH_COOKIE_SESSION: ${{ inputs.auth-cookie-session }}
+
+    - name: Upload CSV output
+      uses: actions/upload-artifact@v3
+      if: inputs.upload == 'true'
+      with:
+        name: csv_output
+        path: ${{ inputs.target-output-csv-file }}
+        if-no-files-found: error
+        retention-days: 30
+
+    - name: Upload json output
+      uses: actions/upload-artifact@v3
+      if: inputs.upload == 'true'
+      with:
+        name: json_output
+        path: ${{ inputs.target-output-json-file }}
+        if-no-files-found: error
+        retention-days: 30
+        
+    - name: Set user output
+      id: get-member
+      run: |
+        echo "[INFO] Lookup result for [${{ inputs.target-github-user }}]:"
+        if [[ "${{ inputs.target-github-user }}" =~ "@" ]]; then
+          echo "[INFO] Username: $(cat user.tmp)"
+        else
+          echo "[INFO] Email: $(cat email.tmp)"
+        fi
+        echo "username=$(cat user.tmp)" >> $GITHUB_OUTPUT
+        echo "email=$(cat email.tmp)" >> $GITHUB_OUTPUT
+      shell: bash
