@@ -227,3 +227,147 @@ function setItemValueInMultiListByMatchingSearch() {
         fi
     done
 }
+
+# Get the export link from the enterprise backend export API
+function ghGetMembersCsvDownloadLink() {
+    local authToken="$1"
+    local cookieSession="$2"
+    local responseOutFile="${3:-raw-response.out}"
+    response=$(curl -k -s \
+                -w "status_code:[%{http_code}]" \
+                --request POST \
+                "https://github.com/enterprises/partior/people/export?authenticity_token=${authToken}" \
+                --header "Cookie: user_session=${cookieSession}; __Host-user_session_same_site=${cookieSession}" \
+                -o "$responseOutFile")
+
+    if [[ $? -ne 0 ]]; then
+        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to get GitHub members download link"
+        echo "[DEBUG] Curl: https://github.com/enterprises/partior/people/export?authenticity_token=xx"
+        echo "$response"
+        return 1
+    fi
+    
+    local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
+
+    local exportUrl="nil"
+    if [[ $responseStatus -eq 201 ]]; then
+        exportUrl=$( jq -r .export_url < $responseOutFile)
+        echo "$exportUrl"
+    else
+        echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 201 when querying members download link: [$responseStatus]" 
+        echo "[ERROR] $(echo $response | jq '.errors | .name')"
+        echo "[DEBUG] $(cat $responseOutFile)"
+        return 1
+    fi
+
+}
+
+# Download Github member csv file from the export link
+function ghGetMembersCsvFile() {
+    local cookieSession="$1"
+    local membersListDownloadLink="$2"
+    local responseOutFile="${3:-members.csv}"
+
+    local response=""
+    response=$(curl -k -s \
+                -w "status_code:[%{http_code}]" \
+                -XGET \
+                --header "Cookie: user_session=$cookieSession" \
+                "${membersListDownloadLink}" \
+		        -o "$responseOutFile")
+    if [[ $? -ne 0 ]]; then
+        echo "[ACTION_CURL_ERROR] $BASH_SOURCE (line:$LINENO): Error running curl to download GitHub members csv file"
+        echo "[DEBUG] Curl: ${membersListDownloadLink}"
+        echo "$response"
+        return 1
+    fi
+    
+    local responseStatus=$(echo $response | awk -F'status_code:' '{print $2}' | awk -F'[][]' '{print $2}')
+
+    if [[ $responseStatus -eq 200 ]]; then
+        cat "$responseOutFile"
+    else
+        echo "[ACTION_RESPONSE_ERROR] $BASH_SOURCE (line:$LINENO): Return code not 200 when querying members csv file: [$responseStatus]" 
+        echo "[ERROR] $(echo $response | jq '.errors | .name')"
+        echo "[DEBUG] $(cat $responseOutFile)"
+        return 1
+    fi
+}
+
+# Function to convert csv file to json and select only username and email
+function convertGhCsvToJson() {
+    local csvFile="$1"
+    local targetJsonFile="${2:-tmp.json}"
+
+    # Check for input file 
+    if [[ ! -f "$csvFile" ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate CSV file [$csvFile]"
+        exit 1
+    fi
+
+    echo "[" > "$targetJsonFile"
+    isFirstItem=true
+    while read -r eachLine; do
+        foundUsername=$(echo $eachLine | cut -d"," -f1)
+        foundEmail=$(grep -oP '[\.\w]+@[\.\w]+' <<< $eachLine | tail -1)
+        if ($isFirstItem); then
+            echo "  {" >> "$targetJsonFile"
+            isFirstItem=false
+        else
+            echo "  ,{" >> "$targetJsonFile"
+        fi
+        echo "    \"github_login\": \""$foundUsername"\"," >> "$targetJsonFile"
+        echo "    \"github_verified_emails\": \""$foundEmail"\"" >> "$targetJsonFile"
+        echo "  }" >> "$targetJsonFile"
+        # Perform actions on each line here
+    done < "$csvFile"
+
+    echo "]" >> "$targetJsonFile"
+    cat "$targetJsonFile" | jq . > "$targetJsonFile".tmp
+    mv "$targetJsonFile".tmp "$targetJsonFile"
+}
+
+## Function to find github user from the generated json file by email or username
+function findGhUser() {
+    local targetUser="$1"
+    local sourceJsonFile="$2"
+    local targetUserFile="${3:-user.tmp}"
+    local targetEmailFile="${4:-email.tmp}"
+
+    # Check for input file 
+    if [[ ! -f "$sourceJsonFile" ]]; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to locate JSON file [$sourceJsonFile]"
+        exit 1
+    fi
+    
+    ## if user empty, do not fail, but proceed with default filler value
+    if [[ -z "$targetUser" ]]; then
+        echo "invalid-user-input"
+        exit 0
+    fi
+
+    ## if input is email, find the username
+    if [[ "$targetUser" =~ "@" ]]; then
+        foundItem=$(jq -r ".[] | select(.github_verified_emails | contains(\"$targetUser\")) | .github_login" $sourceJsonFile)
+        if [[ -z "$foundItem" ]]; then
+            echo "not-found" > $targetUserFile
+            foundItem="not-found"
+        else
+            echo "$foundItem" > $targetUserFile
+        fi
+        echo "$targetUser" > $targetEmailFile
+        
+    else
+        foundItem=$(jq -r ".[] | select(.github_login | contains(\"$targetUser\")) | .github_verified_emails" $sourceJsonFile)
+        if [[ -z "$foundItem" ]]; then
+            echo "not-found" > $targetEmailFile
+            foundItem="not-found"
+        else
+            echo "$foundItem" > $targetEmailFile
+        fi
+        echo "$targetUser" > $targetUserFile
+    fi
+    echo "$foundItem"
+}
+
+
