@@ -38,7 +38,7 @@ fi
 
 echo "[INFO] Retrieved download link: $downloadLink"
 echo "[INFO] Sleep 2sec..."
-sleep 2
+sleep 5
 echo "[INFO] Start Downloading CSV data..."
 echo ghGetMembersCsvFile "$cookieSession" "$downloadLink" "$targetCsvFile"
 ghGetMembersCsvFile "$cookieSession" "$downloadLink" "$targetCsvFile"
