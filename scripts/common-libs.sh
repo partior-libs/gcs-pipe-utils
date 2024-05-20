@@ -309,7 +309,7 @@ function convertGhCsvToJson() {
     isFirstItem=true
     while read -r eachLine; do
         foundUsername=$(echo $eachLine | cut -d"," -f1)
-        foundEmail=$(grep -oP '[\.\w]+@[\.\w]+' <<< $eachLine | tail -1)
+        foundEmail=$(grep -oP '[\.\w-]+@[\.\w]+' <<< $eachLine | tail -1)
         if ($isFirstItem); then
             echo "  {" >> "$targetJsonFile"
             isFirstItem=false
