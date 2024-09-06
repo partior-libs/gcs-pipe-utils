@@ -16,7 +16,7 @@ jobs:
       SEQUENCE-LIST: ${{ steps.sequence-list.outputs.found-list }}
       SEQUENCE-LIST-WO-PREPEND: ${{ steps.sequence-list-without-prepend.outputs.found-list }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Get sequence list
         id: sequence-list

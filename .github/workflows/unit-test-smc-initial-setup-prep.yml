@@ -16,7 +16,7 @@ jobs:
   test-scenario-1-reader:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Read sample SU CD config
         uses: partior-libs/gcs-yaml-importer@main

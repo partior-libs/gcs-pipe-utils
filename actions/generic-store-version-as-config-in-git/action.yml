@@ -65,7 +65,7 @@ runs:
     #     set
     #   shell: bash
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         repository: ${{ inputs.target-repo }}
         token: ${{ inputs.pat-token }}
