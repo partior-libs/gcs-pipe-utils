@@ -26,7 +26,7 @@ runs:
 
   steps:
     - name: Setup jfrog
-      uses: jfrog/setup-jfrog-cli@v2
+      uses: jfrog/setup-jfrog-cli@v4
       env:
         JF_ENV_1: ${{ inputs.jfrog-token }}
 
