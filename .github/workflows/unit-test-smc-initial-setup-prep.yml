@@ -34,7 +34,7 @@ jobs:
     outputs:
       SEQUENCE-LIST: ${{ steps.sequence-list.outputs.found-list }}
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.SU_CD_CONFIG_IMPORTER }}
 

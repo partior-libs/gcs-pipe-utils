@@ -17,7 +17,7 @@ jobs:
           echo "[ 'first', 'second', 'third' ]" > seqFile_1
 
       - name: Upload sequence list
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: seqFile
           path: seqFile_1
@@ -28,7 +28,7 @@ jobs:
           echo "[ 'fourth', 'fifth', 'sixth' ]" > seqFile_2
 
       - name: Upload sequence list
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: seqFile
           path: seqFile_2
