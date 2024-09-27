@@ -9,6 +9,7 @@ artifactBaseName="$5"
 envName="$6"
 targetRepo="$7"
 githubPatToken="$8"
+smcConfigVersion="${9:-unknown}"
 
 if [[ ! -f "$contractAddressesinPropFile" ]]; then
     echo "[ERROR] $BASH_SOURCE (line:$LINENO): Contracts extraction file not found: [$contractAddressesinPropFile]"
@@ -25,18 +26,22 @@ storeTimeStamp=$(date +"%Y%m%d_%H%M")
 
 ## Generic version
 yq -i "$targetStoreYamlPath.artifact-version = \"$artifactVersion\"" $targetYamlFile
+yq -i "$targetStoreYamlPath.contracts.${finalContractName}.smc-config = \"${smcConfigVersion}\"" $targetYamlFile
 yq -i "$targetStoreYamlPath.last-deployed-timestamp = \"${storeTimeStamp}\"" $targetYamlFile
+
+
 
 for eachContract in $(cat $contractAddressesinPropFile);
 do
-echo "[INFO] Processing $eachContract"
-finalContractName=$(echo $eachContract | cut -d"=" -f1)
-foundAddress=$(echo $eachContract | cut -d"=" -f1 --complement)
-echo "[INFO] Found contract [$finalContractName] with address [$foundAddress]"
-echo "[INFO] Storing into yaml path [$targetStoreYamlPath.${finalContractName}]..."
-yq -i "$targetStoreYamlPath.contracts.${finalContractName}.address = \"${foundAddress}\"" $targetYamlFile
-yq -i "$targetStoreYamlPath.contracts.${finalContractName}.version = \"${artifactVersion}\"" $targetYamlFile
-yq -i "$targetStoreYamlPath.contracts.${finalContractName}.last-updated = \"${storeTimeStamp}\"" $targetYamlFile
+    echo "[INFO] Processing $eachContract"
+    finalContractName=$(echo $eachContract | cut -d"=" -f1)
+    foundAddress=$(echo $eachContract | cut -d"=" -f1 --complement)
+    echo "[INFO] Found contract [$finalContractName] with address [$foundAddress]"
+    echo "[INFO] Storing into yaml path [$targetStoreYamlPath.${finalContractName}]..."
+    yq -i "$targetStoreYamlPath.contracts.${finalContractName}.address = \"${foundAddress}\"" $targetYamlFile
+    yq -i "$targetStoreYamlPath.contracts.${finalContractName}.version = \"${artifactVersion}\"" $targetYamlFile
+    yq -i "$targetStoreYamlPath.contracts.${finalContractName}.last-smc-config = \"${smcConfigVersion}\"" $targetYamlFile
+    yq -i "$targetStoreYamlPath.contracts.${finalContractName}.last-updated = \"${storeTimeStamp}\"" $targetYamlFile
 done
 
 
