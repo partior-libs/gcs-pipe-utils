@@ -26,7 +26,7 @@ storeTimeStamp=$(date +"%Y%m%d_%H%M")
 
 ## Generic version
 yq -i "$targetStoreYamlPath.artifact-version = \"$artifactVersion\"" $targetYamlFile
-yq -i "$targetStoreYamlPath.contracts.${finalContractName}.smc-config = \"${smcConfigVersion}\"" $targetYamlFile
+yq -i "$targetStoreYamlPath.smc-config = \"${smcConfigVersion}\"" $targetYamlFile
 yq -i "$targetStoreYamlPath.last-deployed-timestamp = \"${storeTimeStamp}\"" $targetYamlFile
 
 
