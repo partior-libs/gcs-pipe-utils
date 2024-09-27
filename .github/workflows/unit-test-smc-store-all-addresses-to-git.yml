@@ -51,3 +51,28 @@ jobs:
       - name: View final updated yaml
         run:  |
           cat ./unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
+
+  test-scenario-smc-config-start:
+    needs: [ test-scenario-1-start]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Retrieve and store SMC addresses in Git
+        uses: partior-libs/gcs-pipe-utils/actions/smc-store-all-addresses-to-git@main
+        with: 
+          contract-addresses-props-file: unit-test-config/deploy-config/sample-contract-addresses.conf
+          target-yaml-file: unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
+          store-yaml-path: .packages
+          artifact-version: 1.2.3-dev.12
+          artifact-base-name: settlement-utility
+          env-name: dev02
+          target-repo: ${{ github.repository }}
+          target-repo-ref: ${{ github.ref }}
+          pat-token: ${{ secrets.REPO_PAT }}
+          git-push: true
+          smc-config-version: 1.2.3
+
+      - name: View final updated yaml
+        run:  |
+          cat ./unit-test-config/deploy-config/env/dev02_deployed_manifest.yml

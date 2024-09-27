@@ -45,6 +45,10 @@ inputs:
     description: 'PAT token to push code'
     required: true
     default: ''
+  smc-config-version:  
+    description: 'SMC config reference'
+    required: false
+    default: ''
 outputs:
   generated-filename:
     description: "Filename of the converted config script"
@@ -62,7 +66,8 @@ runs:
           "${{ inputs.artifact-base-name }}" \
           "${{ inputs.env-name }}" \
           "${{ inputs.target-repo }}" \
-          "${{ inputs.pat-token }}"
+          "${{ inputs.pat-token }}" \
+          "${{ inputs.smc-config-version }}"
       shell: bash
 
     - name: upload properties config
