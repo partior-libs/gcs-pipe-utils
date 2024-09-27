@@ -53,7 +53,7 @@ jobs:
           cat ./unit-test-config/deploy-config/env/dev02_deployed_manifest.yml
 
   test-scenario-smc-config-start:
-    needs: [ test-scenario-2-reader ]
+    needs: [ test-scenario-1-start]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
