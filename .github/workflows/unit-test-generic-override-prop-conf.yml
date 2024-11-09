@@ -16,7 +16,7 @@ jobs:
   test-scenario-1-reader:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Read sample SU CD config
         uses: partior-libs/gcs-yaml-importer@main
@@ -32,7 +32,7 @@ jobs:
     needs: [ test-scenario-1-reader ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Convert yaml to prop
         uses: partior-libs/gcs-pipe-utils/actions/generic-convert-yaml-to-prop@main

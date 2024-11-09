@@ -16,7 +16,7 @@ runs:
 
   steps:
     - name: Download all sequence list
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.artifact-name }}
 

@@ -21,7 +21,7 @@ jobs:
     env:
       ARTIFACT_BASE_NAME: settlement-utility
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Get repo details
         id: get-repo
@@ -46,7 +46,7 @@ jobs:
     env:
       ARTIFACT_BASE_NAME: goquorum-node
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Get repo details
         id: get-repo
@@ -72,7 +72,7 @@ jobs:
       ARTIFACT_BASE_NAME: settlement-utility
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
 
@@ -108,7 +108,7 @@ jobs:
       ARTIFACT_BASE_NAME: goquorum-node
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.GOQUORUM_CI_BRANCH_CONFIG_IMPORTER }}
 

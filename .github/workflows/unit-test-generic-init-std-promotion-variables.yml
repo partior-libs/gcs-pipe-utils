@@ -26,7 +26,7 @@ jobs:
       LOWERCASE_TARGET_ENV: dev02
       ARTIFACT_BASE_NAME: settlement-utility
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Generate SMC Promotion config importer
         id: yaml-importer-creator
@@ -62,7 +62,7 @@ jobs:
       LOWERCASE_TARGET_ENV: dev10
       ARTIFACT_BASE_NAME: goquorum-node
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Generate GoQuorum Promotion config importer
         id: yaml-importer-creator
@@ -98,7 +98,7 @@ jobs:
       LOWERCASE_TARGET_ENV: dev10
       ARTIFACT_BASE_NAME: github-runners
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Generate GoQuorum Promotion config importer
         id: yaml-importer-creator
