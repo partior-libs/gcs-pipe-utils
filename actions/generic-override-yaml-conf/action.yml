@@ -47,7 +47,7 @@ runs:
       shell: bash
 
     - name: upload yaml config
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: inputs.upload == 'true'
       with:
         name: final_yaml
