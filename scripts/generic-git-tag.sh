@@ -30,7 +30,7 @@ function startTag() {
         -H "Authorization: token ${githubPatToken}" \
         -H "Content-Type: application/json" \
         -d '{
-        "ref": "refs/tags/$finalVersion",
+        "ref": "refs/tags/'$finalVersion'",
         "sha": "'$currentSha'"
         }' \
         https://api.github.com/repos/${targetRepo}/git/refs
