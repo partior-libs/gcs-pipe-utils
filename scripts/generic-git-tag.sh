@@ -22,8 +22,18 @@ function startTag() {
         -H "Authorization: token ${githubPatToken}" \
         https://api.github.com/repos/${targetRepo}/git/refs/tags/$finalVersion
     #git push --delete origin $finalVersion || true
-    echo "[INFO] Push tag..."
-    git push --tags
+    echo "[INFO] Push tags..."
+    #git push --tags
+    currentSha=$(git rev-parse HEAD)
+    curl -X POST \
+        -H "Accept: application/vnd.github.v3+json" \
+        -H "Authorization: token ${githubPatToken}" \
+        -H "Content-Type: application/json" \
+        -d '{
+        "ref": "refs/tags/$finalVersion",
+        "sha": "'$currentSha'"
+        }' \
+        https://api.github.com/repos/${targetRepo}/git/refs
 }
 
 
