@@ -59,8 +59,8 @@ runs:
     - name: Merge PR
       run: |
         echo [INFO] Start merging...
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
+        git config --local user.name github-actions
+        git config --local user.email github-actions@github.com
         git remote set-url origin https://${{ inputs.pat-token }}@github.com/${{ inputs.target-repo }}
         git checkout ${SOURCE_MERGE_BRANCH}
         git pull
