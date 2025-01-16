@@ -90,8 +90,8 @@ function updateEnvConfig() {
         VERSION_UPDATED=true
         echo VERSION_UPDATED=true >> $GITHUB_ENV 
         echo "[INFO] Preparing to push into Git..."
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
+        git config --local user.name github-actions
+        git config --local user.email github-actions@github.com
         git remote set-url origin https://${githubPatToken}@github.com/${targetRepo}
         git add ${targetConfigFile}
         git commit -m "[CI-Bot][${targetEnv^^}] Auto updated ${artifactBaseName}-${artifactVersion}"
