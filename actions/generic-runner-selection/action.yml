@@ -33,10 +33,10 @@ runs:
       id: runner-group
       run: |
         currentOrg="${{ github.repository_owner }}"
-        inputRunnerName=$(echo "${{ inputs.RUNNER }}" | tr '[:upper:]' '[:lower:]')
-        inputRunnerCPS=$(echo "${{ inputs.RUNNER-CLOUD-PROVIDER }}" | tr '[:upper:]' '[:lower:]')
-        inputRunnerEnv=$(echo "${{ inputs.RUNNER-ENV }}" | tr '[:upper:]' '[:lower:]')
-        inputOldRunnerName=$(echo "${{ inputs.OLD-RUNNER-LABEL }}" | tr '[:upper:]' '[:lower:]')
+        inputRunnerName=$(echo "${{ inputs.runner }}" | tr '[:upper:]' '[:lower:]')
+        inputRunnerCPS=$(echo "${{ inputs.runner-cloud-provider }}" | tr '[:upper:]' '[:lower:]')
+        inputRunnerEnv=$(echo "${{ inputs.runner-env }}" | tr '[:upper:]' '[:lower:]')
+        inputOldRunnerName=$(echo "${{ inputs.old-runner-label }}" | tr '[:upper:]' '[:lower:]')
         if [[ ! -z "$inputOldRunnerName" ]]; then
           if (echo "$inputOldRunnerName" | grep -qE "partior-runners-(gcp|aws)+-\S+"); then
               inputRunnerCPS=$(echo "$inputOldRunnerName"  | cut -d"-" -f3)
