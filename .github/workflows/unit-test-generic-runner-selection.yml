@@ -1,0 +1,28 @@
+name: test-store-runner-selection
+on:
+  push:
+    paths:
+      - 'actions/generic-runner-selection/**'
+      - '.github/workflows/unit-test-generic-runner-selection.yml'
+  workflow_dispatch:
+
+jobs:
+  select-runners:
+    runs-on: ubuntu-latest
+    outputs:
+      RUNNERS-POOL: ${{ steps.runners.outputs.runners-pool }}
+    steps:
+      - name: Get runners pool
+        id: runners
+        uses: ./actions/generic-runner-selection
+
+  test-runners:
+    need: [ select-runners ]
+    runs-on: ${{ fromJson(needs.select-runners.outputs.RUNNERS-POOL) }}
+    steps:
+      - name: Testing
+        run: |
+          Yeah!
+
+
+

@@ -1,0 +1,66 @@
+name: 'Partior - Generic Runner Selection'
+description: 'Automatically detect and return the runner pool in json format'
+inputs:
+  runner:
+    description: 'Runner name. ie: ubuntu-latest'
+    required: false
+    type: string
+    default: ""
+  runner-cloud-provider:
+    description: 'Cloud provider name. ie: gcp'
+    required: false
+    type: string
+    default: ""
+  runner-env:
+    description: 'Environment name. ie: devnet03'
+    required: false
+    type: string
+    default: ""
+  old-runner-label:
+    description: 'Old runner label. To be converted into new runner label'
+    required: false
+    type: string
+    default: ""
+
+outputs:
+  runners-pool:
+    description: "Runner pool in json string"
+    value: ${{ steps.runner-group.outputs.runners-pool }}
+runs:
+  using: "composite"
+  steps:
+    - name: Get runner group name
+      id: runner-group
+      run: |
+        currentOrg="${{ github.repository_owner }}"
+        inputRunnerName=$(echo "${{ inputs.runner }}" | tr '[:upper:]' '[:lower:]')
+        inputRunnerCPS=$(echo "${{ inputs.runner-cloud-provider }}" | tr '[:upper:]' '[:lower:]')
+        inputRunnerEnv=$(echo "${{ inputs.runner-env }}" | tr '[:upper:]' '[:lower:]')
+        inputOldRunnerName=$(echo "${{ inputs.old-runner-label }}" | tr '[:upper:]' '[:lower:]')
+        if [[ ! -z "$inputOldRunnerName" ]]; then
+          if (echo "$inputOldRunnerName" | grep -qE "partior-runners-(gcp|aws)+-\S+"); then
+              inputRunnerCPS=$(echo "$inputOldRunnerName"  | cut -d"-" -f3)
+              inputRunnerEnv=$(echo "$inputOldRunnerName"  | cut -d"-" -f4)
+          else
+            echo "[ERROR] Unsupported old runner format: $inputOldRunnerName"
+            exit 1
+          fi
+        fi
+        runnerGroupName=self-hosted-dev
+        runnerLabel=""
+        if [[ "$currentOrg" == "partior-quorum-prod" ]] || [[ "$inputRunnerName" == "prod" ]] || [[ "$inputRunnerName" == "self-hosted-prod" ]]; then
+          #runnersConfig='{"group":"self-hosted-prod"}'
+          runnersConfig='{"labels":"self-hosted"}'
+        elif [[ "$inputRunnerName" == "ubuntu-latest" ]]; then
+          runnersConfig='{"labels":"ubuntu-latest"}'
+        elif [[ "$inputRunnerEnv" != "" ]]; then
+          if [[ -z "$inputRunnerCPS" ]]; then
+            inputRunnerCPS=gcp
+          fi
+          runnersConfig="{\"labels\":\"$inputRunnerCPS-$inputRunnerEnv-platform-scaleset\"}"
+        else
+          runnersConfig='{"group":"self-hosted-dev"}'
+        fi
+        echo "runners-pool=$runnersConfig" | tee -a $GITHUB_OUTPUT
+      shell: bash
+
