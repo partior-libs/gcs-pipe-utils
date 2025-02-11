@@ -61,6 +61,13 @@ runs:
         else
           runnersConfig='{"group":"self-hosted-dev"}'
         fi
+
+        ## custom hack fix
+        echo "[INFO] Current Repo: ${{ github.repository }}"
+        if [[ "${{ github.repository }}" == "partior-quorum/apps-test-gorn" ]]; then
+          runnersConfig='{"labels":"self-hosted"}'
+        fi
+
         echo "runners-pool=$runnersConfig" | tee -a $GITHUB_OUTPUT
       shell: bash
 
