@@ -64,7 +64,7 @@ runs:
 
         ## custom hack fix
         echo "[INFO] Current Repo: ${{ github.repository }}"
-        if [[ "${{ github.repository }}" == "partior-quorum/apps-test-gorn" ]]; then
+        if [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]]; then
           runnersConfig='{"labels":"self-hosted"}'
         fi
 
