@@ -51,8 +51,10 @@ runs:
         if [[ "$currentOrg" == "partior-quorum-prod" ]] || [[ "$inputRunnerName" == "prod" ]] || [[ "$inputRunnerName" == "self-hosted-prod" ]]; then
           runnersConfig='{"group":"self-hosted-prod"}'
           # runnersConfig='{"labels":"self-hosted"}'
-        elif [[ "$inputRunnerName" == "ubuntu-latest" ]]; then
-          runnersConfig='{"labels":"ubuntu-latest"}'
+        elif [[ "$inputRunnerName" == "self-hosted-dev" ]]; then
+          runnersConfig='{"group":"self-hosted-dev"}'
+        elif [[ "$inputRunnerName" == "self-hosted-premium-dev" ]]; then
+          runnersConfig='{"group":"self-hosted-premium-dev"}'
         elif [[ "$inputRunnerName" != "" ]]; then
           runnersConfig='{"labels":"$inputRunnerName"}'
         elif [[ "$inputRunnerEnv" != "" ]]; then
