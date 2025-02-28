@@ -56,7 +56,7 @@ runs:
         elif [[ "$inputRunnerName" == "self-hosted-premium-dev" ]]; then
           runnersConfig='{"group":"self-hosted-premium-dev"}'
         elif [[ "$inputRunnerName" != "" ]]; then
-          runnersConfig='{"labels":"$inputRunnerName"}'
+          runnersConfig="{\"labels\":\"$inputRunnerName\"}"
         elif [[ "$inputRunnerEnv" != "" ]]; then
           if [[ -z "$inputRunnerCPS" ]]; then
             inputRunnerCPS=gcp
