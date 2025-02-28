@@ -55,6 +55,8 @@ runs:
           runnersConfig='{"group":"self-hosted-dev"}'
         elif [[ "$inputRunnerName" == "self-hosted-premium-dev" ]]; then
           runnersConfig='{"group":"self-hosted-premium-dev"}'
+        elif [[ "$inputRunnerName" == "self-hosted" ]]; then
+          runnersConfig='{"group":"self-hosted-dev"}'
         elif [[ "$inputRunnerName" != "" ]]; then
           runnersConfig="{\"labels\":\"$inputRunnerName\"}"
         elif [[ "$inputRunnerEnv" != "" ]]; then
