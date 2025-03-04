@@ -49,10 +49,16 @@ runs:
         runnerGroupName=self-hosted-dev
         runnerLabel=""
         if [[ "$currentOrg" == "partior-quorum-prod" ]] || [[ "$inputRunnerName" == "prod" ]] || [[ "$inputRunnerName" == "self-hosted-prod" ]]; then
-          #runnersConfig='{"group":"self-hosted-prod"}'
-          runnersConfig='{"labels":"self-hosted"}'
-        elif [[ "$inputRunnerName" == "ubuntu-latest" ]]; then
-          runnersConfig='{"labels":"ubuntu-latest"}'
+          runnersConfig='{"group":"self-hosted-prod"}'
+          # runnersConfig='{"labels":"self-hosted"}'
+        elif [[ "$inputRunnerName" == "self-hosted-dev" ]]; then
+          runnersConfig='{"group":"self-hosted-dev"}'
+        elif [[ "$inputRunnerName" == "self-hosted-premium-dev" ]]; then
+          runnersConfig='{"group":"self-hosted-premium-dev"}'
+        elif [[ "$inputRunnerName" == "self-hosted" ]]; then
+          runnersConfig='{"group":"self-hosted-dev"}'
+        elif [[ "$inputRunnerName" != "" ]]; then
+          runnersConfig="{\"labels\":\"$inputRunnerName\"}"
         elif [[ "$inputRunnerEnv" != "" ]]; then
           if [[ -z "$inputRunnerCPS" ]]; then
             inputRunnerCPS=gcp
@@ -64,7 +70,7 @@ runs:
 
         ## custom hack fix
         echo "[INFO] Current Repo: ${{ github.repository }}"
-        if [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]]; then
+        if [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]; then
           runnersConfig='{"labels":"gcp-premium-platform-scaleset"}'
         fi
 
