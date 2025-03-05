@@ -73,7 +73,8 @@ runs:
         if [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]; then
           runnersConfig='{"labels":"gcp-premium-platform-scaleset"}'
         fi
-
+        ## hard revert
+        runnersConfig='{"labels":"self-hosted"}'
         echo "runners-pool=$runnersConfig" | tee -a $GITHUB_OUTPUT
       shell: bash
 
