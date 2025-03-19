@@ -70,7 +70,7 @@ runs:
 
         ## custom hack fix
         echo "[INFO] Current Repo: ${{ github.repository }}"
-        if [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]]  || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]; then
+        if [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]] || "${{ github.repository }}" == "partior-quorum/smc-payment-utility" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]; then
           runnersConfig='{"labels":"gcp-premium-platform-scaleset"}'
         # elif [[ "${{ github.repository }}" == "partior-quorum/smc-"* ]] || [[ "${{ github.repository }}" == "partior-quorum/dapps-access-manager" ]]; then
         #   runnersConfig='{"labels":"self-hosted"}'
