@@ -88,7 +88,7 @@ runs:
         ## Restrict runners based on limit
         if ([[ "$inputRunnerLimit" == "premium" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]) && [[ "$runnersConfig" == *"premium"* ]]; then
           echo "[INFO] Allowed for premium runner.."
-        elif [[ "$runnersConfig" == *"premium"* ]];
+        elif [[ "$runnersConfig" == *"premium"* ]]; then
           ## if runner limit is not premium but picking up premium earlier, switch back to standard
           runnersConfig='{"group":"self-hosted-dev"}'
         fi
