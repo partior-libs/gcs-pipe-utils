@@ -22,7 +22,7 @@ inputs:
     type: string
     default: ""
   runner-limit:
-    description: 'If it's new runner, the limit can ensure only designated can be assigned. Support "standard" and "premium"'
+    description: 'If it's new runner, the limit can ensure only designated can be assigned. Support "standard" and "premium". This will be overriden by runner's name=premium/regression'
     required: false
     type: string
     default: "standard"
@@ -86,7 +86,7 @@ runs:
         fi
 
         ## Restrict runners based on limit
-        if [[ "$inputRunnerLimit" == "premium" ]] && [[ "$runnersConfig" == *"premium"* ]]; then
+        if ([[ "$inputRunnerLimit" == "premium" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]) && [[ "$runnersConfig" == *"premium"* ]]; then
           echo "[INFO] Allowed for premium runner.."
         elif [[ "$runnersConfig" == *"premium"* ]];
           ## if runner limit is not premium but picking up premium earlier, switch back to standard
