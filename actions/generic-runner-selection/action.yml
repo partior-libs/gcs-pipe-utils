@@ -76,10 +76,10 @@ runs:
         fi
 
         ## custom hack fix
-        echo "[INFO] Current Repo: ${{ github.repository }}"
-        if [[ "${{ github.repository }}" == "partior-quorum/dapps-"* ]]; then
-          runnersConfig='{"labels":"self-hosted"}'
-        fi
+        # echo "[INFO] Current Repo: ${{ github.repository }}"
+        # if [[ "${{ github.repository }}" == "partior-quorum/dapps-"* ]]; then
+        #   runnersConfig='{"labels":"self-hosted"}'
+        # fi
 
         if [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]] || [[ "${{ github.repository }}" == "partior-quorum/smc-payment-utility" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]; then
           runnersConfig='{"labels":"gcp-premium-platform-scaleset"}'
