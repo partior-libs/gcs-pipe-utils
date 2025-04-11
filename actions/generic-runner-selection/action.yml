@@ -21,6 +21,11 @@ inputs:
     required: false
     type: string
     default: ""
+  runner-limit:
+    description: 'If it's new runner, the limit can ensure only designated can be assigned. Support "standard" and "premium"'
+    required: false
+    type: string
+    default: ""
 
 outputs:
   runners-pool:
@@ -37,6 +42,8 @@ runs:
         inputRunnerCPS=$(echo "${{ inputs.runner-cloud-provider }}" | tr '[:upper:]' '[:lower:]')
         inputRunnerEnv=$(echo "${{ inputs.runner-env }}" | tr '[:upper:]' '[:lower:]')
         inputOldRunnerName=$(echo "${{ inputs.old-runner-label }}" | tr '[:upper:]' '[:lower:]')
+        inputRunnerLimit=$(echo "${{ inputs.runner-limit }}" | tr '[:upper:]' '[:lower:]')
+
         if [[ ! -z "$inputOldRunnerName" ]]; then
           if (echo "$inputOldRunnerName" | grep -qE "partior-runners-(gcp|aws)+-\S+"); then
               inputRunnerCPS=$(echo "$inputOldRunnerName"  | cut -d"-" -f3)
@@ -76,6 +83,11 @@ runs:
 
         if [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]] || [[ "${{ github.repository }}" == "partior-quorum/smc-payment-utility" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]; then
           runnersConfig='{"labels":"gcp-premium-platform-scaleset"}'
+        fi
+
+        ## Restrict only standard if there's runner limit on new runner
+        if [[ "$inputRunnerLimit" == "standard" ]] && [[ "$runnersConfig" == *"premium"* ]]; then
+          runnersConfig='{"group":"self-hosted-dev"}'
         fi
 
         echo "runners-pool=$runnersConfig" | tee -a $GITHUB_OUTPUT
