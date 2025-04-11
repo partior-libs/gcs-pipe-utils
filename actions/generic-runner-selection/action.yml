@@ -84,8 +84,8 @@ runs:
         # if [[ "${{ github.repository }}" == "partior-quorum/dapps-"* ]]; then
         #   runnersConfig='{"labels":"self-hosted"}'
         # fi
-        runnersConfig='{"labels":"self-hosted"}'
         
+
         ## Restrict runners based on limit
         if ([[ "$inputRunnerLimit" == "premium" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]) && [[ "$runnersConfig" == *"premium"* ]]; then
           echo "[INFO] Allowed for premium runner.."
@@ -93,6 +93,9 @@ runs:
           ## if runner limit is not premium but picking up premium earlier, switch back to standard
           runnersConfig='{"group":"self-hosted-dev"}'
         fi
+
+        ## Switch all to old runner
+        runnersConfig='{"labels":"self-hosted"}'
 
         echo "runners-pool=$runnersConfig" | tee -a $GITHUB_OUTPUT
       shell: bash
