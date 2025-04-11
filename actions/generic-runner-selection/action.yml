@@ -94,8 +94,8 @@ runs:
           runnersConfig='{"group":"self-hosted-dev"}'
         fi
 
-        ## Switch all to old runner
-        runnersConfig='{"labels":"self-hosted"}'
+        ## Bypass hack - Switch all to old runner (Use only when new runner is unreliable or dead)
+        # runnersConfig='{"labels":"self-hosted"}'
 
         echo "runners-pool=$runnersConfig" | tee -a $GITHUB_OUTPUT
       shell: bash
