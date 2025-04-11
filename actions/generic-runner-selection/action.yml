@@ -75,16 +75,17 @@ runs:
           runnersConfig='{"group":"self-hosted-dev"}'
         fi
 
-        ## custom hack fix
-        # echo "[INFO] Current Repo: ${{ github.repository }}"
-        # if [[ "${{ github.repository }}" == "partior-quorum/dapps-"* ]]; then
-        #   runnersConfig='{"labels":"self-hosted"}'
-        # fi
-
         if [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]] || [[ "${{ github.repository }}" == "partior-quorum/smc-payment-utility" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]; then
           runnersConfig='{"labels":"gcp-premium-platform-scaleset"}'
         fi
 
+        # custom hack fix
+        # echo "[INFO] Current Repo: ${{ github.repository }}"
+        # if [[ "${{ github.repository }}" == "partior-quorum/dapps-"* ]]; then
+        #   runnersConfig='{"labels":"self-hosted"}'
+        # fi
+        runnersConfig='{"labels":"self-hosted"}'
+        
         ## Restrict runners based on limit
         if ([[ "$inputRunnerLimit" == "premium" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]) && [[ "$runnersConfig" == *"premium"* ]]; then
           echo "[INFO] Allowed for premium runner.."
