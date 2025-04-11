@@ -22,7 +22,7 @@ inputs:
     type: string
     default: ""
   runner-limit:
-    description: 'If it\'s new runner, the limit can ensure only designated can be assigned. Support "standard" and "premium". This will be overriden by runner\'s name=premium/regression'
+    description: 'Set runner limit. Support standard and premium'
     required: false
     type: string
     default: "standard"
