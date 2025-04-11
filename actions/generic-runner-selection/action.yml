@@ -25,7 +25,7 @@ inputs:
     description: 'If it's new runner, the limit can ensure only designated can be assigned. Support "standard" and "premium"'
     required: false
     type: string
-    default: ""
+    default: "standard"
 
 outputs:
   runners-pool:
@@ -85,8 +85,11 @@ runs:
           runnersConfig='{"labels":"gcp-premium-platform-scaleset"}'
         fi
 
-        ## Restrict only standard if there's runner limit on new runner
-        if [[ "$inputRunnerLimit" == "standard" ]] && [[ "$runnersConfig" == *"premium"* ]]; then
+        ## Restrict runners based on limit
+        if [[ "$inputRunnerLimit" == "premium" ]] && [[ "$runnersConfig" == *"premium"* ]]; then
+          echo "[INFO] Allowed for premium runner.."
+        elif [[ "$runnersConfig" == *"premium"* ]];
+          ## if runner limit is not premium but picking up premium earlier, switch back to standard
           runnersConfig='{"group":"self-hosted-dev"}'
         fi
 
