@@ -173,7 +173,7 @@ function setItemValueInListByMatchingSearch() {
         return 1
     fi
     local postSearchKeyName=$(echo $postSearchQueryPath | awk -F'@@FOUND@@' '{print $2}')
-    local yqQueryCheck="(${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\")"
+    local yqQueryCheck="(${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\"))"
     local yqQueryWrite="(${searchParentPath}[] | select(${searchKeyName} == \"$matchValue\") | ${postSearchKeyName}) = \"$newValue\""
     
     echo "[DEBUG] yqQueryCheck=$yqQueryCheck"
