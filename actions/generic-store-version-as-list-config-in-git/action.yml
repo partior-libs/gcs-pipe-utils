@@ -23,16 +23,16 @@ inputs:
     default: 'main'
   update-name-key:
     description: 'Key name to be updated in list'
-    required: true
-    default: 'name'
+    required: false
+    default: ''
   artifact-base-name:  
     description: 'Artifact base name to be stored in yaml'
     required: true
     default: ''
   update-version-key:
     description: 'Key version to be identified in yaml'
-    required: true
-    default: 'version'
+    required: false
+    default: ''
   artifact-version:  
     description: 'Artifact version to be identified in yaml'
     required: true
