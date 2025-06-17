@@ -82,28 +82,12 @@ function updateConfig() {
         echo "[ERROR] The path ${yamlStorePathKey} does not exist in the file ${targetConfigFile}"
         exit 1
     fi
-
-    ## If redeployment, there will be no new changes to version file
-    if (git status | grep "nothing to commit"); then 
-        if [[ ! -f VERSION_UPDATED ]]; then
-            echo VERSION_UPDATED=false >> $GITHUB_ENV
-        fi
-    else 
-        touch VERSION_UPDATED
-        VERSION_UPDATED=true
-        echo VERSION_UPDATED=true >> $GITHUB_ENV 
-        echo "[INFO] Preparing to push into Git..."
-        git config --local user.name github-actions
-        git config --local user.email github-actions@github.com
-        git remote set-url origin https://${githubPatToken}@github.com/${targetRepo}
-        git add ${targetConfigFile}
-        git commit -m "[CI-Bot] Auto updated ${artifactBaseName}-${artifactVersion}"
-    fi
 }
 
 
 function startUpdateConfig() {
     local targetFileCount=$(getListCount "$yamlTargetListQueryPath")
+    local updatedFiles=()
     if [[ $targetFileCount -eq 0 ]]; then
         echo "[INFO] targetFileCount is 0. Skipping..."
         exit 0
@@ -124,11 +108,34 @@ function startUpdateConfig() {
             fi
         fi
         updateConfig "${eachYamlFile}"
+        updatedFiles+=("${eachYamlFile}")
 
         echo "[INFO] Viewing transformed config: ${eachYamlFile}"
         cat ${eachYamlFile}
         echo "[INFO] Update completed: ${eachYamlFile}"
     done
+
+    ## If redeployment, there will be no new changes to version file
+    if (git status | grep "nothing to commit"); then 
+        if [[ ! -f VERSION_UPDATED ]]; then
+            echo VERSION_UPDATED=false >> $GITHUB_ENV
+        fi
+    else 
+        touch VERSION_UPDATED
+        VERSION_UPDATED=true
+        echo VERSION_UPDATED=true >> $GITHUB_ENV 
+        if [[ ${#updatedFiles[@]} -gt 0 ]]; then
+            echo "[INFO] Preparing to push into Git..."
+            git config --local user.name github-actions
+            git config --local user.email github-actions@github.com
+            git remote set-url origin https://${githubPatToken}@github.com/${targetRepo}
+            git add "${updatedFiles[@]}"
+            git commit -m "[CI-Bot] Auto updated ${artifactBaseName}-${artifactVersion}"
+        else
+            echo "[INFO] No files were updated, skipping commit."
+        fi
+    fi
+    
     ## Perform merge with remote to ensure picking up the latest changes
     if [[ "${VERSION_UPDATED}" == "true" ]]; then
         echo "[INFO] Fetch for any changes.."
