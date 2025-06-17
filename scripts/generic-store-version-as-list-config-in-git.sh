@@ -32,7 +32,6 @@ echo "[INFO] Update Version Key: ${updateVersionKey}"
 echo "[INFO] YAML Store key: ${yamlStorePathKey}"
 echo "[INFO] Target Repo: ${targetRepo}"
 echo "[INFO] Strict Update: ${strictUpdate}"
-yamlEnvListQueryPath="artifact.packager.store-version.git.target-envs"
 
 function updateConfig() {
     local targetConfigFile="$1"
@@ -40,9 +39,16 @@ function updateConfig() {
     echo "[INFO] Yaml file before update..."
     cat ${targetConfigFile} | yq
 
-    ## Update version
-    if [[ ! -z "$artifactBaseName" ]]; then
+    ## Determine if the target is a list or a single value
+    local isList=$(yq "$yamlStorePathKey | type" "$targetConfigFile")
+
+    ## Update version based on the structure
+    if [[ "$isList" == "!!seq" ]]; then
         echo "[INFO] Updating with matching item in list..."
+        if [[ -z "$artifactBaseName" || -z "$updateNameKey" ]]; then
+            echo "[ERROR] When updating a list, 'artifactBaseName' and 'updateNameKey' must be provided."
+            exit 1
+        fi
         local fullYamlStorePathKey="$yamlStorePathKey.@@SEARCH@@.$updateNameKey"
         local postSearchQueryPath="$yamlStorePathKey.@@FOUND@@.$updateVersionKey"
         setItemValueInListByMatchingSearch "$targetConfigFile" "$fullYamlStorePathKey" "$artifactBaseName" "$postSearchQueryPath" "$artifactVersion"
@@ -58,8 +64,23 @@ function updateConfig() {
                 echo "[WARN] Update failed on [$targetConfigFile]. Skipping...(because strictUpdate=$strictUpdate)"
             fi
         fi
-    else
-        echo "[ERROR] Missing required input: 'artifactBaseName'. Please provide a valid base name for the artifact"
+    elif [[ "$isList" == "!!str" ]]; then
+        echo "[INFO] Updating a single value structure..."
+        yq -i "${yamlStorePathKey} = \"${artifactVersion}\"" "${targetConfigFile}"
+        local execReturnCode=$?
+        if [[ $execReturnCode -ne 0 ]] && [[ "$strictUpdate" == "true" ]]; then
+            echo "[ERROR] execReturnCode=$execReturnCode"
+            echo "[ERROR] $BASH_SOURCE (line:$LINENO): Error updating config file [${targetConfigFile}] with key [${yamlStorePathKey}] and value [${artifactVersion}]"
+            exit 1
+        else
+            echo "[INFO] execReturnCode=$execReturnCode"
+            if [[ $execReturnCode -ne 0 ]]; then
+                echo "[WARN] Update failed on [$targetConfigFile]. Skipping...(because strictUpdate=$strictUpdate)"
+            fi
+        fi
+    elif [[ "$isList" == "!!null" ]]; then
+        echo "[ERROR] The path ${yamlStorePathKey} does not exist in the file ${targetConfigFile}"
+        exit 1
     fi
 
     ## If redeployment, there will be no new changes to version file
