@@ -52,11 +52,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # - run: |
-    #     echo Listing env...
-    #     set
-    #   shell: bash
-
     - uses: actions/checkout@v4
       with:
         repository: ${{ inputs.target-repo }}

@@ -56,7 +56,7 @@ function updateConfig() {
         if [[ $execReturnCode -ne 0 ]] && [[ "$strictUpdate" == "true" ]]; then
             echo "[ERROR] execReturnCode=$execReturnCode"
             echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed updating file: $targetConfigFile"
-            echo "[DEBUG] cmd: setItemValueInListByMatchingSearch \"$targetConfigFile\" \"$yamlStorePathKey\" \"$artifactBaseName\" \"$postSearchQueryPath\" \"$artifactVersion\""
+            echo "[DEBUG] cmd: setItemValueInListByMatchingSearch \"$targetConfigFile\" \"$fullYamlStorePathKey\" \"$artifactBaseName\" \"$postSearchQueryPath\" \"$artifactVersion\""
             exit 1
         else
             echo "[INFO] execReturnCode=$execReturnCode"
@@ -83,7 +83,6 @@ function updateConfig() {
         exit 1
     fi
 }
-
 
 function startUpdateConfig() {
     local targetFileCount=$(getListCount "$yamlTargetListQueryPath")
