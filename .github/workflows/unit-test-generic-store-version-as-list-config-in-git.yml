@@ -91,7 +91,7 @@ jobs:
 
       - name: Store version in config
         if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_enabled == 'true'
-        uses: ./actions/generic-store-version-as-list-config-in-git/
+        uses: partior-libs/gcs-pipe-utils/actions/generic-store-version-as-list-config-in-git@feature/DSO-3577_auto_update_artifacts
         with: 
           yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_yaml-store-path-key }}"
           target-yaml-config-file: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_target-files }}"
@@ -128,7 +128,7 @@ jobs:
 
       - name: Store version in config
         if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_enabled == 'true'
-        uses: ./actions/generic-store-version-as-list-config-in-git/
+        uses: partior-libs/gcs-pipe-utils/actions/generic-store-version-as-list-config-in-git@feature/DSO-3577_auto_update_artifacts
         with: 
           yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_yaml-store-path-key }}"
           target-yaml-config-file: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_target-files }}"
