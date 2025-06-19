@@ -94,7 +94,7 @@ jobs:
         uses: ./actions/generic-store-version-as-list-config-in-git/
         with: 
           yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_yaml-store-path-key }}"
-          yaml-target-list-query-path: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_target-files }}"
+          yaml-target-list-query-path: "artifact.packager.store-version.git-as-string.target-files"
           target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_repo }}"
           update-name-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_update-name-key }}"
           artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
@@ -173,7 +173,7 @@ jobs:
         uses: ./actions/generic-store-version-as-list-config-in-git/
         with: 
           yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-string_yaml-store-path-key }}"
-          yaml-target-list-query-path: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-string_target-files }}"
+          yaml-target-list-query-path: "artifact.packager.store-version.git-as-string.target-files"
           target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-string_repo }}"
           artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
           artifact-version: "${{ env.ARTIFACT_VERSION }}"
