@@ -153,6 +153,12 @@ smc:
                 update-version-key: version
                 target-files:
                   - unit-test-config/deploy-config/maestro/std-bundle.yaml
+              git-as-string:
+                enabled: true
+                repo: partior-libs/gcs-pipe-utils
+                yaml-store-path-key: .bundle.launcher.version
+                target-files:
+                  - unit-test-config/deploy-config/maestro/std-bundle.yaml
         deployment:
           enabled: false
           repo: partior-quorum/deploy-smc
