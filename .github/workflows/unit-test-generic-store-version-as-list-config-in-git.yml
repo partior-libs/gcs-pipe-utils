@@ -91,12 +91,14 @@ jobs:
 
       - name: Store version in config
         if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_enabled == 'true'
-        uses: partior-libs/gcs-pipe-utils/actions/generic-store-version-as-list-config-in-git@feature/DSO-3577_auto_update_artifacts
+        uses: ./actions/generic-store-version-as-list-config-in-git/
         with: 
           yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_yaml-store-path-key }}"
           target-yaml-config-file: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_target-files }}"
           target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_repo }}"
+          update-name-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_update-name-key }}"
           artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
+          update-version-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_update-version-key }}"
           artifact-version: "${{ env.ARTIFACT_VERSION }}"
           create-if-new-config: true
           target-repo-ref: ${{ github.ref }}
@@ -126,14 +128,16 @@ jobs:
           echo ARTIFACT_VERSION=${newVersion} >> $GITHUB_ENV
           echo ARTIFACT_BASE_NAME="goquorum-node" >> $GITHUB_ENV
 
-      - name: Store version in config
+      - name: Store version in list config
         if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_enabled == 'true'
-        uses: partior-libs/gcs-pipe-utils/actions/generic-store-version-as-list-config-in-git@feature/DSO-3577_auto_update_artifacts
+        uses: ./actions/generic-store-version-as-list-config-in-git/
         with: 
           yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_yaml-store-path-key }}"
           target-yaml-config-file: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_target-files }}"
           target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_repo }}"
+          update-name-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_update-name-key }}"
           artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
+          update-version-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_update-version-key }}"
           artifact-version: "${{ env.ARTIFACT_VERSION }}"
           create-if-new-config: true
           target-repo-ref: ${{ github.ref }}
