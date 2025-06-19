@@ -64,6 +64,14 @@ goquorum:
                 target-envs:
                   - dev10
                   - prod
+              git-as-list:
+                enabled: false
+                repo: partior-libs/gcs-pipe-utils
+                yaml-store-path-key: .bundle.smc.artifacts
+                update-name-key: name
+                update-version-key: version
+                target-files:
+                  - unit-test-config/deploy-config/maestro/std-bundle.yaml
     environments:
       default:
         clusters-config: 

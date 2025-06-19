@@ -145,6 +145,14 @@ smc:
                   - dev02
                   - dev03
                   - dev04
+              git-as-list:
+                enabled: true
+                repo: partior-libs/gcs-pipe-utils
+                yaml-store-path-key: .bundle.smc.artifacts
+                update-name-key: name
+                update-version-key: version
+                target-files:
+                  - unit-test-config/deploy-config/maestro/std-bundle.yaml
         deployment:
           enabled: false
           repo: partior-quorum/deploy-smc
