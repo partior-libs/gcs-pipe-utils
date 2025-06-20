@@ -1,0 +1,183 @@
+name: test-store-generic-store-version-as-list-config-in-git
+on:
+  push:
+    paths:
+      - 'actions/generic-store-version-as-list-config-in-git/**'
+      - 'scripts/generic-store-version-as-list-config-in-git.sh'
+      - 'unit-test-config/controller-config/**'
+      - 'scripts/common-libs.sh'
+      - '.github/workflows/unit-test-generic-store-version-as-list-config-in-git.yml'
+  workflow_dispatch:
+
+env:
+  SU_CI_BRANCH_CONFIG_IMPORTER: su_ci_branch_config_importer
+  GOQUORUM_CI_BRANCH_CONFIG_IMPORTER: goquorum_ci_branch_config_importer
+  LOWERCASE_TARGET_ENV: dev02
+  # TRUFFLE_CONFIG_FILE: truffle_config
+
+jobs:
+  test-scenario-1-reader:
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACT_BASE_NAME: settlement-utility
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get repo details
+        id: get-repo
+        run: |
+          branchName="$(echo ${GITHUB_REF_NAME} | cut -d"/" -f1)"
+          if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
+            branchName=$(echo $GITHUB_HEAD_REF | cut -d"/" -f1)
+          fi         
+          echo "branch-name=${branchName}" >> $GITHUB_OUTPUT
+          echo "name=$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f2)" >> $GITHUB_OUTPUT
+          
+      - name: Read sample SU CI Branch config
+        uses: partior-libs/gcs-yaml-importer@main
+        with:
+          yaml-file: unit-test-config/controller-config/smc-default.yml
+          query-path: .smc.ci.branches.default
+          output-file: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
+          upload: true
+
+  test-scenario-2-reader:
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACT_BASE_NAME: goquorum-node
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get repo details
+        id: get-repo
+        run: |
+          branchName="$(echo ${GITHUB_REF_NAME} | cut -d"/" -f1)"
+          if [[ ! -z "$GITHUB_HEAD_REF" ]]; then
+            branchName=$(echo $GITHUB_HEAD_REF | cut -d"/" -f1)
+          fi         
+          echo "branch-name=${branchName}" >> $GITHUB_OUTPUT
+          echo "name=$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f2)" >> $GITHUB_OUTPUT
+          
+      - name: Read sample GoQuorum CI Branch config
+        uses: partior-libs/gcs-yaml-importer@main
+        with:
+          yaml-file: unit-test-config/controller-config/goquorum-default.yml
+          query-path: .goquorum.ci.branches.default
+          output-file: ${{ env.GOQUORUM_CI_BRANCH_CONFIG_IMPORTER }}
+          upload: true
+
+  test-scenario-1-start:
+    needs: [ test-scenario-1-reader ]
+    env:
+      ARTIFACT_BASE_NAME: settlement-utility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
+
+      - name: Source env file
+        id: pipeline-branch-config
+        run: |
+          source ./${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
+
+      - name: Initialize mock data
+        run: |
+          newVersion=$(date +"v1.0.0-%Y%m%d_%H%M")
+          echo [INFO] New generated version: $newVersion
+          echo ARTIFACT_VERSION=${newVersion} >> $GITHUB_ENV
+          echo ARTIFACT_BASE_NAME="settlement-utility" >> $GITHUB_ENV
+
+      - name: Store version in config
+        if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_enabled == 'true'
+        uses: ./actions/generic-store-version-as-list-config-in-git/
+        with: 
+          yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_yaml-store-path-key }}"
+          yaml-target-list-query-path: "artifact.packager.store-version.git-as-string.target-files"
+          target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_repo }}"
+          update-name-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_update-name-key }}"
+          artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
+          update-version-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_update-version-key }}"
+          artifact-version: "${{ env.ARTIFACT_VERSION }}"
+          create-if-new-config: true
+          target-repo-ref: ${{ github.ref }}
+          pat-token: ${{ secrets.REPO_PAT }}
+          git-push: false
+
+  test-scenario-2-start:
+    needs: [ test-scenario-2-reader ]
+    env:
+      ARTIFACT_BASE_NAME: goquorum-node
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.GOQUORUM_CI_BRANCH_CONFIG_IMPORTER }}
+
+      - name: Source env file
+        id: pipeline-branch-config
+        run: |
+          source ./${{ env.GOQUORUM_CI_BRANCH_CONFIG_IMPORTER }}
+
+      - name: Initialize mock data
+        run: |
+          newVersion=$(date +"v1.0.0-%Y%m%d_%H%M")
+          echo [INFO] New generated version: $newVersion
+          echo ARTIFACT_VERSION=${newVersion} >> $GITHUB_ENV
+          echo ARTIFACT_BASE_NAME="goquorum-node" >> $GITHUB_ENV
+
+      - name: Store version in list config
+        if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_enabled == 'true'
+        uses: ./actions/generic-store-version-as-list-config-in-git/
+        with: 
+          yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_yaml-store-path-key }}"
+          yaml-target-list-query-path: "artifact.packager.store-version.git-as-string.target-files"
+          target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_repo }}"
+          update-name-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_update-name-key }}"
+          artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
+          update-version-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-list_update-version-key }}"
+          artifact-version: "${{ env.ARTIFACT_VERSION }}"
+          create-if-new-config: true
+          target-repo-ref: ${{ github.ref }}
+          pat-token: ${{ secrets.REPO_PAT }}
+          git-push: false
+          strict-update: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git_strict-update }}"
+
+  test-scenario-3-start:
+    needs: [ test-scenario-1-reader ]
+    env:
+      ARTIFACT_BASE_NAME: maestro-launcher
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
+
+      - name: Source env file
+        id: pipeline-branch-config
+        run: |
+          source ./${{ env.SU_CI_BRANCH_CONFIG_IMPORTER }}
+
+      - name: Initialize mock data
+        run: |
+          newVersion=$(date +"v1.0.0-%Y%m%d_%H%M")
+          echo [INFO] New generated version: $newVersion
+          echo ARTIFACT_VERSION=${newVersion} >> $GITHUB_ENV
+          echo ARTIFACT_BASE_NAME="settlement-utility" >> $GITHUB_ENV
+
+      - name: Store version in config
+        if: steps.pipeline-branch-config.outputs.artifact_packager_enabled == 'true' && steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-string_enabled == 'true'
+        uses: ./actions/generic-store-version-as-list-config-in-git/
+        with: 
+          yaml-store-path-key: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-string_yaml-store-path-key }}"
+          yaml-target-list-query-path: "artifact.packager.store-version.git-as-string.target-files"
+          target-repo: "${{ steps.pipeline-branch-config.outputs.artifact_packager_store-version_git-as-string_repo }}"
+          artifact-base-name: "${{ env.ARTIFACT_BASE_NAME }}"
+          artifact-version: "${{ env.ARTIFACT_VERSION }}"
+          create-if-new-config: true
+          target-repo-ref: ${{ github.ref }}
+          pat-token: ${{ secrets.REPO_PAT }}
+          git-push: false

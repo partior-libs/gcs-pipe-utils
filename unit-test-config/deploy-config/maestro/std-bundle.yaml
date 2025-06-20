@@ -1,0 +1,70 @@
+bundle:
+  description: Standard SMC bundle
+  name: maestro-smc-bundle
+  launcher:
+    version: 1.0.32
+  smc:
+    default-repo: smc-dev
+    default-group: partior
+    artifacts:
+      - name: settlement-utility
+        version: 2.0.14
+        repo: smc-release
+        group: partior
+      - name: onboarding
+        version: 0.0.19
+      - name: payment-utility
+        version: 0.0.17
+      - name: utility
+        version: 0.0.13
+      - name: address-directory
+        version: 0.0.22
+      - name: operator
+        version: 0.0.13
+      - name: identity
+        version: 0.0.3
+      - name: quorum-utility
+        version: 0.0.5
+      - name: billing
+        version: 0.0.2
+      - name: forwarder
+        version: 25.1.4
+      - name: smc-config
+        version: 25.1.85
+      - name: smc-scripts
+        version: 25.1.8
+    # artifacts:
+    #   - name: settlement-utility
+    #     version: 25.1.4
+    #     repo: smc-release
+    #     group: partior
+    #   - name: onboarding
+    #     version: 25.1.10
+    #   - name: payment-utility
+    #     version: 25.1.6
+    #   - name: utility
+    #     version: 25.1.0
+    #   - name: address-directory
+    #     version: 25.1.2
+    #   - name: operator
+    #     version: 25.1.3
+    #   - name: identity
+    #     version: 25.1.3
+    #   - name: quorum-utility
+    #     version: 25.1.5
+    #   - name: billing
+    #     version: 25.1.3
+    #   - name: forwarder
+    #     version: 25.1.4
+    #   - name: smc-config
+    #     version: 25.1.85
+    #   - name: smc-scripts
+    #     version: 25.1.8
+  concert-packs:
+    default-repo: scripts-generic-dev
+    default-group: partior/maestro/concerts
+    artifacts:
+      - name: smc-standard
+        version: 1.0.4
+      - name: smc-adhoc
+        version: 1.0.4

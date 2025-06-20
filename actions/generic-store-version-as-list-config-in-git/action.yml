@@ -1,0 +1,87 @@
+name: 'Partior - Store version as list config in Git'
+description: 'Store version as list config in Git'
+inputs:
+  yaml-store-path-key:
+    description: 'Query Path to the stored configuration'
+    required: true
+    default: ''
+  yaml-target-list-query-path:
+    description: 'Query Path to the list of target yaml files to be updated'
+    required: true
+    default: artifact.packager.store-version.git-as-list.target-files
+  create-if-new-config:  
+    description: 'Create new file if target yaml file not found'
+    required: false
+    default: true
+  target-repo:  
+    description: 'Target repo where yaml is stored'
+    required: true
+    default: ''
+  target-repo-ref:  
+    description: 'Target repo ref to be updated'
+    required: false
+    default: 'main'
+  update-name-key:
+    description: 'Key name to be updated in list'
+    required: false
+    default: ''
+  artifact-base-name:  
+    description: 'Artifact base name to be stored in yaml'
+    required: true
+    default: ''
+  update-version-key:
+    description: 'Key version to be identified in yaml'
+    required: false
+    default: ''
+  artifact-version:  
+    description: 'Artifact version to be identified in yaml'
+    required: true
+    default: ''
+  git-push:
+    description: 'Flag to indicate if git push to be executed'
+    required: false
+    default: true
+  pat-token:
+    description: 'PAT token to push code'
+    required: true
+    default: ''
+  strict-update:  
+    description: 'If true, will fail if updating failed'
+    required: false
+    default: 'true'
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.target-repo }}
+        token: ${{ inputs.pat-token }}
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+        fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
+        ref: ${{ inputs.target-repo-ref }}
+
+    - name: convert yaml to props config
+      run: |
+        ${{ github.action_path }}/../../scripts/generic-store-version-as-list-config-in-git.sh \
+          "${{ inputs.yaml-store-path-key }}" \
+          "${{ inputs.yaml-target-list-query-path }}" \
+          "${{ inputs.update-name-key }}" \
+          "${{ inputs.artifact-base-name }}" \
+          "${{ inputs.update-version-key }}" \
+          "${{ inputs.artifact-version }}" \
+          "${{ inputs.target-repo }}" \
+          "${{ inputs.create-if-new-config }}" \
+          "${{ inputs.pat-token }}" \
+          "${{ inputs.strict-update }}"
+      shell: bash
+       
+    - name: Push changes
+      if: inputs.git-push == 'true'
+      uses: partior-libs/gjs-github-push@partior-stable
+      with:
+        repository: ${{ inputs.target-repo }}
+        github_token: ${{ inputs.pat-token }}
+        branch: ${{ inputs.target-repo-ref }}
+
+    - run: echo Done storing version
+      shell: bash
