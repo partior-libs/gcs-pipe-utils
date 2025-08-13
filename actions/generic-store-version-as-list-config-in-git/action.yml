@@ -63,6 +63,10 @@ runs:
         if [[ "${{ inputs.enable-auto-filter-target-ref }}" == "true" ]]; then
           # Extract the base of the branch name (e.g., "hotfix-base/25.1")
           TARGET_FILTER_BRANCH_VERSION=$(echo "${{ inputs.target-repo-ref }}" | sed -E 's|([0-9]+\.[0-9]+)\.[0-9]+$|\1|')
+          if [[ -z "${TARGET_FILTER_BRANCH_VERSION}" ]]; then
+            echo "[ERROR] Unable to get filter pattern from [${{ inputs.target-repo-ref }}]"
+            exit 1
+          fi
           echo "Searching for branches in ${{ inputs.target-repo }} containing: $TARGET_FILTER_BRANCH_VERSION"
 
           # Use the GitHub API to list branches that match the filter
