@@ -97,7 +97,7 @@ runs:
             echo "branch-ref=$BRANCH_NAME" >> $GITHUB_OUTPUT
           fi
         else
-          TARGET_BRANCH="${{ inputs.target-repo }}""
+          TARGET_BRANCH="${{ inputs.target-repo }}"
           # The `jq` utility is used to parse the JSON response
           BRANCHES=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
             -H "Accept: application/vnd.github.v3+json" \
