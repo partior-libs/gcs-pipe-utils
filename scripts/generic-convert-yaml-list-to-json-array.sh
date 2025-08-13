@@ -64,4 +64,4 @@ function convertListToJsonArray() {
 
 finalJsonList=$(convertListToJsonArray "$listQueryPath" "$exclusionList")
 echo "[INFO] Found list value: $finalJsonList"
-echo ::set-output name=list::"$finalJsonList"
+echo "list=$finalJsonList" | tee -a $GITHUB_OUTPUT

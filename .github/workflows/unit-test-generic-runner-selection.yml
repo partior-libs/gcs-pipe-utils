@@ -17,7 +17,7 @@ jobs:
         uses: ./actions/generic-runner-selection
 
   test-runners:
-    need: [ select-runners ]
+    needs: [ select-runners ]
     runs-on: ${{ fromJson(needs.select-runners.outputs.RUNNERS-POOL) }}
     steps:
       - name: Testing

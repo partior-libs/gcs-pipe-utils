@@ -38,7 +38,7 @@ runs:
       run: |
         set +e
         validResult=false
-        echo ::set-output name=valid-result::${validResult}
+        echo "valid-result=${validResult}" | tee -a $GITHUB_OUTPUT
         function failIfEmpty() {
             local inputKey="$1"
             local inputKeyValue=${!inputKey}
@@ -104,7 +104,7 @@ runs:
         echo "GH_COMMIT_HASH=$GH_COMMIT_HASH" >> $GITHUB_ENV
         echo "GH_REPO=$GH_REPO" >> $GITHUB_ENV
         validResult=true
-        echo ::set-output name=valid-result::${validResult}
+        echo "valid-result=${validResult}" | tee -a $GITHUB_OUTPUT  
       shell: bash
 
 
@@ -112,9 +112,9 @@ runs:
       id: promotion
       run: |
         if [[ "${{ steps.get-properties.outputs.valid-result }}" == 'true' ]]; then
-            echo ::set-output name=valid-result::'true'
+            echo "valid-result=true" | tee -a $GITHUB_OUTPUT
         else
-            echo ::set-output name=valid-result::'false'
+          echo "valid-result=false" | tee -a $GITHUB_OUTPUT
         fi
       shell: bash  
         
