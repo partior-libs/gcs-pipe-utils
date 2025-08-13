@@ -49,16 +49,60 @@ inputs:
     description: 'If true, will fail if updating failed'
     required: false
     default: 'true'
+  enable-auto-filter-target-ref:
+    description: 'If true, will filter the target branch with major and minor from target-repo-ref'
+    required: false
+    default: 'false'
 runs:
   using: "composite"
   steps:
+    - name: Filter and Finalize Branch
+      id: filter-branch
+      shell: bash
+      run: |
+        if [[ "${{ inputs.enable-auto-filter-target-ref }}" == "true" ]]; then
+          # Extract the base of the branch name (e.g., "hotfix-base/25.1")
+          TARGET_FILTER_BRANCH_VERSION=$(echo "${{ inputs.target-repo-ref }}" | sed -E 's|([0-9]+\.[0-9]+)\.[0-9]+$|\1|')
+          echo "Searching for branches in ${{ inputs.target-repo }} containing: $TARGET_FILTER_BRANCH_VERSION"
+
+          # Use the GitHub API to list branches that match the filter
+          # The `jq` utility is used to parse the JSON response
+          BRANCHES=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ inputs.target-repo }}/branches" | \
+            jq -r --arg filter "$TARGET_FILTER_BRANCH_VERSION" '[.[] | .name | select(contains($filter))]')
+
+          # Count the number of branches found
+          BRANCH_COUNT=$(echo "$BRANCHES" | jq 'length')
+          echo "Found $BRANCH_COUNT matching branches."
+
+          # Check if more than one branch was found
+          if [[ "$BRANCH_COUNT" -gt 1 ]]; then
+            echo "[Error] More than one branch found matching the filter."
+            echo "Found branches: $(echo "$BRANCHES" | jq -r '. | join(", ")')"
+            exit 1
+          # Check if no branches were found
+          elif [[ "$BRANCH_COUNT" -eq 0 ]]; then
+            echo "[Error] No branches found matching the filter."
+            exit 1
+          # Exactly one branch was found
+          else
+            BRANCH_NAME=$(echo "$BRANCHES" | jq -r '.[0]')
+            echo "[INFO] Successfully found unique branch: $BRANCH_NAME"
+            # Set the output for other jobs to use
+            echo "branch-ref=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "branch-ref=${{ inputs.target-repo-ref }}" >> $GITHUB_OUTPUT
+        fi
+
     - uses: actions/checkout@v4
       with:
         repository: ${{ inputs.target-repo }}
         token: ${{ inputs.pat-token }}
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
         fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
-        ref: ${{ inputs.target-repo-ref }}
+        ref: ${{ steps.filter-branch.outputs.branch-ref }}
 
     - name: convert yaml to props config
       run: |
@@ -81,7 +125,7 @@ runs:
       with:
         repository: ${{ inputs.target-repo }}
         github_token: ${{ inputs.pat-token }}
-        branch: ${{ inputs.target-repo-ref }}
+        branch: ${{ steps.filter-branch.outputs.branch-ref }}
 
     - run: echo Done storing version
       shell: bash
