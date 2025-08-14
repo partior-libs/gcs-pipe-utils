@@ -39,7 +39,7 @@ runs:
         tmpBuffer="${tmpBuffer}' ]"
         tmpBuffer=$(echo $tmpBuffer | sed "s/''/'/g")
         echo Final $tmpBuffer
-        echo ::set-output name=all-seq-list::"${tmpBuffer}"
+        echo "all-seq-list=${tmpBuffer}" | tee -a $GITHUB_OUTPUT
       shell: bash
 
     - run: echo [INFO] Done creating sequence...
