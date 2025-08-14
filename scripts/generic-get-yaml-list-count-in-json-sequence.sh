@@ -46,4 +46,4 @@ function convertListToJsonSequence() {
 
 finalJsonList=$(convertListToJsonSequence "$listQueryPath")
 echo "[INFO] Found list value: $finalJsonList"
-echo ::set-output name=list::"$finalJsonList"
+echo "list=$finalJsonList" | tee -a $GITHUB_OUTPUT

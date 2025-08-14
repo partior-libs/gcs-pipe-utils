@@ -74,7 +74,7 @@ runs:
             echo "[INFO] Unable to find release artifact: ${{ inputs.source-artifact-full-path }}"
         fi
 
-        echo ::set-output name=valid-result::${validResult}
+        echo "valid-result=${validResult}" | tee -a $GITHUB_OUTPUT
       shell: bash
 
 
@@ -82,9 +82,9 @@ runs:
       id: promotion
       run: |
         if [[ "${{ steps.get-properties.outputs.valid-result }}" == 'true' ]]; then
-            echo ::set-output name=valid-result::'true'
+            echo "valid-result=true" | tee -a $GITHUB_OUTPUT
         else
-            echo ::set-output name=valid-result::'false'
+            echo "valid-result=false" | tee -a $GITHUB_OUTPUT
         fi
       shell: bash  
         
