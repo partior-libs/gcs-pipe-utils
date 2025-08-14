@@ -103,6 +103,7 @@ runs:
         else
           TARGET_BRANCH=$(echo ${{ inputs.target-repo-ref }} | sed -E 's|refs/heads/||')
           # The `jq` utility is used to parse the JSON response
+<<<<<<< HEAD
           DEFAULT_BRANCH=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ inputs.target-repo }}" | \
@@ -136,6 +137,30 @@ runs:
             fi
           fi
           
+=======
+          BRANCHES=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ inputs.target-repo }}/branches" | \
+            jq -r --arg filter "$TARGET_BRANCH" '[.[] | .name | select(. == $filter)]')
+          # Count the number of branches found
+          BRANCH_COUNT=$(echo "$BRANCHES" | jq 'length')
+          echo "Found $BRANCH_COUNT matching [$TARGET_BRANCH]."
+
+          # Check if more than one branch was found. This should not happen!!
+          if [[ "$BRANCH_COUNT" -gt 1 ]]; then
+            echo "[Error] More than one branch found matching [$TARGET_BRANCH]."
+            echo "Found branches: $(echo "$BRANCHES" | jq -r '. | join(", ")')"
+            exit 1
+          # Check if no branches were found
+          elif [[ "$BRANCH_COUNT" -eq 0 ]]; then
+            echo "[Error] No branches found matching [$TARGET_BRANCH]."
+            exit 1
+          # Exactly one branch was found
+          else
+            BRANCH_NAME=$(echo "$BRANCHES" | jq -r '.[0]')
+            echo "[INFO] Successfully found branch [$TARGET_BRANCH] at target repo."
+          fi
+>>>>>>> main
           # Set the output for other jobs to use
           echo "branch-ref=${{ inputs.target-repo-ref }}" | tee -a $GITHUB_OUTPUT
         fi
