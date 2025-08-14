@@ -98,7 +98,7 @@ runs:
             BRANCH_NAME=$(echo "$BRANCHES" | jq -r '.[0]')
             echo "[INFO] Successfully found unique branch: $BRANCH_NAME"
             # Set the output for other jobs to use
-            echo "branch-ref=$BRANCH_NAME" >> $GITHUB_OUTPUT
+            echo "branch-ref=$BRANCH_NAME" | tee -a $GITHUB_OUTPUT
           fi
         else
           TARGET_BRANCH=$(echo ${{ inputs.target-repo-ref }} | sed -E 's|refs/heads/||')
@@ -126,7 +126,7 @@ runs:
             echo "[INFO] Successfully found branch [$TARGET_BRANCH] at target repo."
           fi
           # Set the output for other jobs to use
-          echo "branch-ref=${{ inputs.target-repo-ref }}" >> $GITHUB_OUTPUT
+          echo "branch-ref=${{ inputs.target-repo-ref }}" | tee -a $GITHUB_OUTPUT
         fi
 
     - uses: actions/checkout@v4
