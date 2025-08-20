@@ -60,94 +60,105 @@ runs:
       id: filter-branch
       shell: bash
       run: |
+        # This script block determines the target branch reference.
+        # It has two modes based on the 'enable-auto-filter-target-ref' input.
+
         if [[ "${{ inputs.enable-auto-filter-target-ref }}" == "true" ]]; then
-          # Extract the base of the branch name (e.g., "hotfix-base/25.1")
+          # MODE 1: Auto-filter to find a unique branch based on a version pattern.
+          # This is useful for finding a release branch like 'release/25.1' when the source is 'release/25.1.x'.
+
+          # Extract the base of the branch name (e.g., "refs/heads/hotfix/25.1.1" -> "hotfix/25.1")
           TARGET_FILTER_BRANCH_VERSION=$(echo "${{ inputs.target-repo-ref }}" | sed -E 's|([0-9]+\.[0-9]+)\.[0-9]+$|\1|' | sed -E 's|refs/heads/||')
-          echo "Searching for branches in ${{ inputs.target-repo }} containing: [$TARGET_FILTER_BRANCH_VERSION]"
+          echo "Searching for a unique branch in ${{ inputs.target-repo }} containing the string: [$TARGET_FILTER_BRANCH_VERSION]"
 
-          # Use the GitHub API to list branches that match the filter
-          # The `jq` utility is used to parse the JSON response
-          BRANCHES=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ inputs.target-repo }}/branches" | \
-            jq -r --arg filter "$TARGET_FILTER_BRANCH_VERSION" '[.[] | .name | select(contains($filter))]')
+          # --- PAGINATION LOGIC to find ALL matching branches ---
+          PAGE=1
+          ALL_MATCHING_BRANCHES="[]" # Initialize an empty JSON array to store all matches
 
-          # Count the number of branches found
-          BRANCH_COUNT=$(echo "$BRANCHES" | jq 'length')
-          echo "Found $BRANCH_COUNT matching branches."
+          while true; do
+            echo "[INFO] Fetching page $PAGE of branches..."
+            BRANCHES_PAGE=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ inputs.target-repo }}/branches?per_page=100&page=$PAGE")
 
-          # Check if more than one branch was found
+            # Break the loop if the API returns an empty list, indicating no more pages
+            if [[ $(echo "$BRANCHES_PAGE" | jq 'length') -eq 0 ]]; then
+              break
+            fi
+
+            # Find branches on the current page that contain the filter string
+            MATCHES_ON_PAGE=$(echo "$BRANCHES_PAGE" | jq -r --arg filter "$TARGET_FILTER_BRANCH_VERSION" '[.[] | .name | select(contains($filter))]')
+
+            # Merge the matches from this page into our master list
+            ALL_MATCHING_BRANCHES=$(echo "$ALL_MATCHING_BRANCHES $MATCHES_ON_PAGE" | jq -s 'add')
+
+            PAGE=$((PAGE + 1))
+          done
+          # --- END PAGINATION LOGIC ---
+
+          # Now, perform validation on the complete list of matching branches
+          BRANCH_COUNT=$(echo "$ALL_MATCHING_BRANCHES" | jq 'length')
+          echo "Found a total of $BRANCH_COUNT matching branches across all pages."
+
           if [[ "$BRANCH_COUNT" -gt 1 ]]; then
             echo "[Error] More than one branch found matching the filter."
-            echo "Found branches: $(echo "$BRANCHES" | jq -r '. | join(", ")')"
+            echo "Found branches: $(echo "$ALL_MATCHING_BRANCHES" | jq -r '. | join(", ")')"
             exit 1
-          # Check if no branches were found
           elif [[ "$BRANCH_COUNT" -eq 0 ]]; then
-            echo "[Error] No branches found matching the filter."
+            echo "[Error] No branches found matching the filter in the entire repository."
             exit 1
-          # Exactly one branch was found
           else
-            BRANCH_NAME=$(echo "$BRANCHES" | jq -r '.[0]')
+            BRANCH_NAME=$(echo "$ALL_MATCHING_BRANCHES" | jq -r '.[0]')
             echo "[INFO] Successfully found unique branch: $BRANCH_NAME"
-            # Set the output for other jobs to use
             echo "branch-ref=$BRANCH_NAME" | tee -a $GITHUB_OUTPUT
           fi
+
         else
+          # MODE 2: Find an exact branch name match.
+          # This is the standard case where the source and target branch names are identical.
+
           TARGET_BRANCH=$(echo ${{ inputs.target-repo-ref }} | sed -E 's|refs/heads/||')
-          # The `jq` utility is used to parse the JSON response
+          
+          # First, quickly check if the target is the default branch to save API calls
           DEFAULT_BRANCH=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ inputs.target-repo }}" | \
             jq -r '.default_branch')
 
           if [[ "$TARGET_BRANCH" == "$DEFAULT_BRANCH" && -n "$TARGET_BRANCH" ]]; then
-            echo "[INFO] Matching default branch [$TARGET_BRANCH] on target repo"
+            echo "[INFO] Target ref matches the default branch [$TARGET_BRANCH] on target repo."
           else
-            # Initialize variables
+            # If not the default branch, search for an exact match across all pages
             PAGE=1
             BRANCH_NAME=""
-
-            # Loop through all pages of branches until a match is found or pages run out
             while true; do
               echo "[INFO] Fetching page $PAGE of branches..."
-              # Fetch one page of branches from the API
               BRANCHES_PAGE=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
                 -H "Accept: application/vnd.github.v3+json" \
                 "https://api.github.com/repos/${{ inputs.target-repo }}/branches?per_page=100&page=$PAGE")
 
-              # Check if the current page is empty, meaning no more branches
               if [[ $(echo "$BRANCHES_PAGE" | jq 'length') -eq 0 ]]; then
-                break # Exit the loop if there are no more branches to check
+                break
               fi
 
-              # Search for the target branch on the current page
               FOUND_ON_PAGE=$(echo "$BRANCHES_PAGE" | jq -r --arg filter "$TARGET_BRANCH" '.[] | .name | select(. == $filter)')
 
-              # If a branch was found on this page, store it and exit the loop
               if [[ -n "$FOUND_ON_PAGE" ]]; then
                 BRANCH_NAME="$FOUND_ON_PAGE"
                 break
               fi
-
-              # Increment the page number for the next iteration
               PAGE=$((PAGE + 1))
             done
 
-            # --- Validation ---
-
-            # Check if no branch was found after checking all pages
             if [[ -z "$BRANCH_NAME" ]]; then
               echo "[Error] No branches found matching [$TARGET_BRANCH] in the entire repository."
               exit 1
-            # Exactly one branch was found
             else
-              # The check for > 1 is no longer needed because branch names are unique,
-              # and the script stops after the first find.
               echo "[INFO] Successfully found branch [$BRANCH_NAME] at target repo."
             fi
           fi
           
-          # Set the output for other jobs to use
+          # Set the output for other jobs to use the original, unmodified ref
           echo "branch-ref=${{ inputs.target-repo-ref }}" | tee -a $GITHUB_OUTPUT
         fi
 
