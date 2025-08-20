@@ -111,28 +111,47 @@ runs:
           if [[ "$TARGET_BRANCH" == "$DEFAULT_BRANCH" && -n "$TARGET_BRANCH" ]]; then
             echo "[INFO] Matching default branch [$TARGET_BRANCH] on target repo"
           else
-            # The `jq` utility is used to parse the JSON response
-            BRANCHES=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ inputs.target-repo }}/branches" | \
-              jq -r --arg filter "$TARGET_BRANCH" '[.[] | .name | select(. == $filter)]')
-            # Count the number of branches found
-            BRANCH_COUNT=$(echo "$BRANCHES" | jq 'length')
-            echo "Found $BRANCH_COUNT matching [$TARGET_BRANCH]."
+            # Initialize variables
+            PAGE=1
+            BRANCH_NAME=""
 
-            # Check if more than one branch was found. This should not happen!!
-            if [[ "$BRANCH_COUNT" -gt 1 ]]; then
-              echo "[Error] More than one branch found matching [$TARGET_BRANCH]."
-              echo "Found branches: $(echo "$BRANCHES" | jq -r '. | join(", ")')"
-              exit 1
-            # Check if no branches were found
-            elif [[ "$BRANCH_COUNT" -eq 0 ]]; then
-              echo "[Error] No branches found matching [$TARGET_BRANCH]."
+            # Loop through all pages of branches until a match is found or pages run out
+            while true; do
+              echo "[INFO] Fetching page $PAGE of branches..."
+              # Fetch one page of branches from the API
+              BRANCHES_PAGE=$(curl -s -H "Authorization: token ${{ inputs.pat-token }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "https://api.github.com/repos/${{ inputs.target-repo }}/branches?per_page=100&page=$PAGE")
+
+              # Check if the current page is empty, meaning no more branches
+              if [[ $(echo "$BRANCHES_PAGE" | jq 'length') -eq 0 ]]; then
+                break # Exit the loop if there are no more branches to check
+              fi
+
+              # Search for the target branch on the current page
+              FOUND_ON_PAGE=$(echo "$BRANCHES_PAGE" | jq -r --arg filter "$TARGET_BRANCH" '.[] | .name | select(. == $filter)')
+
+              # If a branch was found on this page, store it and exit the loop
+              if [[ -n "$FOUND_ON_PAGE" ]]; then
+                BRANCH_NAME="$FOUND_ON_PAGE"
+                break
+              fi
+
+              # Increment the page number for the next iteration
+              PAGE=$((PAGE + 1))
+            done
+
+            # --- Validation ---
+
+            # Check if no branch was found after checking all pages
+            if [[ -z "$BRANCH_NAME" ]]; then
+              echo "[Error] No branches found matching [$TARGET_BRANCH] in the entire repository."
               exit 1
             # Exactly one branch was found
             else
-              BRANCH_NAME=$(echo "$BRANCHES" | jq -r '.[0]')
-              echo "[INFO] Successfully found branch [$TARGET_BRANCH] at target repo."
+              # The check for > 1 is no longer needed because branch names are unique,
+              # and the script stops after the first find.
+              echo "[INFO] Successfully found branch [$BRANCH_NAME] at target repo."
             fi
           fi
           
