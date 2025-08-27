@@ -64,7 +64,7 @@ else
     --base "$TARGET_BRANCH" \
     --head "$SOURCE_BRANCH" \
     --title "$PR_SUBJECT" \
-    --body "This PR was automatically created by the 'create-pr' GitHub Action." 2>&1)
+    --body "This PR was automatically created by the 'generic-create-pr' GitHub Action." 2>&1)
   # Capture the exit code of the gh command
   GH_EXIT_CODE=$?
   # Re-enable exit on error
