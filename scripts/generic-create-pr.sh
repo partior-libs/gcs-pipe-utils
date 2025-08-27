@@ -54,7 +54,7 @@ else
   
   PR_SUBJECT=$INPUT_PR_SUBJECT
   if [[ -z "$PR_SUBJECT" ]]; then
-    PR_SUBJECT="[ATTENTION] Rebaselining needed from [${SOURCE_BRANCH}] to [${TARGET_BRANCH}]"
+    PR_SUBJECT="[Back-merge] ${SOURCE_BRANCH} ⮕ ${TARGET_BRANCH}"
   fi
   echo "Using PR subject: '$PR_SUBJECT'"
 
