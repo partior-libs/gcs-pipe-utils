@@ -33,11 +33,15 @@ fi
 
 # --- 3. Check for Existing Open PR ---
 echo "Checking for existing open PR from '$SOURCE_BRANCH' to '$TARGET_BRANCH'..."
+# Use --limit to fetch up to 1000 PRs to handle pagination.
+# It's highly unlikely to have more than one open PR for the same head/base,
+# but this makes the check more robust.
 EXISTING_PR_URL=$(gh pr list \
   --state open \
   --head "$SOURCE_BRANCH" \
   --base "$TARGET_BRANCH" \
   --json url \
+  --limit 1000 \
   --jq '.[0].url' \
   || echo "")
 
