@@ -1,0 +1,44 @@
+name: 'Partior - Create Pull Request'
+description: 'Creates a new PR if one does not exist from a source to a target branch, otherwise finds the existing one.'
+
+# Define the inputs for the action
+inputs:
+  target-branch:
+    description: 'Optional: PR target branch. If no value, it will use the default branch for the repo.'
+    required: false
+  source-branch:
+    description: 'Optional: PR source branch. If no value, it will use the current repo branch.'
+    required: false
+  pr-subject:
+    description: 'Optional: PR subject/title.'
+    required: false
+
+# Define the outputs of the action
+outputs:
+  pr-url:
+    description: "URL of the created or existing PR."
+    value: ${{ steps.pr-handler.outputs.pr-url }}
+  pr-created:
+    description: "Boolean to indicate if a new PR was created. 'true' if created, 'false' if not."
+    value: ${{ steps.pr-handler.outputs.pr-created }}
+
+# Define how the action runs
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # fetch-depth: 0 is crucial for actions that need to inspect git history or remotes
+        fetch-depth: 0
+        
+    - id: pr-handler
+      run: ${{ github.action_path }}/../../scripts/generic-create-pr.sh
+      shell: bash
+      env:
+        # Pass inputs to the shell script as environment variables
+        INPUT_TARGET_BRANCH: ${{ inputs.target-branch }}
+        INPUT_SOURCE_BRANCH: ${{ inputs.source-branch }}
+        INPUT_PR_SUBJECT: ${{ inputs.pr-subject }}
+        # The GITHUB_TOKEN is required for API calls made by the 'gh' CLI
+        GITHUB_TOKEN: ${{ github.token }}
