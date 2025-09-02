@@ -28,9 +28,6 @@ runs:
   steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        # fetch-depth: 0 is crucial for actions that need to inspect git history or remotes
-        fetch-depth: 0
         
     - id: pr-handler
       run: ${{ github.action_path }}/../../scripts/generic-create-pr.sh
