@@ -20,13 +20,22 @@ fi
 # --- 2. Determine Source Branch ---
 SOURCE_BRANCH=$INPUT_SOURCE_BRANCH
 if [[ -z "$SOURCE_BRANCH" ]]; then
-  echo "Source branch not provided. Using the current branch from GITHUB_REF_NAME..."
-  SOURCE_BRANCH=$GITHUB_REF_NAME
+  echo "Source branch input not provided. Determining from environment variables..."
+  if [[ -n "$GITHUB_HEAD_REF" ]]; then
+    # This variable is set for pull_request events and contains the source branch name.
+    echo "Using source branch from GITHUB_HEAD_REF (pull request event)."
+    SOURCE_BRANCH=$GITHUB_HEAD_REF
+  else
+    # This is the fallback for push events.
+    echo "Using source branch from GITHUB_REF_NAME (push event)."
+    SOURCE_BRANCH=$GITHUB_REF_NAME
+  fi
+
   if [[ -z "$SOURCE_BRANCH" ]]; then
-    echo "::error::Could not determine the current branch name from GITHUB_REF_NAME."
+    echo "::error::Could not determine the source branch name from environment variables (GITHUB_HEAD_REF or GITHUB_REF_NAME)."
     exit 1
   fi
-  echo "Current branch is '$SOURCE_BRANCH'."
+  echo "Determined source branch is '$SOURCE_BRANCH'."
 else
   echo "Using provided source branch: '$SOURCE_BRANCH'."
 fi
