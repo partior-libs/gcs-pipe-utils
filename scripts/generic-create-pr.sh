@@ -62,13 +62,28 @@ else
   fi
   echo "Using PR subject: '$PR_SUBJECT'"
 
+  # Construct the PR body with a link to the GitHub Actions run and R&R
+  WORKFLOW_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+  PR_BODY="### Back-Merge Pull Request
+
+This PR was automatically created to back-merge changes from the \`$SOURCE_BRANCH\` branch into the \`$TARGET_BRANCH\` branch.
+
+**What is a back-merge?**
+A back-merge ensures that critical changes (like hotfixes) made on a separate maintenance branch are integrated back into the main development line. This prevents the changes from being lost in future releases.
+
+**Roles & Responsibilities (R&R):**
+> **Developer Leads / Component Owners** are responsible for reviewing, approving, and merging this pull request at the appropriate time to ensure codebase synchronization.
+
+---
+*This PR was automatically created from the GitHub Actions job run: [$WORKFLOW_URL]($WORKFLOW_URL)*"
+
   # Temporarily disable exit on error to gracefully handle the "no commits" case
   set +e
   PR_CREATE_OUTPUT=$(gh pr create \
     --base "$TARGET_BRANCH" \
     --head "$SOURCE_BRANCH" \
     --title "$PR_SUBJECT" \
-    --body "This PR was automatically created by the 'generic-create-pr' GitHub Action." 2>&1)
+    --body "$PR_BODY" 2>&1)
   # Capture the exit code of the gh command
   GH_EXIT_CODE=$?
   # Re-enable exit on error
