@@ -36,8 +36,30 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Set up Python Environment
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Setup Python Env
+      uses: partior-sec-eng/controller-generic-pipelines/setup-python-pipenv@main
+      with:
+        target-dir: ${{ github.action_path }}/../../scripts/python/github-app-token
+        use-cache: false
+
     - name: convert yaml to props config
-      run: ${{ github.action_path }}/../../scripts/generic-get-github-members-by-graphql.sh "${{ inputs.target-github-user }}" "${{ inputs.target-output-json-file }}" "${{ inputs.organization-input-file }}"
+      run: |
+        echo "[INFO] Hi, I'm in action.yaml"
+        ls -lrt
+        echo "=========================================="
+        ls ../ -lrt
+        echo "=========================================="
+        ls ../../ -lrt
+        echo "=========================================="
+        echo "${{ github.action_path }}" -lrt
+        ${{ github.action_path }}/../../scripts/generic-get-github-members-by-graphql.sh "${{ inputs.target-github-user }}" "${{ inputs.target-output-json-file }}" "${{ inputs.organization-input-file }}"
+
       env:
         BOT_APP_ID: ${{ inputs.bot-app-id }}
         BOT_APP_KEY: ${{ inputs.bot-app-key }}

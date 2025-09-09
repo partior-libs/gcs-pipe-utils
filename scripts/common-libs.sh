@@ -449,13 +449,13 @@ function getGithubTokenForOrg(){
     echo "$appToken"
     return
   fi
-  
+
   # org is internal but token does not exist
   # cd into dir to prevent requirements.txt in project root from being picked up by pipenv run
-  cd gcs-pipe-utils/scripts/python/github-app-token
+  cd "${GITHUB_ACTION_PATH}"/../../scripts/python/github-app-token
   if ($debugEnabled); then echo "[DEBUG] Creating token with args, appId: $appId, org: $org" >&2; fi
-  appToken=$(python3 main.py -a "$appId" -k "$appKey" -o "$org")
-  cd -
+  appToken=$(pipenv run python3 main.py -a "$appId" -k "$appKey" -o "$org")
+  cd "${GITHUB_WORKSPACE}"
   echo "[INFO] Token creation successful for \"$org\"" >&2  
   # add token to list for future lookup
   orgTokens="$(echo $(yq -o=json eval ".\"$org\"=\"$appToken\"" <<< $orgTokens)| jq -c -r '.')"
