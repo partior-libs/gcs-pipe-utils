@@ -21,6 +21,7 @@ targetUsernameValueFile="${4:-user.tmp}"
 targetUserEmailValueFile="${5:-email.tmp}"
 
 TEMP_DIR="./tempGithubMembers"           # Temp directory for per-org data
+TMP_ORG_TOKEN_FILENAME="org-token-file.txt"
 
 function processAllOrgs() {
     local targetJsonFile="$1"
