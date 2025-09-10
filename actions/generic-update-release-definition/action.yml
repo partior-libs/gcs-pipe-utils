@@ -39,13 +39,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout release repo
-      run: |
-        set -e
-        echo "Cloning release repo..."
-        git clone "https://x-access-token:${{ inputs.github-token }}@github.com/partior-quorum/deploy-orchestro.git" release-repo
-      shell: bash
-
     - name: Install YQ
       uses: partior-libs/gcs-setup-yq@partior-stable
 
