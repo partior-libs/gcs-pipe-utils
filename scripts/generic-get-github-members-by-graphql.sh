@@ -23,11 +23,46 @@ targetUserEmailValueFile="${5:-email.tmp}"
 TEMP_DIR="./tempGithubMembers"           # Temp directory for per-org data
 TMP_ORG_TOKEN_FILENAME="org-token-file.txt"
 
+function consolidateJsonFilters() {
+    local inputDir="$1"
+    local outputFile="$2"
+
+    # Expand matching files into an array
+    local files=("$inputDir"/*_filtered.json)
+
+    # Check if there are any matching files
+    if [ ! -e "${files[0]}" ]; then
+        echo "[INFO] No member data collected in '$inputDir'. Skipping final JSON generation."
+        return 0
+    fi
+
+    # Validate each input file is a valid JSON array
+    for file in "${files[@]}"; do
+        if ! jq -e 'type == "array"' "$file" > /dev/null 2>&1; then
+            echo "[ERROR] File '$file' is not a valid JSON array. Aborting."
+            return 1
+        fi
+    done
+
+    # Merge, deduplicate, and sort
+    jq -s '
+        flatten
+        | map(select(.github_login and .github_verified_emails))
+        | unique_by(.github_verified_emails)
+        | sort_by(.github_login)
+    ' "${files[@]}" > "$outputFile"
+
+    echo "[INFO] Final consolidated member data saved to $outputFile"
+}
+
 function processAllOrgs() {
     local targetJsonFile="$1"
     local orgListFile="$2"
     mkdir -p "$TEMP_DIR"
     rm -f "$TEMP_DIR"/*.json "$targetJsonFile"
+
+    echo "[DEBUG] $BASH_SOURCE (line:$LINENO) Where am I?"
+    ls -lrt
 
     if [[ ! -f "$orgListFile" ]]; then
         echo "[ERROR] $BASH_SOURCE (line:$LINENO): Org list file '$orgListFile' not found." >&2
@@ -66,12 +101,7 @@ function processAllOrgs() {
     done
 
     # Merge and deduplicate final result
-    if compgen -G "$TEMP_DIR/*_filtered.json" > /dev/null; then
-        jq -s 'add | unique_by(.github_id)' "$TEMP_DIR"/*_filtered.json > "$targetJsonFile"
-        echo "[INFO] Final consolidated member data saved to $targetJsonFile"
-    else
-        echo "[INFO] No member data collected. Skipping final JSON generation."
-    fi
+    consolidateJsonFilters "$TEMP_DIR" "$targetJsonFile"
 }
 
 processAllOrgs "$targetJsonFile" "$orgListFile"

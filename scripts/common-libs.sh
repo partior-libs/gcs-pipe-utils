@@ -466,7 +466,10 @@ function getGithubTokenForOrg(){
 # Function to authenticate GH CLI with a token
 function authenticateGhCli() {
     local token="$1"
-    if ! echo "$appToken" | gh auth login --with-token > /dev/null 2>&1; then
+    
+    echo "[DEBUG] $BASH_SOURCE (line:$LINENO) Authenticating gh cli..."
+
+    if ! echo "$token" | gh auth login --with-token > /dev/null 2>&1; then
         echo "[ERROR] $BASH_SOURCE (line:$LINENO): GitHub CLI authentication failed." >&2
         return 1
     fi
@@ -477,6 +480,8 @@ function queryMembersForOrg() {
     local org="$1"
     local outputFile="$2"
     local rawOutput
+
+    echo "[DEBUG] $BASH_SOURCE (line:$LINENO) Querying members info for $org..."
 
     if ! rawOutput=$(gh api graphql --paginate -f query="{
       organization(login: \"$org\") {
@@ -494,6 +499,7 @@ function queryMembersForOrg() {
         return 1
     fi
 
+    echo "[DEBUG] $BASH_SOURCE (line:$LINENO) Filter members info for $org..."
     if ! echo "$rawOutput" | jq -e '.data.organization.membersWithRole.edges | length > 0' > /dev/null 2>&1; then
         echo "[INFO] No member data returned for org [$org]. Skipping."
         return 1
