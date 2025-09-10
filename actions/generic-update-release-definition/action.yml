@@ -1,0 +1,65 @@
+name: 'Partior - Update Release Definition'
+description: 'Updates a component version in release-definition.yaml (update or append).'
+
+inputs:
+  source-branch:
+    description: 'The source branch triggering the update.'
+    required: true
+  artifact-version:
+    description: 'The new version to set.'
+    required: true
+  artifact-base-name:
+    description: 'The artifact name (for commit message).'
+    required: true
+  component-type:
+    description: 'The type of component in release-definition.yaml (e.g., helmconfig, sql, docker, cli).'
+    required: true
+  component-name:
+    description: 'The name of the component to update/append.'
+    required: true
+  strategy-enabled:
+    description: 'Whether to enable target branching strategy.'
+    required: true
+  smart-filter:
+    description: 'Enable hotfix smart filter logic.'
+    required: false
+    default: "false"
+  create-branch-enabled:
+    description: 'Allow creating branch if none found.'
+    required: false
+    default: "false"
+  hotfix-suffix:
+    description: 'Suffix for new hotfix branch if created.'
+    required: false
+    default: "-hf.1"
+  github-token:
+    description: 'Token for repo authentication.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout release repo
+      run: |
+        set -e
+        echo "Cloning release repo..."
+        git clone "https://x-access-token:${{ inputs.github-token }}@github.com/partior-quorum/deploy-orchestro.git" release-repo
+      shell: bash
+
+    - name: Install YQ
+      uses: partior-libs/gcs-setup-yq@partior-stable
+
+    - name: Run update script
+      run: ${{ github.action_path }}/../../scripts/update-release-definition.sh
+      shell: bash
+      env:
+        SOURCE_BRANCH: ${{ inputs.source-branch }}
+        NEW_VERSION: ${{ inputs.artifact-version }}
+        COMPONENT_NAME: ${{ inputs.component-name }}
+        COMPONENT_TYPE: ${{ inputs.component-type }}
+        ARTIFACT_BASE_NAME: ${{ inputs.artifact-base-name }}
+        STRATEGY_ENABLED: ${{ inputs.strategy-enabled }}
+        SMART_FILTER: ${{ inputs.smart-filter }}
+        CREATE_BRANCH: ${{ inputs.create-branch-enabled }}
+        HOTFIX_SUFFIX: ${{ inputs.hotfix-suffix }}
+        GH_TOKEN: ${{ inputs.github-token }}
