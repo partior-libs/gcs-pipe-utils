@@ -2,6 +2,10 @@ name: 'Partior - Update Release Definition'
 description: 'Updates a component version in release-definition.yaml (update or append).'
 
 inputs:
+  release-repo:
+    description: "Repository containing the release definition"
+    required: false
+    default: "partior-quorum/deploy-orchestro"
   source-branch:
     description: 'The source branch triggering the update.'
     required: true
@@ -46,6 +50,7 @@ runs:
       run: ${{ github.action_path }}/../../scripts/update-release-definition.sh
       shell: bash
       env:
+        RELEASE_REPO: ${{ inputs.release-repo }}
         SOURCE_BRANCH: ${{ inputs.source-branch }}
         NEW_VERSION: ${{ inputs.artifact-version }}
         COMPONENT_NAME: ${{ inputs.component-name }}

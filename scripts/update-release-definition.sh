@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
+RELEASE_REPO="${RELEASE_REPO:-}"
 SOURCE_BRANCH="${SOURCE_BRANCH:-}"
 NEW_VERSION="${NEW_VERSION:-}"
 COMPONENT_NAME="${COMPONENT_NAME:-}"
@@ -13,9 +14,10 @@ HOTFIX_SUFFIX="${HOTFIX_SUFFIX:-}"
 GH_TOKEN="${GH_TOKEN:-}"
 
 echo "[INFO] Cloning release repo..."
-rm -rf release-repo
-git clone "https://x-access-token:${GH_TOKEN}@github.com/partior-quorum/deploy-orchestro.git" release-repo
+: "${RELEASE_REPO:=partior-quorum/deploy-orchestro}"
 
+echo "Cloning release repo: $RELEASE_REPO ..."
+git clone "https://x-access-token:${GH_TOKEN}@github.com/${RELEASE_REPO}.git" release-repo
 cd release-repo
 
 TARGET_BRANCH="$SOURCE_BRANCH"
@@ -24,7 +26,7 @@ if [[ "$STRATEGY_ENABLED" != "true" ]]; then
 else
   if [[ "$SMART_FILTER" == "true" ]]; then
     BRANCH_PREFIX=$(echo "$SOURCE_BRANCH" | sed 's/\.[^.]*$//')
-    REMOTE_REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/partior-quorum/deploy-orchestro.git"
+    REMOTE_REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${RELEASE_REPO}.git"
     LATEST_HOTFIX_BRANCH=$(git ls-remote --heads "$REMOTE_REPO_URL" \
       | grep "refs/heads/$BRANCH_PREFIX" \
       | awk '{print $2}' | sed 's#refs/heads/##' | sort -V | tail -n 1)
