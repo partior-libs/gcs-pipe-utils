@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# --- Inputs from env ---
 SOURCE_BRANCH="${SOURCE_BRANCH:-}"
 NEW_VERSION="${NEW_VERSION:-}"
 COMPONENT_NAME="${COMPONENT_NAME:-}"
@@ -35,7 +34,7 @@ else
     elif [[ "$CREATE_BRANCH" == "true" ]]; then
       TARGET_BRANCH="$BRANCH_PREFIX$HOTFIX_SUFFIX"
     else
-      echo "::error::No matching hotfix branch found and branch creation disabled."
+      echo "[ERROR] No matching hotfix branch found and branch creation disabled."
       exit 1
     fi
   fi
@@ -46,7 +45,7 @@ git checkout "$TARGET_BRANCH" || {
   if [[ "$CREATE_BRANCH" == "true" ]]; then
     git checkout -b "$TARGET_BRANCH"
   else
-    echo "[ERROR]] Target branch $TARGET_BRANCH not found."
+    echo "[ERROR] Target branch $TARGET_BRANCH not found."
     exit 1
   fi
 }
