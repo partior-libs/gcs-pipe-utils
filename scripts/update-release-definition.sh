@@ -53,11 +53,28 @@ git checkout "$TARGET_BRANCH" || {
 }
 
 DEFINITION_FILE="release-workflow/release-definition.yaml"
-echo "[INFO] Updating $COMPONENT_TYPE.$COMPONENT_NAME to version $NEW_VERSION in $DEFINITION_FILE"
 
-YAML_PATH_UPDATE="(.base.${COMPONENT_TYPE}[] | select(.name == \"$COMPONENT_NAME\")).version"
-yq eval "$YAML_PATH_UPDATE = \"$NEW_VERSION\"" "$DEFINITION_FILE" > tmp.yaml && mv tmp.yaml "$DEFINITION_FILE"
+update_release_def() {
+  local file="$1"
+  local type="$2"
+  local name="$3"
+  local version="$4"
 
+  echo "[INFO] Updating $type.$name → $version in $file"
+
+  # Convert YAML → JSON → patch → YAML
+  yq -o=json '.' "$file" \
+    | jq --arg v "$version" --arg n "$name" --arg t "$type" '
+      (.base[$t][] | select(.name == $n) | .version) = $v
+    ' \
+    | yq -P -o=yaml > "${file}.tmp"
+
+  mv "${file}.tmp" "$file"
+}
+
+update_release_def "$DEFINITION_FILE" "$COMPONENT_TYPE" "$COMPONENT_NAME" "$NEW_VERSION"
+
+# Check if anything changed
 if git diff --quiet; then
   echo "[INFO] No changes detected in $DEFINITION_FILE. Skipping commit."
   exit 0
