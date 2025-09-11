@@ -55,31 +55,37 @@ git checkout "$TARGET_BRANCH" || {
 DEFINITION_FILE="release-workflow/release-definition.yaml"
 
 # UPDATED FUNCTION
-# This function updates the release definition file.
-# The --indent flag is added to yq to prevent it from reformatting the entire file.
+# This function now uses `awk` to perform a surgical text replacement.
+# This avoids the common issue of YAML parsers (like yq) reformatting
+# the entire file, thus guaranteeing a minimal git diff.
 update_release_def() {
   local file="$1"
-  local type="$2"
+  local type="$2" # Note: component type is not used by awk, but kept for signature consistency
   local name="$3"
   local version="$4"
-  # Set the indentation to match your YAML file's style (2 is most common).
-  local indent_level=2
 
   echo "[INFO] Updating $type.$name → $version in $file"
+  awk -i inplace -v comp_name="$name" -v new_ver="$version" '
+    /name:/ {
+      if ($0 ~ "name: *\"?" comp_name "\"?" ) {
+        in_correct_component = 1
+      } else {
+        in_correct_component = 0
+      }
+    }
 
-  # If component exists → update its version
-  if yq eval ".base.${type}[] | select(.name == \"${name}\")" "$file" >/dev/null; then
-    echo "[INFO] Component exists. Updating version only."
-    yq eval --inplace --indent "$indent_level" \
-      "(.base.${type}[] | select(.name == \"${name}\")).version = \"${version}\"" \
-      "$file"
-  else
-    echo "[INFO] Component not found. Appending new entry."
-    yq eval --inplace --indent "$indent_level" \
-      ".base.${type} += [{\"name\": \"${name}\", \"version\": \"${version}\"}]" \
-      "$file"
-  fi
+    # If we are in the correct component block and find the version line...
+    (in_correct_component && /version:/) {
+      match($0, /^([ \t]+)version:/, m)
+      print m[1] "version: \"" new_ver "\""
+      next
+    }
+
+    # Print every line by default
+    { print }
+  ' "$file"
 }
+
 
 # Perform the update
 update_release_def "$DEFINITION_FILE" "$COMPONENT_TYPE" "$COMPONENT_NAME" "$NEW_VERSION"
