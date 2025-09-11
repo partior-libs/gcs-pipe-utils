@@ -56,7 +56,7 @@ DEFINITION_FILE="release-workflow/release-definition.yaml"
 echo "[INFO] Updating $COMPONENT_TYPE.$COMPONENT_NAME to version $NEW_VERSION in $DEFINITION_FILE"
 
 YAML_PATH_UPDATE="(.base.${COMPONENT_TYPE}[] | select(.name == \"$COMPONENT_NAME\")).version"
-yq -i "$YAML_PATH_UPDATE = \"$NEW_VERSION\"" "$DEFINITION_FILE"
+yq eval "$YAML_PATH_UPDATE = \"$NEW_VERSION\"" "$DEFINITION_FILE" > tmp.yaml && mv tmp.yaml "$DEFINITION_FILE"
 
 if git diff --quiet; then
   echo "[INFO] No changes detected in $DEFINITION_FILE. Skipping commit."
