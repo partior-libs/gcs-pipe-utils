@@ -106,7 +106,7 @@ git add "$DEFINITION_FILE"
 git commit -m "[BOT] CI: Update $COMPONENT_TYPE/$COMPONENT_NAME to $NEW_VERSION"
 
 echo "[INFO] Displaying changes for confirmation:"
-git show --stat
+git show
 
 git push origin "$TARGET_BRANCH"
 
