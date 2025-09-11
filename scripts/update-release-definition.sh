@@ -43,7 +43,7 @@ else
 fi
 
 echo "[INFO] Using target branch: $TARGET_BRANCH"
-git checkout "$TARGET_BRANCH" || { 
+git checkout "$TARGET_BRANCH" || {
   if [[ "$CREATE_BRANCH" == "true" ]]; then
     git checkout -b "$TARGET_BRANCH"
   else
@@ -54,23 +54,28 @@ git checkout "$TARGET_BRANCH" || {
 
 DEFINITION_FILE="release-workflow/release-definition.yaml"
 
+# UPDATED FUNCTION
+# This function updates the release definition file.
+# The --indent flag is added to yq to prevent it from reformatting the entire file.
 update_release_def() {
   local file="$1"
   local type="$2"
   local name="$3"
   local version="$4"
+  # Set the indentation to match your YAML file's style (2 is most common).
+  local indent_level=2
 
   echo "[INFO] Updating $type.$name → $version in $file"
 
   # If component exists → update its version
   if yq eval ".base.${type}[] | select(.name == \"${name}\")" "$file" >/dev/null; then
     echo "[INFO] Component exists. Updating version only."
-    yq eval --inplace \
+    yq eval --inplace --indent "$indent_level" \
       "(.base.${type}[] | select(.name == \"${name}\")).version = \"${version}\"" \
       "$file"
   else
     echo "[INFO] Component not found. Appending new entry."
-    yq eval --inplace \
+    yq eval --inplace --indent "$indent_level" \
       ".base.${type} += [{\"name\": \"${name}\", \"version\": \"${version}\"}]" \
       "$file"
   fi
