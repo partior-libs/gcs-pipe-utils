@@ -13,7 +13,6 @@ else
     exit 1
 fi
 
-
 targetSearchUser="$1"
 targetJsonFile="$2"
 orgListFile="$3"

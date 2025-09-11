@@ -50,9 +50,7 @@ runs:
 
     - name: convert yaml to props config
       run: |
-        echo "${{ github.action_path }}" -lrt
         ${{ github.action_path }}/../../scripts/generic-get-github-members-by-graphql.sh "${{ inputs.target-github-user }}" "${{ inputs.target-output-json-file }}" "${{ inputs.organization-input-file }}"
-
       env:
         BOT_APP_ID: ${{ inputs.bot-app-id }}
         BOT_APP_KEY: ${{ inputs.bot-app-key }}
