@@ -62,16 +62,23 @@ update_release_def() {
 
   echo "[INFO] Updating $type.$name → $version in $file"
 
-  # Convert YAML → JSON → patch → YAML
-  yq -o=json '.' "$file" \
-    | jq --arg v "$version" --arg n "$name" --arg t "$type" '
-      (.base[$t][] | select(.name == $n) | .version) = $v
-    ' \
-    | yq -P -o=yaml > "${file}.tmp"
-
-  mv "${file}.tmp" "$file"
+  # First try: in-place yq update (minimal diff)
+  if yq eval --inplace \
+      "(.base.${type}[] | select(.name == \"${name}\")).version = \"${version}\"" \
+      "$file" 2>/dev/null; then
+    echo "[INFO] Updated with direct yq in-place edit."
+  else
+    echo "[WARN] Direct yq update failed, falling back to JSON patch."
+    yq -o=json '.' "$file" \
+      | jq --arg v "$version" --arg n "$name" --arg t "$type" '
+          (.base[$t][] | select(.name == $n) | .version) = $v
+        ' \
+      | yq -P -o=yaml > "${file}.tmp"
+    mv "${file}.tmp" "$file"
+  fi
 }
 
+# Perform the update
 update_release_def "$DEFINITION_FILE" "$COMPONENT_TYPE" "$COMPONENT_NAME" "$NEW_VERSION"
 
 # Check if anything changed
