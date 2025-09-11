@@ -54,9 +54,7 @@ git checkout "$TARGET_BRANCH" || {
 
 DEFINITION_FILE="release-workflow/release-definition.yaml"
 
-# UPDATED FUNCTION
-# This is the final, most portable awk version. It avoids all GNU-specific
-# extensions (like -i inplace and the 3-argument match() function).
+
 update_release_def() {
   local file="$1"
   local type="$2"
@@ -78,23 +76,16 @@ update_release_def() {
 
     # If we are in the correct component block and find the version line...
     (in_correct_component && /version:/) {
-      # Use a portable method to capture indentation:
-      # 1. Copy the current line to a variable.
-      # 2. Use sub() to remove the "version:" part and everything after it.
       indent = $0
       sub(/version:.*/, "", indent)
 
-      # Print the captured indentation followed by the new version string.
       print indent "version: \"" new_ver "\""
-      # Skip to the next line to avoid printing the old line.
       next
     }
 
-    # Print every other line by default.
     { print }
   ' "$file" > "$tmp_file"
 
-  # Replace the original file with the modified temporary file.
   mv "$tmp_file" "$file"
 }
 
@@ -113,6 +104,10 @@ git config user.email github-actions@github.com
 
 git add "$DEFINITION_FILE"
 git commit -m "[BOT] CI: Update $COMPONENT_TYPE/$COMPONENT_NAME to $NEW_VERSION"
+
+echo "[INFO] Displaying changes for confirmation:"
+git show --stat
+
 git push origin "$TARGET_BRANCH"
 
 echo "[INFO] Release definition update completed successfully."
