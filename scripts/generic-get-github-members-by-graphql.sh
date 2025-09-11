@@ -66,7 +66,7 @@ function processAllOrgs() {
     fi
 
     local -a orgList=()
-    mapfile -t orgList < "$orgListFile"
+    mapfile -t orgList < <(yq e '.organizations[]' "$orgListFile")
 
     if [[ ${#orgList[@]} -eq 0 ]]; then
         echo "[INFO] Org list from [$orgListFile] is empty. Skipping."

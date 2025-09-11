@@ -12,7 +12,7 @@ inputs:
   organization-input-file:  
     description: 'Path of the input org list file'
     required: true
-    default: 'organizations/github-orgs.txt'
+    default: 'controller/config/gh-registry-orgs.yaml'
   bot-app-id:
     description: "GitHub App ID"
     required: true
