@@ -47,7 +47,9 @@ runs:
       uses: partior-libs/gcs-setup-yq@partior-stable
 
     - name: Run update script
-      run: ${{ github.action_path }}/../../scripts/update-release-definition.sh
+      run: |
+        chmod +x ${{ github.action_path }}/../../scripts/update-release-definition.sh
+        ${{ github.action_path }}/../../scripts/update-release-definition.sh
       shell: bash
       env:
         RELEASE_REPO: ${{ inputs.release-repo }}
