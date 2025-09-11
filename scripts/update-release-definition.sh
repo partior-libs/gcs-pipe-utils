@@ -62,19 +62,17 @@ update_release_def() {
 
   echo "[INFO] Updating $type.$name → $version in $file"
 
-  # First try: in-place yq update (minimal diff)
-  if yq eval --inplace \
+  # If component exists → update its version
+  if yq eval ".base.${type}[] | select(.name == \"${name}\")" "$file" >/dev/null; then
+    echo "[INFO] Component exists. Updating version only."
+    yq eval --inplace \
       "(.base.${type}[] | select(.name == \"${name}\")).version = \"${version}\"" \
-      "$file" 2>/dev/null; then
-    echo "[INFO] Updated with direct yq in-place edit."
+      "$file"
   else
-    echo "[WARN] Direct yq update failed, falling back to JSON patch."
-    yq -o=json '.' "$file" \
-      | jq --arg v "$version" --arg n "$name" --arg t "$type" '
-          (.base[$t][] | select(.name == $n) | .version) = $v
-        ' \
-      | yq -P -o=yaml > "${file}.tmp"
-    mv "${file}.tmp" "$file"
+    echo "[INFO] Component not found. Appending new entry."
+    yq eval --inplace \
+      ".base.${type} += [{\"name\": \"${name}\", \"version\": \"${version}\"}]" \
+      "$file"
   fi
 }
 
