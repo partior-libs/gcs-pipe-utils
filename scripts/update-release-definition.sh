@@ -54,7 +54,10 @@ git checkout "$TARGET_BRANCH" || {
 
 DEFINITION_FILE="release-workflow/release-definition.yaml"
 
-
+# UPDATED FUNCTION
+# The awk script is now smarter. It tracks whether it's inside the top-level
+# 'base:' block and only performs the update there, fixing the bug where
+# it also modified entries in the 'override:' block.
 update_release_def() {
   local file="$1"
   local type="$2"
@@ -65,8 +68,19 @@ update_release_def() {
   echo "[INFO] Updating $type.$name → $version in $file"
 
   awk -v comp_name="$name" -v new_ver="$version" '
-    # If we find a line with "name:", check if it matches our component
-    /name:/ {
+    # Detect top-level keys (lines that do not start with whitespace).
+    /^[^ \t]/ {
+      # Check if this top-level key is "base:". If so, set a flag.
+      if ($0 ~ /^base:/) {
+        in_base_section = 1
+      } else {
+        # If it is any other top-level key, unset the flag.
+        in_base_section = 0
+      }
+    }
+
+    #  only runs if we are inside the base section
+    (in_base_section && /name:/) {
       if ($0 ~ "name: *\"?" comp_name "\"?" ) {
         in_correct_component = 1
       } else {
@@ -74,11 +88,9 @@ update_release_def() {
       }
     }
 
-    # If we are in the correct component block and find the version line...
-    (in_correct_component && /version:/) {
+    (in_base_section && in_correct_component && /version:/) {
       indent = $0
       sub(/version:.*/, "", indent)
-
       print indent "version: \"" new_ver "\""
       next
     }
@@ -105,7 +117,8 @@ git config user.email github-actions@github.com
 git add "$DEFINITION_FILE"
 git commit -m "[BOT] CI: Update $COMPONENT_TYPE/$COMPONENT_NAME to $NEW_VERSION"
 
-echo "[INFO] Displaying changes for confirmation:"
+# Display the FULL DIFF of the commit we are about to push for confirmation.
+echo "[INFO] Displaying full diff for confirmation:"
 git show
 
 git push origin "$TARGET_BRANCH"
