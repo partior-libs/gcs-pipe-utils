@@ -29,7 +29,7 @@ else
     REMOTE_REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${RELEASE_REPO}.git"
     LATEST_HOTFIX_BRANCH=$(git ls-remote --heads "$REMOTE_REPO_URL" \
       | grep "refs/heads/$BRANCH_PREFIX" \
-      | awk '{print $2}' | sed 's#refs/heads/##' | sort -V | tail -n 1)
+      | awk '{print $2}' | sed 's#refs/heads/##' | sort -V | tail -n 1 || true)
 
     if [[ -n "$LATEST_HOTFIX_BRANCH" ]]; then
       TARGET_BRANCH="$LATEST_HOTFIX_BRANCH"
