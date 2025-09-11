@@ -55,35 +55,48 @@ git checkout "$TARGET_BRANCH" || {
 DEFINITION_FILE="release-workflow/release-definition.yaml"
 
 # UPDATED FUNCTION
-# This function now uses `awk` to perform a surgical text replacement.
-# This avoids the common issue of YAML parsers (like yq) reformatting
-# the entire file, thus guaranteeing a minimal git diff.
+# This function now uses a portable method for in-place editing that works
+# with all versions of awk, by writing to a temporary file and then moving it.
 update_release_def() {
   local file="$1"
   local type="$2" # Note: component type is not used by awk, but kept for signature consistency
   local name="$3"
   local version="$4"
+  # Define a temporary file for the output
+  local tmp_file="${file}.tmp"
 
   echo "[INFO] Updating $type.$name → $version in $file"
-  awk -i inplace -v comp_name="$name" -v new_ver="$version" '
+
+  # Use awk for a surgical replacement. This version is portable and works
+  # on systems where awk does not support in-place editing (-i inplace).
+  # It writes the output to a temporary file...
+  awk -v comp_name="$name" -v new_ver="$version" '
+    # If we find a line with "name:", check if it matches our component
     /name:/ {
+      # If the line contains our component name, set a flag
       if ($0 ~ "name: *\"?" comp_name "\"?" ) {
         in_correct_component = 1
       } else {
+        # Otherwise, we are in a different component, so unset the flag
         in_correct_component = 0
       }
     }
 
     # If we are in the correct component block and find the version line...
     (in_correct_component && /version:/) {
+      # ...capture the indentation and replace the line
       match($0, /^([ \t]+)version:/, m)
       print m[1] "version: \"" new_ver "\""
+      # Skip to the next line so we dont print the old line
       next
     }
 
     # Print every line by default
     { print }
-  ' "$file"
+  ' "$file" > "$tmp_file"
+
+  # ...and then replaces the original file with the temporary one.
+  mv "$tmp_file" "$file"
 }
 
 
