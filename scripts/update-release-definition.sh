@@ -67,6 +67,9 @@ update_release_def() {
     local prefix="${name#pctl-}"
     final_version="${prefix}-${base_version}"
     echo "[INFO] Type is 'commonconfig'. Constructed prefixed version: $final_version"
+  elif [[ "$type" == "smc" || "$type" == "terraformreference" ]]; then
+    final_version="${name}-${base_version}"
+    echo "[INFO] Type is '$type'. Constructed prefixed version: $final_version"
   else
     final_version="$base_version"
     echo "[INFO] Type is '$type'. Using version as-is: $final_version"
