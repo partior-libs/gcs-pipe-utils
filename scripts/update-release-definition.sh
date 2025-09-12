@@ -4,7 +4,7 @@ set -euo pipefail
 RELEASE_REPO="${RELEASE_REPO:-}"
 SOURCE_BRANCH="${SOURCE_BRANCH:-}"
 NEW_VERSION="${NEW_VERSION:-}"
-COMPONENT_NAME="${COMPONENT_NAME:-}"
+COMPONENT_NAMES="${COMPONENT_NAMES:-}"
 COMPONENT_TYPE="${COMPONENT_TYPE:-}"
 ARTIFACT_BASE_NAME="${ARTIFACT_BASE_NAME:-}"
 STRATEGY_ENABLED="${STRATEGY_ENABLED:-false}"
@@ -109,8 +109,8 @@ update_release_def() {
   mv "$tmp_file" "$file"
 }
 
-echo "[INFO] Processing component list: $COMPONENT_NAME"
-for name in $(echo "$COMPONENT_NAME" | tr ',' ' '); do
+echo "[INFO] Processing component list: $COMPONENT_NAMES"
+for name in $(echo "$COMPONENT_NAMES" | tr ',' ' '); do
   echo "-----------------------------------------------------"
   echo "[INFO] Processing component: $name"
   update_release_def "$DEFINITION_FILE" "$COMPONENT_TYPE" "$name" "$NEW_VERSION"

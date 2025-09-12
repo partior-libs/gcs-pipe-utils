@@ -18,7 +18,7 @@ inputs:
   component-type:
     description: 'The type of component in release-definition.yaml (e.g., helmconfig, sql, docker, cli).'
     required: true
-  component-name:
+  component-names:
     description: 'The name of the component to update/append.'
     required: true
   strategy-enabled:
@@ -55,7 +55,7 @@ runs:
         RELEASE_REPO: ${{ inputs.release-repo }}
         SOURCE_BRANCH: ${{ inputs.source-branch }}
         NEW_VERSION: ${{ inputs.artifact-version }}
-        COMPONENT_NAME: ${{ inputs.component-name }}
+        COMPONENT_NAMES: ${{ inputs.component-names }}
         COMPONENT_TYPE: ${{ inputs.component-type }}
         ARTIFACT_BASE_NAME: ${{ inputs.artifact-base-name }}
         STRATEGY_ENABLED: ${{ inputs.strategy-enabled }}
