@@ -62,25 +62,19 @@ update_release_def() {
   local base_version="$4" # This is the raw version like "0.0.0"
   local final_version    # This will be the fully constructed version string
 
-  # --- NEW LOGIC TO CONSTRUCT THE CORRECT VERSION STRING ---
-  # Check if the component type requires a special prefixed version.
+  
   if [[ "$type" == "commonconfig" ]]; then
-    # For 'commonconfig', the prefix is the component name with "pctl-" removed.
-    # We use Bash parameter expansion `${name#pctl-}` which is cleaner than calling sed.
     local prefix="${name#pctl-}"
     final_version="${prefix}-${base_version}"
     echo "[INFO] Type is 'commonconfig'. Constructed prefixed version: $final_version"
   else
-    # For all other types, use the version directly.
     final_version="$base_version"
     echo "[INFO] Type is '$type'. Using version as-is: $final_version"
   fi
-  # --- END OF NEW LOGIC ---
 
   local tmp_file="${file}.tmp"
   echo "[INFO] Updating $type.$name → $final_version in $file"
 
-  # Pass the final, correctly formatted version string to awk.
   awk -v comp_name="$name" -v new_ver="$final_version" '
     # Detect top-level keys (lines that do not start with whitespace).
     /^[^ \t]/ {
@@ -113,18 +107,13 @@ update_release_def() {
 }
 
 
-# --- SECTION MODIFIED TO HANDLE MULTIPLE COMPONENTS ---
-# Perform the update for each comma-separated component name.
 echo "[INFO] Processing component list: $COMPONENT_NAME"
-# Use 'tr' to replace commas with spaces, allowing the for-loop to iterate through them.
 for name in $(echo "$COMPONENT_NAME" | tr ',' ' '); do
   echo "-----------------------------------------------------"
   echo "[INFO] Processing component: $name"
   update_release_def "$DEFINITION_FILE" "$COMPONENT_TYPE" "$name" "$NEW_VERSION"
 done
 echo "-----------------------------------------------------"
-# --- END OF MODIFIED SECTION ---
-
 
 # Check if anything changed
 if git diff --quiet; then
