@@ -27,6 +27,7 @@ else
   if [[ "$SMART_FILTER" == "true" ]]; then
     BRANCH_PREFIX=$(echo "$SOURCE_BRANCH" | sed 's/\.[^.]*$//')
     REMOTE_REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${RELEASE_REPO}.git"
+    
     LATEST_HOTFIX_BRANCH=$(git ls-remote --heads "$REMOTE_REPO_URL" \
       | grep "refs/heads/$BRANCH_PREFIX" \
       | awk '{print $2}' | sed 's#refs/heads/##' | sort -V | tail -n 1 || true)
@@ -54,7 +55,8 @@ git checkout "$TARGET_BRANCH" || {
 
 DEFINITION_FILE="release-workflow/release-definition.yaml"
 
-
+# The awk script is context-aware. It tracks whether it's inside the top-level
+# 'base:' block and only performs the update there.
 update_release_def() {
   local file="$1"
   local type="$2"
@@ -75,8 +77,7 @@ update_release_def() {
         in_base_section = 0
       }
     }
-
-    #  only runs if we are inside the base section
+    # only runs if we are inside the base section
     (in_base_section && /name:/) {
       if ($0 ~ "name: *\"?" comp_name "\"?" ) {
         in_correct_component = 1
@@ -84,14 +85,12 @@ update_release_def() {
         in_correct_component = 0
       }
     }
-
     (in_base_section && in_correct_component && /version:/) {
       indent = $0
       sub(/version:.*/, "", indent)
       print indent "version: \"" new_ver "\""
       next
     }
-
     { print }
   ' "$file" > "$tmp_file"
 
@@ -99,8 +98,18 @@ update_release_def() {
 }
 
 
-# Perform the update
-update_release_def "$DEFINITION_FILE" "$COMPONENT_TYPE" "$COMPONENT_NAME" "$NEW_VERSION"
+# --- SECTION MODIFIED TO HANDLE MULTIPLE COMPONENTS ---
+# Perform the update for each comma-separated component name.
+echo "[INFO] Processing component list: $COMPONENT_NAME"
+# Use 'tr' to replace commas with spaces, allowing the for-loop to iterate through them.
+for name in $(echo "$COMPONENT_NAME" | tr ',' ' '); do
+  echo "-----------------------------------------------------"
+  echo "[INFO] Processing component: $name"
+  update_release_def "$DEFINITION_FILE" "$COMPONENT_TYPE" "$name" "$NEW_VERSION"
+done
+echo "-----------------------------------------------------"
+# --- END OF MODIFIED SECTION ---
+
 
 # Check if anything changed
 if git diff --quiet; then
@@ -112,7 +121,7 @@ git config user.name github-actions
 git config user.email github-actions@github.com
 
 git add "$DEFINITION_FILE"
-git commit -m "[BOT] CI: Update $COMPONENT_TYPE/$COMPONENT_NAME to $NEW_VERSION"
+git commit -m "[BOT] CI: Update $COMPONENT_TYPE components to $NEW_VERSION"
 
 # Display the FULL DIFF of the commit we are about to push for confirmation.
 echo "[INFO] Displaying full diff for confirmation:"
