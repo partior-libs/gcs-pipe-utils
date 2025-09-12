@@ -59,8 +59,8 @@ update_release_def() {
   local file="$1"
   local type="$2"
   local name="$3"
-  local base_version="$4" # This is the raw version like "0.0.0"
-  local final_version    # This will be the fully constructed version string
+  local base_version="$4"
+  local final_version
 
   
   if [[ "$type" == "commonconfig" ]]; then
@@ -108,7 +108,6 @@ update_release_def() {
 
   mv "$tmp_file" "$file"
 }
-
 
 echo "[INFO] Processing component list: $COMPONENT_NAME"
 for name in $(echo "$COMPONENT_NAME" | tr ',' ' '); do
