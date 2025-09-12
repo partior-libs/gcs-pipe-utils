@@ -54,10 +54,7 @@ git checkout "$TARGET_BRANCH" || {
 
 DEFINITION_FILE="release-workflow/release-definition.yaml"
 
-# UPDATED FUNCTION
-# The awk script is now smarter. It tracks whether it's inside the top-level
-# 'base:' block and only performs the update there, fixing the bug where
-# it also modified entries in the 'override:' block.
+
 update_release_def() {
   local file="$1"
   local type="$2"
