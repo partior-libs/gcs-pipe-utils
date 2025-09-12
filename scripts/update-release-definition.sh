@@ -55,18 +55,33 @@ git checkout "$TARGET_BRANCH" || {
 
 DEFINITION_FILE="release-workflow/release-definition.yaml"
 
-# The awk script is context-aware. It tracks whether it's inside the top-level
-# 'base:' block and only performs the update there.
 update_release_def() {
   local file="$1"
   local type="$2"
   local name="$3"
-  local version="$4"
+  local base_version="$4" # This is the raw version like "0.0.0"
+  local final_version    # This will be the fully constructed version string
+
+  # --- NEW LOGIC TO CONSTRUCT THE CORRECT VERSION STRING ---
+  # Check if the component type requires a special prefixed version.
+  if [[ "$type" == "commonconfig" ]]; then
+    # For 'commonconfig', the prefix is the component name with "pctl-" removed.
+    # We use Bash parameter expansion `${name#pctl-}` which is cleaner than calling sed.
+    local prefix="${name#pctl-}"
+    final_version="${prefix}-${base_version}"
+    echo "[INFO] Type is 'commonconfig'. Constructed prefixed version: $final_version"
+  else
+    # For all other types, use the version directly.
+    final_version="$base_version"
+    echo "[INFO] Type is '$type'. Using version as-is: $final_version"
+  fi
+  # --- END OF NEW LOGIC ---
+
   local tmp_file="${file}.tmp"
+  echo "[INFO] Updating $type.$name → $final_version in $file"
 
-  echo "[INFO] Updating $type.$name → $version in $file"
-
-  awk -v comp_name="$name" -v new_ver="$version" '
+  # Pass the final, correctly formatted version string to awk.
+  awk -v comp_name="$name" -v new_ver="$final_version" '
     # Detect top-level keys (lines that do not start with whitespace).
     /^[^ \t]/ {
       # Check if this top-level key is "base:". If so, set a flag.
