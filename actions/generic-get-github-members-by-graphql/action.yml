@@ -1,0 +1,78 @@
+name: 'Partior - Get Github member detail for specific organizations'
+description: 'Retrieve github member detail for specific organizations'
+inputs:
+  target-github-user:  
+    description: 'Find user detail by username or email'
+    required: false
+    default: 'NIL'
+  target-output-json-file:  
+    description: 'Path of the output json file'
+    required: false
+    default: 'github-members.json'
+  organization-input-file:  
+    description: 'Path of the input org list file'
+    required: true
+    default: 'controller/config/gh-registry-orgs.yaml'
+  bot-app-id:
+    description: "GitHub App ID"
+    required: true
+  bot-app-key:
+    description: "GitHub App private key"
+    required: true
+  upload:  
+    description: 'Flag to indicate if require to upload the file'
+    required: false
+    default: 'false'
+outputs:
+  member-username:
+    description: "Filename of the converted config script"
+    value: ${{ steps.get-member.outputs.username }}
+  member-email:
+    description: "Filename of the converted config script"
+    value: ${{ steps.get-member.outputs.email }}
+  output-json-file:
+    description: "Filename of the converted config script"
+    value: ${{ inputs.target-output-json-file }}
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python Environment
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Setup Python Env
+      uses: partior-sec-eng/controller-generic-pipelines/setup-python-pipenv@main
+      with:
+        target-dir: ${{ github.action_path }}/../../scripts/python/github-app-token
+        use-cache: false
+
+    - name: convert yaml to props config
+      run: |
+        ${{ github.action_path }}/../../scripts/generic-get-github-members-by-graphql.sh "${{ inputs.target-github-user }}" "${{ inputs.target-output-json-file }}" "${{ inputs.organization-input-file }}"
+      env:
+        BOT_APP_ID: ${{ inputs.bot-app-id }}
+        BOT_APP_KEY: ${{ inputs.bot-app-key }}
+      shell: bash
+
+    - name: Upload json output
+      uses: actions/upload-artifact@v4
+      if: inputs.upload == 'true'
+      with:
+        name: json_output
+        path: ${{ inputs.target-output-json-file }}
+        if-no-files-found: error
+        retention-days: 30
+        
+    - name: Set user output
+      id: get-member
+      run: |
+        echo "[INFO] Lookup result for [${{ inputs.target-github-user }}]:"
+        if [[ "${{ inputs.target-github-user }}" =~ "@" ]]; then
+          echo "[INFO] Username: $(cat user.tmp)"
+        else
+          echo "[INFO] Email: $(cat email.tmp)"
+        fi
+        echo "username=$(cat user.tmp)" >> $GITHUB_OUTPUT
+        echo "email=$(cat email.tmp)" >> $GITHUB_OUTPUT
+      shell: bash

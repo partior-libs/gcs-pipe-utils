@@ -370,4 +370,144 @@ function findGhUser() {
     echo "$foundItem"
 }
 
+function readYQPath(){
+  local yqPath="$1"
+  local yqFile="$2"
+  local yqValue=""
+  yqValue=$(yq eval "$yqPath" "$yqFile")
+  if [[ $? -gt 0 ]]; then
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to YQ \"$yqPath\" \"$yqFile\""
+    exit 1
+  fi
+  if [[ -z "$yqValue" || "$yqValue" == "null" ]]; then
+    yqValue=""
+  fi
+  echo "$yqValue"
+}
 
+function readYQPathWithVar(){
+  local yqPath="$1"
+  local yqVar="$2"
+  local yqValue=""
+  yqValue=$(yq eval "$yqPath" <<< "$yqVar")
+  if [[ $? -gt 0 ]]; then
+    echo "[ERROR] $BASH_SOURCE (line:$LINENO): Unable to YQ \"$yqPath\" \"$yqVar\""
+    exit 1
+  fi
+  if [[ -z "$yqValue" || "$yqValue" == "null" ]]; then
+    yqValue=""
+  fi
+  echo "$yqValue"
+}
+
+## Function to generate github app token per organization
+function getGithubTokenForOrg(){
+  # sets token="NA" for non-internal repos
+  # returns token for given org and stores it in orgTokens (dictionary) for future lookups on the same org.
+  local org="$1"
+
+  local appId=$BOT_APP_ID
+  local appKey=$BOT_APP_KEY
+  local debugEnabled=true
+
+  if [[ -z "$org" ]]; then
+    echo "[ERROR] repo org variable not set, unable to proceed" >&2
+    exit 2
+  fi
+  echo "[INFO] Retrieving token for \"$org\"..." >&2
+
+  # if org is not internal i.e. public org/repos
+  if [[ "$org" != "partior-"* ]]; then
+    echo "[INFO] \"$org\" is not internal, skipping token generation" >&2
+    appToken="NA"
+    echo "$appToken"
+    return
+  fi
+
+  if [[ -z "$appId" || -z "$appKey" ]]; then
+    echo "[ERROR]  BOT_APP_ID (\"$appId\") or BOT_APP_KEY not set, unable to proceed" >&2
+    if [[ -z "$appKey" ]]; then echo "[ERROR]  BOT_APP_KEY is empty" >&2; fi
+    exit 2
+  fi
+
+  # file contains a dict for org-token lookup
+  local tmpOrgTokenFilename="$TMP_ORG_TOKEN_FILENAME"
+  if [[ ! -f "$tmpOrgTokenFilename" ]]; then
+    if ($debugEnabled); then echo "[DEBUG] Creating tmp file: $tmpOrgTokenFilename" >&2; fi
+    touch "$tmpOrgTokenFilename"
+    echo '"{}"' > $tmpOrgTokenFilename
+  fi
+  orgTokens=$(readYQPath "." "$tmpOrgTokenFilename")
+
+  local appToken=""
+
+  # if org token already exists, return it
+  if [[ $(readYQPathWithVar "has(\"$org\")" "$orgTokens") == "true" ]]; then
+    appToken=$(yq eval ".$org" <<< $orgTokens)
+    appToken=$(readYQPathWithVar ".$org" "$orgTokens")
+    echo "[INFO] Token lookup successful for \"$org\", skipping token generation" >&2
+    echo "$appToken"
+    return
+  fi
+
+  # org is internal but token does not exist
+  # cd into dir to prevent requirements.txt in project root from being picked up by pipenv run
+  cd "${GITHUB_ACTION_PATH}"/../../scripts/python/github-app-token
+  if ($debugEnabled); then echo "[DEBUG] Creating token with args, appId: $appId, org: $org" >&2; fi
+  appToken=$(pipenv run python3 main.py -a "$appId" -k "$appKey" -o "$org")
+  cd "${GITHUB_WORKSPACE}"
+  echo "[INFO] Token creation successful for \"$org\"" >&2  
+  # add token to list for future lookup
+  orgTokens="$(echo $(yq -o=json eval ".\"$org\"=\"$appToken\"" <<< $orgTokens)| jq -c -r '.')"
+  echo "$orgTokens" > $tmpOrgTokenFilename # overwrite
+  echo "$appToken"
+}
+
+# Function to authenticate GH CLI with a token
+function authenticateGhCli() {
+    local token="$1"
+    
+    echo "[DEBUG] $BASH_SOURCE (line:$LINENO) Authenticating gh cli..."
+
+    if ! echo "$token" | gh auth login --with-token > /dev/null 2>&1; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): GitHub CLI authentication failed." >&2
+        return 1
+    fi
+}
+
+# Function to query GitHub API to get members info for one org
+function queryMembersForOrg() {
+    local org="$1"
+    local outputFile="$2"
+    local rawOutput
+
+    echo "[DEBUG] $BASH_SOURCE (line:$LINENO) Querying members info for $org..."
+
+    if ! rawOutput=$(gh api graphql --paginate -f query="{
+      organization(login: \"$org\") {
+        membersWithRole(first: 100) {
+          edges {
+            node {
+              login
+              organizationVerifiedDomainEmails(login: \"$org\")
+            }
+          }
+        }
+      }
+    }" 2> /dev/null); then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed to query members for org '$org'" >&2
+        return 1
+    fi
+
+    if ! echo "$rawOutput" | jq -e '.data.organization.membersWithRole.edges | length > 0' > /dev/null 2>&1; then
+        echo "[INFO] No member data returned for org [$org]. Skipping."
+        return 1
+    fi
+
+    if ! echo "$rawOutput" | jq '[.data.organization.membersWithRole.edges[] |
+        {github_login: .node.login, github_verified_emails: .node.organizationVerifiedDomainEmails[0]}]' \
+        > "$outputFile"; then
+        echo "[ERROR] $BASH_SOURCE (line:$LINENO): Failed to filter member data for org '$org'" >&2
+        return 1
+    fi
+}
