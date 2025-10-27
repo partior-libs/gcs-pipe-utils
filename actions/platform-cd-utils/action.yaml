@@ -1,0 +1,83 @@
+name: "Create artifact promotion CR"
+description: "Create artifact promotion CR"
+inputs:
+  environment:
+    description: "Environment"
+    required: true
+    default: "production"
+  platform:
+    description: "Platform"
+    required: true
+    default: "gcp"
+  artifact-type:
+    description: "Artifact Type"
+    required: true
+    default: "helm"
+  project-name:
+    description: "Project name"
+    required: true
+    default: ""
+  current-tag:
+    description: "Latest Version to be promoted"
+    required: true
+    default: ""
+  artifact-provider:
+    description: "Artifact Provider"
+    required: false
+    default: "NA"
+  replicate-gar:
+    description: "Replicate to all GAR"
+    required: false
+    default: "NA"
+  push-ecr:
+    description: "Push to aws ECR"
+    required: false
+    default: "NA"
+  itsm-url:
+    description: "ITSM URL"
+    required: true
+    default: ""  
+  itsm-key:
+    description: "ITSM API key"
+    required: true
+    default: ""
+  ptp-requestor:
+    description: "ITSM Promotion CR requestor"
+    required: true
+    default: ""
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python Environment 
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install python dependencies
+      shell: bash
+      run: python3 -m pip install -r ${{ github.action_path }}/../../scripts/python/itsm-cd-utils/requirements.txt
+
+    - name: Create artifact promotion CR
+      env:
+        FS_ENV: ${{ inputs.itsm-key }}
+      run: |
+        echo "[INFO]: Creating Promotion CR in the ITSM service ..."
+        {
+        echo "_ITSM_URL=${{ inputs.itsm-url }}"
+        echo "_ITSM_KEY=${{ inputs.itsm-key }}"
+        echo "_PTP_REQUESTER=${{ inputs.ptp-requestor }}"
+        echo "_ENVIRONMENT=${{ inputs.environment }}"
+        echo "_PLATFORM=${{ inputs.platform }}"
+        echo "_MODULE_TYPE=${{ inputs.artifact-type }}"
+        echo "_ITSM_CATALOG=${{ inputs.project-name }}"
+        echo "_PROJECT_NAME=${{ inputs.project-name }}"
+        echo "CURRENT_TAG=${{ inputs.current-tag }}"
+        echo "CR_DESCRIPTION=CR Promotion of ${{ inputs.project-name }} to version ${{ inputs.current-tag }}"
+        echo "_ARTIFACT_PROVIDER=${{ inputs.artifact-provider }}"
+        echo "_REPLICATE_GAR=${{ inputs.replicate-gar }}"
+        echo "_PUSH_ECR=${{ inputs.push-ecr }}"
+        } > config.env
+        python3 ${{ github.action_path }}/../../scripts/python/itsm-cd-utils/fsctl.py ptp
+      shell: bash
