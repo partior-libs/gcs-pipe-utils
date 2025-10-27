@@ -57,7 +57,7 @@ runs:
 
     - name: Install python dependencies
       shell: bash
-      run: python3 -m pip install -r ${{ github.action_path }}/scripts/python/itsm-cd-utils/requirements.txt
+      run: python3 -m pip install -r ${{ github.action_path }}/../../scripts/python/itsm-cd-utils/requirements.txt
 
     - name: Create artifact promotion CR
       env:
