@@ -79,5 +79,5 @@ runs:
         echo "_REPLICATE_GAR=${{ inputs.replicate-gar }}"
         echo "_PUSH_ECR=${{ inputs.push-ecr }}"
         } > config.env
-        python3 ${{ github.action_path }}/scripts/python/itsm-cd-utils/fsctl.py ptp
+        python3 ${{ github.action_path }}/../../scripts/python/itsm-cd-utils/fsctl.py ptp
       shell: bash
