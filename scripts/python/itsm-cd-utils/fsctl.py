@@ -228,6 +228,8 @@ def main():
         PLATFORM = "gcp"
     elif env_vars['_PLATFORM'] == "multiaws":
         PLATFORM = "aws"
+    elif env_vars['_PLATFORM'] == "multiazure":
+        PLATFORM = "azure"
     else:
         PLATFORM = env_vars['_PLATFORM']
     MODULE_TYPE = env_vars['_MODULE_TYPE']
