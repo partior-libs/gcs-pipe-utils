@@ -53,7 +53,7 @@ git checkout "$TARGET_BRANCH" || {
   fi
 }
 
-DEFINITION_FILE="release-workflow/release-definition.yaml"
+DEFINITION_FILE="release-workflow/application-release-definition.yaml"
 
 update_release_def() {
   local file="$1"
