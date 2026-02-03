@@ -77,14 +77,7 @@ runs:
 
         if [[ "${{ github.repository }}" == "partior-quorum/dapps-workflow-manager" ]] || [[ "${{ github.repository }}" == "partior-quorum/dapps-message-processor" ]] || [[ "${{ github.repository }}" == "partior-quorum/smc-payment-utility" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]; then
           runnersConfig='{"labels":"gcp-premium-platform-scaleset"}'
-        fi
-
-        # custom hack fix
-        # echo "[INFO] Current Repo: ${{ github.repository }}"
-        # if [[ "${{ github.repository }}" == "partior-quorum/dapps-"* ]]; then
-        #   runnersConfig='{"labels":"self-hosted"}'
-        # fi
-        
+        fi      
 
         ## Restrict runners based on limit
         if ([[ "$inputRunnerLimit" == "premium" ]] || [[ "$inputRunnerName" == "regression" ]] || [[ "$inputRunnerName" == "premium" ]]) && [[ "$runnersConfig" == *"premium"* ]]; then
@@ -94,8 +87,11 @@ runs:
           runnersConfig='{"group":"self-hosted-dev"}'
         fi
 
-        ## Bypass hack - Switch all to old runner (Use only when new runner is unreliable or dead)
-        #runnersConfig='{"labels":"self-hosted"}'
+        # custom bypass
+        echo "[INFO] Current Repo: ${{ github.repository }}"
+        if [[ "${{ github.repository }}" == "partior-quorum/quorum" ]]; then
+          runnersConfig='{"labels":"github-ubuntu-22.04"}'
+        fi
 
         echo "runners-pool=$runnersConfig" | tee -a $GITHUB_OUTPUT
       shell: bash
