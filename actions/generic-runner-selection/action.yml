@@ -88,10 +88,6 @@ runs:
         fi
 
         # custom bypass
-        # echo "[INFO] Current Repo: ${{ github.repository }}"
-        # if [[ "${{ github.repository }}" == "partior-quorum/quorum" ]]; then
-        #   runnersConfig='{"labels":"github-ubuntu-22.04"}'
-        # fi
         echo "[INFO] Current Repo: ${{ github.repository }}"
         echo "[INFO] Workflow Ref: ${{ github.workflow_ref }}"
 
