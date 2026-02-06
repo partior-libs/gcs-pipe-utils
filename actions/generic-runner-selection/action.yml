@@ -88,9 +88,20 @@ runs:
         fi
 
         # custom bypass
+        # echo "[INFO] Current Repo: ${{ github.repository }}"
+        # if [[ "${{ github.repository }}" == "partior-quorum/quorum" ]]; then
+        #   runnersConfig='{"labels":"github-ubuntu-22.04"}'
+        # fi
         echo "[INFO] Current Repo: ${{ github.repository }}"
-        if [[ "${{ github.repository }}" == "partior-quorum/quorum" ]]; then
-          runnersConfig='{"labels":"github-ubuntu-22.04"}'
+        echo "[INFO] Workflow Ref: ${{ github.workflow_ref }}"
+
+        # Priority 1: Always use self-hosted if running the security scans workflow
+        # We use wildcards (*) because workflow_ref includes the repo and ref (branch/tag)
+        if [[ "${{ github.workflow_ref }}" == *".github/workflows/security-scans.yaml"* ]]; then
+            echo "[INFO] Security scan detected. Selecting self-hosted runner."
+        # Priority 2: Check repository specific logic
+        elif [[ "${{ github.repository }}" == "partior-quorum/quorum" ]]; then
+            runnersConfig='{"labels":"github-ubuntu-22.04"}'
         fi
 
         echo "runners-pool=$runnersConfig" | tee -a $GITHUB_OUTPUT
