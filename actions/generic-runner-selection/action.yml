@@ -89,6 +89,7 @@ runs:
 
         # custom bypass
         echo "[INFO] Current Repo: ${{ github.repository }}"
+        echo "[INFO] Workflow: ${{ github.workflow }}"
         echo "[INFO] Workflow Ref: ${{ github.workflow_ref }}"
 
         # Priority 1: Always use self-hosted if running the security scans workflow
