@@ -88,6 +88,7 @@ runs:
         fi
 
         # custom bypass
+        echo "[INFO] Input Runner Type: ${inputRunnerName}"
         echo "[INFO] Current Repo: ${{ github.repository }}"
         echo "[INFO] Workflow Ref: ${{ github.workflow_ref }}"
 
@@ -100,6 +101,7 @@ runs:
             echo "[INFO] Runner required: self-hosted-dev"
         # Priority 3: Check repository specific logic
         elif [[ "${{ github.repository }}" == "partior-quorum/quorum" ]]; then
+            echo "[INFO] Quorum repo. Require custom: github-ubuntu-22.04 "
             runnersConfig='{"labels":"github-ubuntu-22.04"}'
         fi
 
