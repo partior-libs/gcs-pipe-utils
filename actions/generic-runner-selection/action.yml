@@ -97,7 +97,7 @@ runs:
         if [[ "${{ github.workflow_ref }}" == *".github/workflows/security-scans.yaml"* ]]; then
             echo "[INFO] Security scan detected. Selecting self-hosted runner."
         # Priority 2: Check repository specific logic
-        elif [[ "$inputRunnerName" == "self-hosted-dev" ]]; then
+        elif [[ "$inputRunnerName" == "self-hosted-dev" ]] && [[ "$runnersConfig" != "self-hosted-prod" ]]; then
             echo "[INFO] Runner required: self-hosted-dev"
         # Priority 3: Check repository specific logic
         elif [[ "${{ github.repository }}" == "partior-quorum/quorum" ]]; then
