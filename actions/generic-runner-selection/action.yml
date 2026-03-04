@@ -89,14 +89,16 @@ runs:
 
         # custom bypass
         echo "[INFO] Current Repo: ${{ github.repository }}"
-        echo "[INFO] Workflow: ${{ github.workflow }}"
         echo "[INFO] Workflow Ref: ${{ github.workflow_ref }}"
 
-        # Priority 1: Always use self-hosted if running the security scans workflow
+        # Priority 1: Always use self-hosted if running the security scans workflow and marked for self-hosted-dev
         # We use wildcards (*) because workflow_ref includes the repo and ref (branch/tag)
         if [[ "${{ github.workflow_ref }}" == *".github/workflows/security-scans.yaml"* ]]; then
             echo "[INFO] Security scan detected. Selecting self-hosted runner."
         # Priority 2: Check repository specific logic
+        elif [[ "$inputRunnerName" == "self-hosted-dev" ]]; then
+            echo "[INFO] Runner required: self-hosted-dev"
+        # Priority 3: Check repository specific logic
         elif [[ "${{ github.repository }}" == "partior-quorum/quorum" ]]; then
             runnersConfig='{"labels":"github-ubuntu-22.04"}'
         fi
