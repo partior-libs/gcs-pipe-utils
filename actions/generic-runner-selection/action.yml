@@ -92,7 +92,7 @@ runs:
         echo "[INFO] Current Repo: ${{ github.repository }}"
         echo "[INFO] Workflow Ref: ${{ github.workflow_ref }}"
 
-        Disable custom
+        
         # Priority 1: Always use self-hosted if running the security scans workflow and marked for self-hosted-dev
         # We use wildcards (*) because workflow_ref includes the repo and ref (branch/tag)
         if [[ "${{ github.workflow_ref }}" == *".github/workflows/security-scans.yaml"* ]]; then
