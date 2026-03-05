@@ -100,6 +100,9 @@ runs:
         # Priority 2: Check repository specific logic
         elif [[ "$inputRunnerName" == "self-hosted-dev" ]] && [[ "$runnersConfig" != "self-hosted-prod" ]]; then
             echo "[INFO] Runner required: self-hosted-dev"
+                # Priority 2: Check repository specific logic
+        elif [[ "$runnersConfig" == *"premium"* ]] && [[ "$runnersConfig" != "self-hosted-prod" ]]; then
+            echo "[INFO] Runner required: $runnersConfig"
         # Priority 3: Check repository specific logic
         elif [[ "${{ github.repository }}" == "partior-quorum/quorum" ]]; then
             echo "[INFO] Quorum repo. Require custom: github-ubuntu-22.04 "
