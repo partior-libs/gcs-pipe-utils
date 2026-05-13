@@ -89,6 +89,7 @@ runs:
 
         # custom bypass
         echo "[INFO] Input Runner Type: ${inputRunnerName}"
+        echo "[INFO] Input Runner Type: ${inputRunnerName}"
         echo "[INFO] Current Repo: ${{ github.repository }}"
         echo "[INFO] Workflow Ref: ${{ github.workflow_ref }}"
 
