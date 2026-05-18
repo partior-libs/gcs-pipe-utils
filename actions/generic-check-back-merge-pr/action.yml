@@ -1,0 +1,29 @@
+name: 'Partior - Check Back-Merge PR'
+description: 'Checks if the current workflow run was triggered by a pull_request event targeting the default branch with a [Back-merge] title.'
+
+# No inputs required - all information is derived from the GitHub event context
+
+# Define the outputs of the action
+outputs:
+  is-back-merge-pr:
+    description: "'true' if the triggering PR targets the default branch and its title contains '[Back-merge]' (case insensitive), 'false' otherwise."
+    value: ${{ steps.check-back-merge.outputs.is-back-merge-pr }}
+  trigger-event:
+    description: "The event name that triggered the workflow (e.g., 'pull_request', 'push')."
+    value: ${{ steps.check-back-merge.outputs.trigger-event }}
+  pr-target-branch:
+    description: "The target (base) branch of the triggering PR, if applicable."
+    value: ${{ steps.check-back-merge.outputs.pr-target-branch }}
+  pr-title:
+    description: "The title of the triggering PR, if applicable."
+    value: ${{ steps.check-back-merge.outputs.pr-title }}
+
+# Define how the action runs
+runs:
+  using: "composite"
+  steps:
+    - id: check-back-merge
+      run: ${{ github.action_path }}/../../scripts/generic-check-back-merge-pr.sh
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
