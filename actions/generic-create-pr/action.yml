@@ -21,6 +21,9 @@ outputs:
   pr-created:
     description: "Boolean to indicate if a new PR was created. 'true' if created, 'false' if not."
     value: ${{ steps.pr-handler.outputs.pr-created }}
+  is-back-merge:
+    description: "Boolean to indicate if the PR subject contains '[Back-merge]' (case insensitive). 'true' or 'false'."
+    value: ${{ steps.pr-handler.outputs.is-back-merge }}
 
 # Define how the action runs
 runs:

@@ -42,26 +42,34 @@ fi
 
 # --- 3. Check for Existing Open PR ---
 echo "Checking for existing open PR from '$SOURCE_BRANCH' to '$TARGET_BRANCH'..."
-# Use --limit to fetch up to 1000 PRs to handle pagination.
-# It's highly unlikely to have more than one open PR for the same head/base,
-# but this makes the check more robust.
-EXISTING_PR_URL=$(gh pr list \
+# Fetch both the URL and the Title of an existing PR to check for [Back-merge] flag later
+PR_DATA=$(gh pr list \
   --state open \
   --head "$SOURCE_BRANCH" \
   --base "$TARGET_BRANCH" \
-  --json url \
+  --json url,title \
   --limit 1000 \
-  --jq '.[0].url' \
+  --jq '.[0] | select(.!=null)' \
   || echo "")
+
+if [[ -n "$PR_DATA" ]]; then
+  EXISTING_PR_URL=$(echo "$PR_DATA" | jq -r '.url')
+  EXISTING_PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
+else
+  EXISTING_PR_URL=""
+  EXISTING_PR_TITLE=""
+fi
 
 # --- 4. Create PR or Use Existing ---
 PR_URL=""
 PR_CREATED="false"
+PR_TITLE_TO_CHECK=""
 
 if [[ -n "$EXISTING_PR_URL" ]]; then
   echo "Found existing PR: $EXISTING_PR_URL"
   PR_URL=$EXISTING_PR_URL
   PR_CREATED="false"
+  PR_TITLE_TO_CHECK="$EXISTING_PR_TITLE"
 else
   echo "No existing PR found. Attempting to create a new one..."
   
@@ -70,6 +78,7 @@ else
     PR_SUBJECT="[Back-merge] ${SOURCE_BRANCH} ⮕ ${TARGET_BRANCH}"
   fi
   echo "Using PR subject: '$PR_SUBJECT'"
+  PR_TITLE_TO_CHECK="$PR_SUBJECT"
 
   # Construct the PR body with a link to the GitHub Actions run and R&R
   WORKFLOW_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
@@ -110,6 +119,7 @@ A back-merge ensures that critical changes (like hotfixes) made on a separate ma
       echo "No new commits found between '$SOURCE_BRANCH' and '$TARGET_BRANCH'. No PR will be created."
       PR_URL=""
       PR_CREATED="false"
+      PR_TITLE_TO_CHECK="" # Reset since no PR exists
     else
       # It's a different, real error
       echo "::error::Failed to create pull request: $PR_CREATE_OUTPUT"
@@ -118,9 +128,20 @@ A back-merge ensures that critical changes (like hotfixes) made on a separate ma
   fi
 fi
 
-# --- 5. Set Outputs ---
+# --- 5. Determine if it is a Back-Merge ---
+IS_BACK_MERGE="false"
+if [[ -n "$PR_TITLE_TO_CHECK" ]]; then
+  # Use grep with -i for case-insensitive matching
+  if echo "$PR_TITLE_TO_CHECK" | grep -iq "\[back-merge\]"; then
+    IS_BACK_MERGE="true"
+  fi
+fi
+echo "PR title contains '[Back-merge]': $IS_BACK_MERGE"
+
+# --- 6. Set Outputs ---
 echo "Setting outputs..."
-echo "pr-url=$PR_URL" >> $GITHUB_OUTPUT
-echo "pr-created=$PR_CREATED" >> $GITHUB_OUTPUT
+echo "pr-url=$PR_URL" >> "$GITHUB_OUTPUT"
+echo "pr-created=$PR_CREATED" >> "$GITHUB_OUTPUT"
+echo "is-back-merge=$IS_BACK_MERGE" >> "$GITHUB_OUTPUT"
 
 echo "Action finished successfully."
