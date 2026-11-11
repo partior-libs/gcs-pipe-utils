@@ -1,1 +1,3 @@
 update-tag.sh
+__pycache__/
+*.pyc

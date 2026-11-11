@@ -1,0 +1,4 @@
+# Everything needed to develop and test the tool (the action installs only what it needs)
+-r requirements-core.txt
+-r requirements-ai.txt
+pytest
