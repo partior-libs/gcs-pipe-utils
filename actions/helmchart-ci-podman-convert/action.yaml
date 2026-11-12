@@ -1,0 +1,309 @@
+name: Podman Manifest Compiler (DPMC)
+description: >
+  Renders a Helm chart and compiles it into a rootless `podman kube play` manifest, with __TBU__
+  placeholder tracing, an optional Podman dry run and an optional AI review. The action never commits
+  anything: it writes files to `output_dir` and returns their paths as outputs.
+
+# Relative path inputs are resolved against `working_directory` (default: $GITHUB_WORKSPACE); absolute paths are used as-is.
+inputs:
+  working_directory:
+    description: Base folder for relative path inputs, relative to $GITHUB_WORKSPACE.
+    required: false
+    default: '.'
+  chart_path:
+    description: Path to the Helm chart folder (the folder containing Chart.yaml).
+    required: true
+  release_name:
+    description: Helm release name passed to `helm template`.
+    required: true
+  values_files:
+    description: Helm values file(s), separated by spaces, commas or newlines. `__TBU__` markers become `__TBU:<yaml.path>__`.
+    required: false
+    default: ''
+  secrets_files:
+    description: Secrets file(s) merged into the manifest, separated by spaces, commas or newlines.
+    required: false
+    default: ''
+  namespace:
+    description: >
+      Value `.Release.Namespace` renders as (`helm template --namespace`). Always passed, so the output does not
+      depend on the runner's kube context. metadata.namespace is stripped later, but the value can remain in
+      hostAliases or env vars.
+    required: false
+    default: default
+  config:
+    description: Chart-specific DPMC config override file(s), merged on top of the base config shipped with the action.
+    required: false
+    default: ''
+  output_dir:
+    description: Folder for the results.
+    required: false
+    default: podman-output
+  output_name:
+    description: File name of the compiled manifest inside output_dir.
+    required: false
+    default: podman-ready.yaml
+  helm_version:
+    description: Helm version to install ('' to use the Helm already on the runner).
+    required: false
+    default: latest
+  python_version:
+    description: Python version to set up ('' to use the Python already on the runner).
+    required: false
+    default: '3.12'
+  dry_run:
+    description: "Podman dry run (`podman kube play --start=false` + `podman kube down`): auto (run if podman is installed), true, false."
+    required: false
+    default: auto
+  ai_review:
+    description: Run the AI manifest review (true/false).
+    required: false
+    default: 'true'
+  ai_fail_on:
+    description: "Which AI verdict fails the step: blocking, warning, never."
+    required: false
+    default: blocking
+  ai_review_notes:
+    description: Optional chart-specific notes file added to the AI review prompt.
+    required: false
+    default: ''
+  ai_model:
+    description: Model used for the AI review.
+    required: false
+    default: gemini-3.5-flash
+  gcp_project:
+    description: Google Cloud project for Vertex AI.
+    required: false
+    default: prj-dev-devsecops01
+  gcp_location:
+    description: Vertex AI location.
+    required: false
+    default: asia-southeast1
+  gcp_workload_identity_provider:
+    description: >
+      Workload Identity provider for Vertex AI. If set (with gcp_service_account), the action authenticates itself;
+      if empty, it relies on credentials the caller already set up. The calling job needs `permissions: id-token: write`.
+    required: false
+    default: ''
+  gcp_service_account:
+    description: Service account for Vertex AI (used with gcp_workload_identity_provider).
+    required: false
+    default: ''
+
+outputs:
+  manifest:
+    description: Path to the compiled podman-ready manifest (placeholders kept).
+    value: ${{ steps.paths.outputs.manifest }}
+  validation_manifest:
+    description: Path to the copy with placeholders replaced by dummy values (used for the dry run).
+    value: ${{ steps.paths.outputs.validation_manifest }}
+  rendered_manifest:
+    description: Path to the `helm template` output (before compilation).
+    value: ${{ steps.paths.outputs.rendered_manifest }}
+  placeholder_paths:
+    description: Path to the list of __TBU__ placeholder paths.
+    value: ${{ steps.paths.outputs.placeholder_paths }}
+  report:
+    description: Path to the AI review report (when ai_review is true).
+    value: ${{ steps.paths.outputs.report }}
+  prompt:
+    description: Path to the exact AI review prompt (when ai_review is true).
+    value: ${{ steps.paths.outputs.prompt }}
+  verdict:
+    description: AI review verdict (PASS, WARNING, BLOCKING_ERROR, MISSING = no verdict line, ERROR = the review could not run), or empty if ai_review is false.
+    value: ${{ steps.ai-review.outputs.verdict }}
+  dry_run:
+    description: Whether the Podman dry run ran (true/false).
+    value: ${{ steps.dry-run.outputs.ran }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      if: inputs.python_version != ''
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python_version }}
+
+    - name: Set up Helm
+      if: inputs.helm_version != ''
+      uses: azure/setup-helm@v4
+      with:
+        version: ${{ inputs.helm_version }}
+
+    - name: Install DPMC dependencies
+      shell: bash
+      env:
+        TOOL_DIR: ${{ github.action_path }}/../../scripts/python/helmchart-ci-podman-convert
+        AI_REVIEW: ${{ inputs.ai_review }}
+      run: |
+        python3 -m pip install --quiet -r "$TOOL_DIR/requirements-core.txt"
+        if [ "$AI_REVIEW" = "true" ]; then
+          python3 -m pip install --quiet -r "$TOOL_DIR/requirements-ai.txt"
+        fi
+
+    - name: Resolve inputs and paths
+      id: paths
+      shell: bash
+      env:
+        WORKING_DIRECTORY: ${{ inputs.working_directory }}
+        CHART_PATH: ${{ inputs.chart_path }}
+        VALUES_INPUT: ${{ inputs.values_files }}
+        SECRETS_INPUT: ${{ inputs.secrets_files }}
+        CONFIG_INPUT: ${{ inputs.config }}
+        NOTES_INPUT: ${{ inputs.ai_review_notes }}
+        OUTPUT_DIR: ${{ inputs.output_dir }}
+        OUTPUT_NAME: ${{ inputs.output_name }}
+      run: |
+        set -euo pipefail
+        BASE=$(cd "$GITHUB_WORKSPACE" && cd "$WORKING_DIRECTORY" && pwd) \
+          || { echo "::error::working_directory '$WORKING_DIRECTORY' not found under the workspace"; exit 1; }
+        abs() { case "$1" in /*) printf '%s' "$1" ;; *) printf '%s' "$BASE/$1" ;; esac; }
+        split() { printf '%s' "$1" | tr ',\n' '  ' | xargs -n1 2>/dev/null || true; }
+
+        [ -f "$(abs "$CHART_PATH")/Chart.yaml" ] || { echo "::error::chart_path '$CHART_PATH' has no Chart.yaml"; exit 1; }
+        resolve_list() {  # $1 = input name, $2 = value -> newline-separated absolute paths
+          for f in $(split "$2"); do
+            [ -f "$(abs "$f")" ] || { echo "::error::$1: file '$f' not found" >&2; exit 1; }
+            abs "$f"; echo
+          done
+        }
+        VALUES=$(resolve_list values_files "$VALUES_INPUT")
+        SECRETS=$(resolve_list secrets_files "$SECRETS_INPUT")
+        CONFIGS=$(resolve_list config "$CONFIG_INPUT")
+        NOTES=""
+        if [ -n "$NOTES_INPUT" ]; then NOTES=$(resolve_list ai_review_notes "$NOTES_INPUT"); fi
+
+        DUPES=$(for f in $VALUES; do basename "$f"; done | sort | uniq -d)
+        [ -z "$DUPES" ] || { echo "::error::values files must have distinct file names: $DUPES"; exit 1; }
+
+        WORK="$RUNNER_TEMP/podman-compiler-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$RANDOM"
+        OUT=$(abs "$OUTPUT_DIR")
+        mkdir -p "$WORK/annotated" "$OUT"
+        {
+          echo "WORK_DIR=$WORK"
+          echo "CHART_ABS=$(abs "$CHART_PATH")"
+          echo "VALUES_FILES=$(echo $VALUES)"
+          echo "SECRETS_FILES=$(echo $SECRETS)"
+          echo "CONFIG_FILES=$(echo $CONFIGS)"
+          echo "NOTES_FILE=$NOTES"
+          echo "OUT_DIR=$OUT"
+        } >> "$GITHUB_ENV"
+        {
+          echo "manifest=$OUT/$OUTPUT_NAME"
+          echo "validation_manifest=$OUT/podman-validate.yaml"
+          echo "rendered_manifest=$OUT/combined-manifests.yaml"
+          echo "placeholder_paths=$OUT/placeholder-paths.txt"
+          echo "report=$OUT/ai-review-report.md"
+          echo "prompt=$OUT/ai-review-prompt.md"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Merge secrets files
+      shell: bash
+      run: |
+        set -euo pipefail
+        # Kept in the temporary work folder only; never copied to output_dir
+        : > "$WORK_DIR/combined-secrets.yaml"
+        for f in $SECRETS_FILES; do
+          echo "Appending secrets from '$f'"
+          cat "$f" >> "$WORK_DIR/combined-secrets.yaml"
+          echo -e "\n---" >> "$WORK_DIR/combined-secrets.yaml"
+        done
+
+    - name: Annotate __TBU__ placeholders
+      shell: bash
+      env:
+        TOOL_DIR: ${{ github.action_path }}/../../scripts/python/helmchart-ci-podman-convert
+      run: |
+        set -euo pipefail
+        python3 "$TOOL_DIR/placeholders.py" \
+          --values $VALUES_FILES \
+          --secrets "$WORK_DIR/combined-secrets.yaml" \
+          --out-dir "$WORK_DIR/annotated" \
+          --paths-file "$OUT_DIR/placeholder-paths.txt"
+
+    - name: Render Helm chart
+      shell: bash
+      env:
+        RELEASE_NAME: ${{ inputs.release_name }}
+        NAMESPACE: ${{ inputs.namespace }}
+      run: |
+        set -euo pipefail
+        ARGS=()
+        for f in $VALUES_FILES; do ARGS+=(-f "$WORK_DIR/annotated/$(basename "$f")"); done
+        # Always set: without --namespace, Helm uses the runner's kube context namespace
+        ARGS+=(--namespace "${NAMESPACE:-default}")
+        echo "Rendering '$CHART_ABS' as release '$RELEASE_NAME'"
+        helm template "$RELEASE_NAME" "$CHART_ABS" ${ARGS[@]+"${ARGS[@]}"} > "$OUT_DIR/combined-manifests.yaml"
+
+    - name: Compile to podman-ready manifest
+      shell: bash
+      env:
+        TOOL_DIR: ${{ github.action_path }}/../../scripts/python/helmchart-ci-podman-convert
+        MANIFEST: ${{ steps.paths.outputs.manifest }}
+        VALIDATION: ${{ steps.paths.outputs.validation_manifest }}
+      run: |
+        set -euo pipefail
+        CONFIG_ARGS=()
+        for f in $CONFIG_FILES; do CONFIG_ARGS+=(--config "$f"); done
+        python3 "$TOOL_DIR/dpmc.py" \
+          --manifest "$OUT_DIR/combined-manifests.yaml" \
+          --secrets "$WORK_DIR/annotated/combined-secrets.yaml" \
+          --placeholder-paths "$OUT_DIR/placeholder-paths.txt" \
+          --output "$MANIFEST" \
+          --validation-output "$VALIDATION" \
+          ${CONFIG_ARGS[@]+"${CONFIG_ARGS[@]}"}
+
+    - name: Podman dry run
+      id: dry-run
+      shell: bash
+      env:
+        DRY_RUN: ${{ inputs.dry_run }}
+        VALIDATION: ${{ steps.paths.outputs.validation_manifest }}
+      run: |
+        set -euo pipefail
+        echo "ran=false" >> "$GITHUB_OUTPUT"
+        case "$DRY_RUN" in
+          false) echo "Dry run disabled"; exit 0 ;;
+          auto)  command -v podman >/dev/null || { echo "::notice::podman not installed on this runner; dry run skipped"; exit 0; } ;;
+          true)  command -v podman >/dev/null || { echo "::error::dry_run=true but podman is not installed"; exit 1; } ;;
+          *)     echo "::error::dry_run must be auto, true or false"; exit 1 ;;
+        esac
+        echo "ran=true" >> "$GITHUB_OUTPUT"
+        # Uses the copy with __TBU:...__ placeholders replaced by dummy values; nothing is started.
+        status=0
+        podman kube play --start=false "$VALIDATION" || status=$?
+        podman kube down "$VALIDATION" || echo "::warning::podman kube down failed; the runner may keep dry-run leftovers"
+        exit $status
+
+    - name: Authenticate to Google Cloud
+      if: inputs.ai_review == 'true' && inputs.gcp_workload_identity_provider != ''
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ inputs.gcp_workload_identity_provider }}
+        service_account: ${{ inputs.gcp_service_account }}
+
+    - name: AI manifest review
+      id: ai-review
+      if: inputs.ai_review == 'true'
+      shell: bash
+      env:
+        TOOL_DIR: ${{ github.action_path }}/../../scripts/python/helmchart-ci-podman-convert
+        MANIFEST: ${{ steps.paths.outputs.manifest }}
+        REPORT: ${{ steps.paths.outputs.report }}
+        PROMPT: ${{ steps.paths.outputs.prompt }}
+        FAIL_ON: ${{ inputs.ai_fail_on }}
+        ANTIGRAVITY_USE_VERTEX: 'true'
+        ANTIGRAVITY_MODEL: ${{ inputs.ai_model }}
+        GOOGLE_CLOUD_PROJECT: ${{ inputs.gcp_project }}
+        GOOGLE_CLOUD_LOCATION: ${{ inputs.gcp_location }}
+      run: |
+        set -euo pipefail
+        NOTES_ARGS=()
+        if [ -n "$NOTES_FILE" ]; then NOTES_ARGS=(--review-notes "$NOTES_FILE"); fi
+        python3 "$TOOL_DIR/dpmc_reviewer.py" \
+          --manifest "$MANIFEST" \
+          --report "$REPORT" \
+          --prompt-out "$PROMPT" \
+          --fail-on "$FAIL_ON" \
+          ${NOTES_ARGS[@]+"${NOTES_ARGS[@]}"}

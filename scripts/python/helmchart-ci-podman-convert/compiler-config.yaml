@@ -1,0 +1,59 @@
+# DPMC Compiler Configuration - BASE (generic; shipped with the tool)
+#
+# Every chart starts from this file. Chart-specific settings go in a separate override file passed
+# with `dpmc.py --config <override.yaml>` (repeatable). Overrides are merged on top of this file:
+# mappings merge key by key; lists and plain values are replaced. Keep chart-specific values out of here.
+
+# 1. Network Settings
+network:
+  name: "shared-poc-net"
+  gateway_ip: "10.88.0.1"      # Default bridge network gateway IP for DNS resolution
+
+# 2. Storage & Volume Mapping Settings
+storage:
+  # Mode options:
+  # - "local_volume": Let Podman manage volume lifecycles natively (creates standard named volumes)
+  # - "host_path": Map all PVC storage directly to specific folders on the host VM
+  mode: "host_path"
+  
+  # Directory on the host VM where folders will be created/mapped for each PVC
+  # Only used when mode is "host_path"
+  host_root_dir: "/home/user/podman-storage"
+
+  # Writable volumes (hostPath, PVC, emptyDir) mounted under /etc are moved under this prefix
+  # (Limitation ID 14), and every reference to the old path in the pod's command/args/env and in
+  # ConfigMaps only it uses is rewritten. Secret/configMap mounts under /etc stay where they are.
+  # Set to "" to disable.
+  etc_mount_prefix: "/mnt/etc"
+
+  # Root directory for staging nested/overlapping volume mounts (Limitation ID 13).
+  # Each nested volume is mounted whole at <shadow_mount_prefix>/<volume> and symlinked into place
+  # at container start. Must not be inside any container mount (e.g. not under /tmp if /tmp is a volume).
+  shadow_mount_prefix: "/dpmc-staging"
+
+# 3. Resource Whitelist Settings
+manifests:
+  allowed_kinds:
+    - "Pod"
+    - "Deployment"
+    - "Service"
+    - "ConfigMap"
+    - "Secret"
+    - "PersistentVolumeClaim"
+
+# 4. Reordering / Sequence Settings
+sorting:
+  # App sequence defines the start priority for high-level components based on name/label patterns.
+  # Lower index means it starts first. Chart-specific: set it in the chart's override file.
+  app_sequence: []
+
+  # Kind sequence defines the order of resource types within each app component.
+  # Lower index means it starts first.
+  kind_sequence:
+    - "Secret"
+    - "ConfigMap"
+    - "PersistentVolumeClaim"
+    - "Service"
+    - "Deployment"
+    - "Pod"
+

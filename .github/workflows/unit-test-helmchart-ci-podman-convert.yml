@@ -1,0 +1,32 @@
+name: test-helmchart-ci-podman-convert
+
+on:
+  push:
+    paths:
+      - 'actions/helmchart-ci-podman-convert/**'
+      - 'scripts/python/helmchart-ci-podman-convert/**'
+      - '.github/workflows/unit-test-helmchart-ci-podman-convert.yml'
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: DPMC Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: scripts/python/helmchart-ci-podman-convert
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The tests need only the core dependencies; the AI reviewer imports its SDK lazily.
+      - name: Run DPMC unit tests
+        run: |
+          python -m pip install --quiet -r requirements-core.txt pytest
+          PYTHONPATH=. pytest tests
